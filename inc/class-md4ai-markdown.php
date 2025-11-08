@@ -25,12 +25,9 @@ class md4AI_Markdown {
 		// Check if custom markdown exists
 		$custom_markdown = get_post_meta($post->ID, $this->meta_key, true);
 
-		if (!empty($custom_markdown)) {
-			return $custom_markdown;
-		}
-
 		// Generate from post content
 		return $this->convert_post_to_markdown($post, [
+			'content' => $custom_markdown,
 			'include_navigation' => true,
 			'include_categories' => true,
 			'include_tags' => true,
@@ -43,6 +40,7 @@ class md4AI_Markdown {
 	 */
 	public function convert_post_to_markdown($post, $args = []) {
 		$args = wp_parse_args($args, [
+			'content' => false,
 			'include_navigation' => false,
 			'include_categories' => false,
 			'include_tags' => false,
@@ -52,10 +50,10 @@ class md4AI_Markdown {
 		/* Filter the post */
 		$post = apply_filters('md4ai_post', $post);
 
-		$output = '';
+		$output = "";
 
 		// Get header/footer data (cached)
-		if ($args['include_navigation']) {
+		if ($args['include_navigation'] === true) {
 			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
 
 			// Add header navigation
@@ -65,9 +63,8 @@ class md4AI_Markdown {
 			}
 		}
 
-		$meta = get_post_meta($post->ID, $this->meta_key, true);
-		if (!empty($meta)) {
-			$output .= $meta;
+		if (!empty($args['content'])) {
+			$output .= $args['content'];
 		} else {
 			// Title
 			$output .= '# ' . esc_html($post->post_title) . "\n\n";
