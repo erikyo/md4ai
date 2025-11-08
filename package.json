@@ -4,6 +4,13 @@
 	"license": "GPL-2.0-only",
 	"version": "1.0.0",
 	"description": "AntiSpam for Contact Form 7",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikyo/md4ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/erikyo/md4ai/issues"
+  },
 	"files": [
     "build/*",
     "inc/*",
@@ -21,20 +28,12 @@
 		"wp-env:xdebug": "wp-env start --xdebug",
 		"wp-env:stop": "wp-env stop",
 		"wp-env:destroy": "wp-env destroy",
-		"test:e2e": "wp-scripts test-playwright",
-		"test:e2e:watch": "npm run test:playwright --watch",
 		"makepot": "npx make-pot"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/erikyo/md4ai.git"
-	},
-	"bugs": {
-		"url": "https://github.com/erikyo/md4ai/issues"
 	},
 	"homepage": "https://github.com/erikyo/md4ai#readme",
 	"devDependencies": {
-		"@wordpress/env": "10.26.0",
+		"@wordpress/env": "^10.34.0",
+    "@wordpress/i18n": "^6.7.0",
 		"@wordpress/scripts": "^30.27.0",
 		"@wp-blocks/make-pot": "^1.6.3"
 	}
