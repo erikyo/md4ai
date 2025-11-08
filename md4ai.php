@@ -12,8 +12,35 @@
 if (!defined('ABSPATH')) {
 	exit;
 }
-
-require_once plugin_dir_path(__FILE__) . 'inc/main.php';
+// Include the class files
+require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-core.php';
+require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-admin.php';
+require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-cache.php';
+require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-markdown.php';
+require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-restapi.php';
 
 // run the plugin
-new md4AI();
+function md4ai_init() {
+	new md4AI_Core();
+}
+add_action('plugins_loaded', 'md4ai_init');
+
+/**
+ * Uninstall md4AI plugin
+ *
+ * This function is called when the plugin is uninstalled.
+ * It clears all cache files and deletes all post meta data
+ * with the key 'ai_md_custom_markdown'.
+ *
+ * @since 1.0.0
+ */
+function md4ai_uninstall() {
+	$cache = new md4AI_Cache;
+	$cache->clear_all_cache();
+
+	// delete all the post meta data
+	global $wpdb;
+	$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'ai_md_custom_markdown'");
+}
+
+register_uninstall_hook(__FILE__, 'md4ai_uninstall');
