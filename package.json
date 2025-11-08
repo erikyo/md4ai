@@ -6,6 +6,7 @@
 	"description": "AntiSpam for Contact Form 7",
 	"files": [
     "build/*",
+    "inc/*",
 		"md4ai.php",
     "readme.txt"
 	],
