@@ -40,7 +40,7 @@ function md4ai_uninstall() {
 
 	// delete all the post meta data
 	global $wpdb;
-	$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key = 'ai_md_custom_markdown'");
+	$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE meta_key = 'ai_md_custom_markdown'", $wpdb->postmeta ) );
 }
 
 register_uninstall_hook(__FILE__, 'md4ai_uninstall');
