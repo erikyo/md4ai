@@ -31,7 +31,7 @@ class md4AI_Markdown {
 		]);
 
 		// Check if custom markdown exists
-		$args['custom_markdown'] = get_post_meta($post->ID, $this->meta_key, true);
+		$args['content'] = get_post_meta($post->ID, $this->meta_key, true);
 
 		// Generate from post content
 		return $this->convert_post_to_markdown($post, $args);
