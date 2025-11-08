@@ -22,17 +22,19 @@ class md4AI_Markdown {
 	 * Gets markdown for a post - checks custom meta first, then generates
 	 */
 	public function get_post_markdown($post) {
-		// Check if custom markdown exists
-		$custom_markdown = get_post_meta($post->ID, $this->meta_key, true);
-
-		// Generate from post content
-		return $this->convert_post_to_markdown($post, [
-			'content' => $custom_markdown,
+		// Get default args
+		$args = apply_filters('md4ai-post-args', [
 			'include_navigation' => true,
 			'include_categories' => true,
 			'include_tags' => true,
 			'include_footer' => true
 		]);
+
+		// Check if custom markdown exists
+		$args['custom_markdown'] = get_post_meta($post->ID, $this->meta_key, true);
+
+		// Generate from post content
+		return $this->convert_post_to_markdown($post, $args);
 	}
 
 	/**
