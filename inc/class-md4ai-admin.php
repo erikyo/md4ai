@@ -14,6 +14,11 @@ class md4AI_Admin {
 	 */
 	private $markdown;
 
+	/**
+	 * Option name for llms.txt content
+	 */
+	private $llms_txt_option = 'md4ai_llms_txt_content';
+
 	public function __construct($cache, $markdown) {
 		$this->cache = $cache;
 		$this->markdown = $markdown;
@@ -40,6 +45,15 @@ class md4AI_Admin {
 				'ai_md_metabox',
 				__('AI Bot Markdown Content', 'md4ai'),
 				[$this, 'render_markdown_metabox'],
+				$post_type,
+				'normal',
+				'low'
+			);
+
+			add_meta_box(
+				'ai_llmstxt_metabox',
+				__('llms.txt Content', 'md4ai'),
+				[$this, 'render_llmstxt_metabox'],
 				$post_type,
 				'normal',
 				'low'
@@ -96,6 +110,51 @@ class md4AI_Admin {
 	}
 
 	/**
+	 * Renders the llms.txt metabox
+	 */
+	public function render_llmstxt_metabox($post) {
+		// Only show on first post type to avoid confusion
+		global $post_type;
+		$first_public_type = array_values(get_post_types(['public' => true], 'names'))[0];
+
+		if ($post_type !== $first_public_type) {
+			?>
+			<p class="description">
+				<?php esc_html_e('The llms.txt file is a site-wide setting. Edit it from the md4AI Cache admin page or from any ' . $first_public_type . ' post.', 'md4ai'); ?>
+			</p>
+			<?php
+			return;
+		}
+
+		wp_nonce_field('ai_llmstxt_metabox', 'ai_llmstxt_metabox_nonce');
+
+		$llms_content = get_option($this->llms_txt_option, '');
+
+		?>
+		<div id="md4ai-llmstxt-metabox">
+			<p class="description">
+				<?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers. Use this to provide structured information about your site.', 'md4ai'); ?>
+			</p>
+
+			<p>
+				<textarea
+					name="ai_md_llmstxt_content"
+					id="md4ai-llmstxt-textarea"
+					rows="20"
+					style="width: 100%; font-family: monospace; font-size: 13px;"
+					placeholder="<?php esc_attr_e('# llms.txt\n\nAdd your structured content here...', 'md4ai'); ?>"
+				><?php echo esc_textarea($llms_content); ?></textarea>
+			</p>
+
+			<p class="description">
+				<strong><?php esc_html_e('Note:', 'md4ai'); ?></strong>
+				<?php esc_html_e('This is a site-wide setting and will be saved regardless of which post you are editing.', 'md4ai'); ?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Saves the markdown metabox data
 	 */
 	public function save_markdown_metabox($post_id) {
@@ -132,6 +191,32 @@ class md4AI_Admin {
 			// Clear cache when custom markdown is updated
 			$this->cache->clear_post_cache($post_id);
 		}
+
+		// Save llms.txt content (site-wide option)
+		if (isset($_POST['ai_llmstxt_metabox_nonce']) &&
+			wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['ai_llmstxt_metabox_nonce'])), 'ai_llmstxt_metabox') &&
+			isset($_POST['ai_md_llmstxt_content'])) {
+
+			if (!current_user_can('manage_options')) {
+				return;
+			}
+
+			$llms_content = sanitize_textarea_field(
+			/* phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash */
+				$_POST['ai_md_llmstxt_content']
+			);
+
+			update_option($this->llms_txt_option, $llms_content);
+		}
+	}
+
+	/**
+	 * Gets the llms.txt content
+	 *
+	 * @return string The llms.txt content
+	 */
+	public function get_llms_txt_content() {
+		return get_option($this->llms_txt_option, '');
 	}
 
 	/**
@@ -189,8 +274,18 @@ class md4AI_Admin {
 			echo '<div class="notice notice-success"><p>Cache cleared successfully!</p></div>';
 		}
 
+		// Handle llms.txt update
+		if (isset($_POST['update_llmstxt']) && check_admin_referer('ai_md_update_llmstxt')) {
+			if (isset($_POST['llmstxt_content'])) {
+				$llms_content = sanitize_textarea_field(wp_unslash($_POST['llmstxt_content']));
+				update_option($this->llms_txt_option, $llms_content);
+				echo '<div class="notice notice-success"><p>llms.txt updated successfully!</p></div>';
+			}
+		}
+
 		// Get cache statistics
 		$stats = $this->cache->get_statistics();
+		$llms_content = get_option($this->llms_txt_option, '');
 
 		?>
 		<div class="wrap">
@@ -209,8 +304,28 @@ class md4AI_Admin {
 				<form method="post">
 					<?php wp_nonce_field('ai_md_clear_cache'); ?>
 					<input type="submit" name="clear_cache" class="button button-primary"
-					       value="<?php esc_attr_e('Clear All Cache', 'md4ai'); ?>"
-					       onclick="return confirm('<?php esc_html_e('Are you sure you want to clear all cached files?', 'md4ai'); ?>');">
+						   value="<?php esc_attr_e('Clear All Cache', 'md4ai'); ?>"
+						   onclick="return confirm('<?php esc_html_e('Are you sure you want to clear all cached files?', 'md4ai'); ?>');">
+				</form>
+			</div>
+
+			<div class="card">
+				<h2><?php esc_html_e('llms.txt Content', 'md4ai'); ?></h2>
+				<p><?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers.', 'md4ai'); ?></p>
+				<form method="post">
+					<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
+					<p>
+						<textarea
+							name="llmstxt_content"
+							rows="20"
+							style="width: 100%; font-family: monospace; font-size: 13px;"
+							placeholder="<?php esc_attr_e('# llms.txt\n\nAdd your structured content here...', 'md4ai'); ?>"
+						><?php echo esc_textarea($llms_content); ?></textarea>
+					</p>
+					<p>
+						<input type="submit" name="update_llmstxt" class="button button-primary"
+							   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
+					</p>
 				</form>
 			</div>
 		</div>
