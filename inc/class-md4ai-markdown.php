@@ -37,6 +37,56 @@ class md4AI_Markdown {
 		return $this->convert_post_to_markdown($post, $args);
 	}
 
+	public function generate_website_links($args, $post = false) {
+		$output = "";
+
+		// Categories and tags
+		if ($post && $args['include_categories']) {
+			$categories = get_the_category($post->ID);
+			if (!empty($categories)) {
+				$output .= "---\n\n";
+				$output .= "## Categories\n\n";
+				foreach ($categories as $cat) {
+					$output .= '- ' . esc_html($cat->name) . "\n";
+				}
+				$output .= "\n";
+			}
+		}
+
+		// Get header/footer data (cached)
+		if ($args['include_navigation'] === true) {
+			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
+
+			// Add header navigation
+			if (!empty($nav_data['header'])) {
+				$output .= "---\n\n";
+				$output .= $this->format_navigation_markdown($nav_data['header'], 'Navigation');
+			}
+		}
+
+		if ($post && $args['include_tags']) {
+			$tags = get_the_tags($post->ID);
+			if (!empty($tags)) {
+				$output .= "## Tags\n\n";
+				foreach ($tags as $tag) {
+					$output .= '- ' . esc_html($tag->name) . "\n";
+				}
+				$output .= "\n";
+			}
+		}
+
+		// Add footer navigation
+		if ($args['include_footer']) {
+			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
+			if (!empty($nav_data['footer'])) {
+				$output .= "---\n\n";
+				$output .= $this->format_navigation_markdown($nav_data['footer'], 'Footer Links');
+			}
+		}
+
+		return $output;
+	}
+
 	/**
 	 * Converts a WordPress post to Markdown
 	 */
@@ -54,19 +104,8 @@ class md4AI_Markdown {
 
 		$output = "";
 
-		// Get header/footer data (cached)
-		if ($args['include_navigation'] === true) {
-			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
-
-			// Add header navigation
-			if (!empty($nav_data['header'])) {
-				$output .= $this->format_navigation_markdown($nav_data['header'], 'Site Navigation');
-				$output .= "---\n\n";
-			}
-		}
-
 		if (!empty($args['content'])) {
-			$output .= $args['content'];
+			$output .= $args['content'] . "\n\n";
 		} else {
 			// Title
 			$output .= '# ' . esc_html($post->post_title) . "\n\n";
