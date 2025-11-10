@@ -142,7 +142,7 @@ class md4AI_Admin {
 					id="md4ai-llmstxt-textarea"
 					rows="20"
 					style="width: 100%; font-family: monospace; font-size: 13px;"
-					placeholder="<?php esc_attr_e('# llms.txt\n\nAdd your structured content here...', 'md4ai'); ?>"
+					placeholder="<?php esc_attr_e('You can override the default page content displayed to AI bots here.', 'md4ai'); ?>"
 				><?php echo esc_textarea($llms_content); ?></textarea>
 			</p>
 
@@ -342,9 +342,9 @@ class md4AI_Admin {
 	public function add_admin_menu() {
 		add_management_page(
 			'AI Markdown Cache',
-			'md4AI Cache',
+			'md4AI',
 			'manage_options',
-			'md4ai-cache',
+			'md4ai',
 			[$this, 'render_admin_page']
 		);
 	}
@@ -377,6 +377,38 @@ class md4AI_Admin {
 			<h1><?php esc_html_e('md4AI', 'md4ai'); ?></h1>
 
 			<div class="card">
+				<h2><?php esc_html_e('llms.txt Content', 'md4ai'); ?></h2>
+				<p><?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers. Leave empty to use default.', 'md4ai'); ?></p>
+				<form method="post">
+					<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
+					<p>
+						<textarea
+							name="llmstxt_content"
+							rows="20"
+							style="width: 100%; font-family: monospace; font-size: 13px;"
+							placeholder="<?php esc_attr_e('## Title
+
+> Optional description goes here
+
+Optional details go here
+
+## Section name
+
+- [Link title](https://link_url): Optional link details
+
+## Optional
+
+- [Link title](https://link_url)', 'md4ai'); ?>"
+						><?php echo esc_textarea($llms_content); ?></textarea>
+					</p>
+					<p>
+						<input type="submit" name="update_llmstxt" class="button button-primary"
+							   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
+					</p>
+				</form>
+			</div>
+
+			<div class="card">
 				<h2><?php esc_html_e('Cache Statistics', 'md4ai'); ?></h2>
 				<p><strong><?php esc_html_e('Cached Files:', 'md4ai'); ?></strong> <?php echo esc_html($stats['file_count']); ?></p>
 				<p><strong><?php esc_html_e('Total Size:', 'md4ai'); ?></strong> <?php echo esc_html($stats['total_size_mb']); ?> MB</p>
@@ -391,26 +423,6 @@ class md4AI_Admin {
 					<input type="submit" name="clear_cache" class="button button-primary"
 						   value="<?php esc_attr_e('Clear All Cache', 'md4ai'); ?>"
 						   onclick="return confirm('<?php esc_html_e('Are you sure you want to clear all cached files?', 'md4ai'); ?>');">
-				</form>
-			</div>
-
-			<div class="card">
-				<h2><?php esc_html_e('llms.txt Content', 'md4ai'); ?></h2>
-				<p><?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers.', 'md4ai'); ?></p>
-				<form method="post">
-					<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
-					<p>
-						<textarea
-							name="llmstxt_content"
-							rows="20"
-							style="width: 100%; font-family: monospace; font-size: 13px;"
-							placeholder="<?php esc_attr_e('# llms.txt\n\nAdd your structured content here...', 'md4ai'); ?>"
-						><?php echo esc_textarea($llms_content); ?></textarea>
-					</p>
-					<p>
-						<input type="submit" name="update_llmstxt" class="button button-primary"
-							   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
-					</p>
 				</form>
 			</div>
 		</div>
