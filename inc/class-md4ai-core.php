@@ -110,7 +110,7 @@ class md4AI_Core {
 
 		// If no content is set, provide a default message
 		if (empty($llms_content)) {
-			$llms_content = "# llms.txt\n\n# No content configured yet.\n# Configure this in WordPress Admin > Tools > md4AI Cache";
+			$llms_content = $this->admin->generate_default_llmstxt();
 		}
 
 		// Set appropriate headers
