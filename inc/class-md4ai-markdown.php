@@ -83,37 +83,7 @@ class md4AI_Markdown {
 			$output .= $content . "\n\n";
 		}
 
-		// Categories and tags
-		if ($args['include_categories']) {
-			$categories = get_the_category($post->ID);
-			if (!empty($categories)) {
-				$output .= "## Categories\n\n";
-				foreach ($categories as $cat) {
-					$output .= '- ' . esc_html($cat->name) . "\n";
-				}
-				$output .= "\n";
-			}
-		}
-
-		if ($args['include_tags']) {
-			$tags = get_the_tags($post->ID);
-			if (!empty($tags)) {
-				$output .= "## Tags\n\n";
-				foreach ($tags as $tag) {
-					$output .= '- ' . esc_html($tag->name) . "\n";
-				}
-				$output .= "\n";
-			}
-		}
-
-		// Add footer navigation
-		if ($args['include_footer']) {
-			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
-			if (!empty($nav_data['footer'])) {
-				$output .= "---\n\n";
-				$output .= $this->format_navigation_markdown($nav_data['footer'], 'Footer Links');
-			}
-		}
+		$output .= $this->generate_website_links($args, $post);
 
 		return $output;
 	}
