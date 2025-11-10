@@ -220,6 +220,91 @@ class md4AI_Admin {
 	}
 
 	/**
+	 * Generates default llms.txt content using WordPress site data
+	 *
+	 * @return string Default llms.txt content
+	 */
+	public function generate_default_llmstxt() {
+		$site_title = get_bloginfo('name');
+		$site_description = get_bloginfo('description');
+		$site_url = home_url();
+		$admin_email = get_bloginfo('admin_email');
+
+		// Get recent posts
+		$recent_posts = get_posts([
+			'numberposts' => 5,
+			'post_status' => 'publish'
+		]);
+
+		// Build the default content
+		$content = "# {$site_title}\n";
+
+		if (!empty($site_description)) {
+			$content .= "> {$site_description}\n\n";
+		}
+
+		$content .= "This file provides structured information about {$site_title} for AI bots and LLM crawlers.\n\n";
+
+		// Add site information section
+		$content .= "## Site Information\n";
+		$content .= "- **Website**: [{$site_title}]({$site_url})\n";
+
+		if (!empty($site_description)) {
+			$content .= "- **Description**: {$site_description}\n";
+		}
+
+		$content .= "- **Contact**: {$admin_email}\n\n";
+
+		// Add recent content section
+		if (!empty($recent_posts)) {
+			$content .= "## Recent Content\n";
+			foreach ($recent_posts as $post) {
+				$post_url = get_permalink($post->ID);
+				$post_title = esc_html($post->post_title);
+				$post_excerpt = wp_trim_words(strip_tags($post->post_excerpt ?: $post->post_content), 20);
+
+				$content .= "- [{$post_title}]({$post_url})";
+				if (!empty($post_excerpt)) {
+					$content .= ": {$post_excerpt}";
+				}
+				$content .= "\n";
+			}
+			$content .= "\n";
+		}
+
+		// Add navigation/pages section if there are published pages
+		$pages = get_pages([
+			'post_status' => 'publish',
+			'number' => 10,
+			'sort_column' => 'menu_order'
+		]);
+
+		if (!empty($pages)) {
+			$content .= "## Main Pages\n";
+			foreach ($pages as $page) {
+				$page_url = get_permalink($page->ID);
+				$page_title = esc_html($page->post_title);
+				$content .= "- [{$page_title}]({$page_url})\n";
+			}
+			$content .= "\n";
+		}
+
+		// Add navigation sections if there are any
+		$content .= $this->markdown->generate_website_links([
+			'include_categories' => false,
+			'include_navigation' => true,
+			'include_tags' => false,
+			'include_footer' => true,
+		]);
+
+		// Add footer note
+		$content .= "---\n\n## Additional Information\n";
+		$content .= "For more information about our content and structure, please explore the links above or visit our homepage at {$site_url}.\n";
+
+		return $content;
+	}
+
+	/**
 	 * Enqueues admin scripts
 	 */
 	public function enqueue_admin_scripts($hook) {
