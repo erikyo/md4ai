@@ -18,6 +18,19 @@ class md4AI_Admin {
 	 * Option name for llms.txt content
 	 */
 	private $llms_txt_option = 'md4ai_llms_txt_content';
+	private $llms_txt_placeholder = '## Title
+
+> Optional description goes here
+
+Optional details go here
+
+## Section name
+
+- [Link title](https://link_url): Optional link details
+
+## Optional
+
+- [Link title](https://link_url)';
 
 	public function __construct($cache, $markdown) {
 		$this->cache = $cache;
@@ -29,12 +42,56 @@ class md4AI_Admin {
 
 		// Enqueue admin scripts
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-		if ( function_exists( 'ai_services' ) ) {
+		if ( $this->is_ai_service_enabled() ) {
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_services' ]);
 		}
 
 		// Add the admin menu for cache management
 		add_action('admin_menu', [$this, 'add_admin_menu']);
+	}
+
+	/**
+	 * Checks if the AI services are enabled
+	 *
+	 * @return bool Whether the AI services are enabled
+	 */
+	private function is_ai_service_enabled(): bool {
+		if ( function_exists( 'ai_services' ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	private function render_card_llms_txt() {
+		$llms_content = get_option($this->llms_txt_option, '');
+		?>
+		<div class="card">
+			<h2><?php esc_html_e('llms.txt Content', 'md4ai'); ?></h2>
+			<p><?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers. Leave empty to use default.', 'md4ai'); ?></p>
+			<form method="post">
+				<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
+				<p>
+					<label for="llmstxt_content"><?php esc_html_e('llms.txt Content', 'md4ai'); ?></label>
+					<textarea
+						id="llmstxt_content"
+						name="llmstxt_content"
+						rows="20"
+						style="width: 100%; font-family: monospace; font-size: 13px;"
+						placeholder="<?php echo $this->llms_txt_placeholder; ?>"
+					><?php echo esc_textarea($llms_content); ?></textarea>
+					<?php
+					// display the generate buttons
+					echo $this->display_llmstxt_buttons('llmstxt_content');
+					// display the clean button
+					printf( '<button type="button" class="button md4ai-clear" data-field="%s">%s</button>', 'llmstxt_content', esc_html__('Clear llms.txt', 'md4ai'));
+					?>
+					<input type="submit" name="update_llmstxt" class="button button-primary" data-field="llmstxt_content"
+						   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
+				</p>
+				<span id="md4ai-status" style="margin-left: 10px;"></span>
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
@@ -53,57 +110,6 @@ class md4AI_Admin {
 				'low'
 			);
 		}
-	}
-
-	/**
-	 * Renders the markdown metabox
-	 */
-	public function render_markdown_metabox($post) {
-		wp_nonce_field('ai_md_metabox', 'ai_md_metabox_nonce');
-
-		$meta_key = $this->markdown->get_meta_key();
-		$custom_markdown = get_post_meta($post->ID, $meta_key, true);
-		$has_custom = !empty($custom_markdown);
-
-		?>
-		<div id="md4ai-metabox">
-			<p class="description">
-				<?php esc_html_e('Customize the Markdown content that will be served to AI bots. Leave empty to auto-generate from post content.', 'md4ai'); ?>
-			</p>
-
-			<p>
-				<button type="button" id="md4ai-generate" class="button" data-field="md4ai-textarea">
-					<?php esc_html_e('Generate from Current Content', 'md4ai'); ?>
-				</button>
-				<button type="button" id="md4ai-generate" class="button" data-field="md4ai-textarea">
-					<?php esc_html_e('Generate from Current Content using AI', 'md4ai'); ?>
-				</button>
-				<?php if ($has_custom): ?>
-					<button type="button" id="md4ai-clear" class="button" data-field="md4ai-textarea">
-						<?php esc_html_e('Clear Custom Markdown', 'md4ai'); ?>
-					</button>
-				<?php endif; ?>
-				<span id="md4ai-status" style="margin-left: 10px;"></span>
-			</p>
-
-			<p>
-				<textarea
-					name="ai_md_custom_markdown"
-					id="md4ai-textarea"
-					rows="20"
-					style="width: 100%; font-family: monospace; font-size: 13px;"
-					placeholder="<?php esc_attr_e('Custom markdown will appear here...', 'md4ai'); ?>"
-				><?php echo esc_textarea($custom_markdown); ?></textarea>
-			</p>
-
-			<?php if ($has_custom): ?>
-				<p class="description" style="color: #d63638;">
-					<strong><?php esc_html_e('Note:', 'md4ai'); ?></strong>
-					<?php esc_html_e('Custom markdown is active. AI bots will see this content instead of the auto-generated version.', 'md4ai'); ?>
-				</p>
-			<?php endif; ?>
-		</div>
-		<?php
 	}
 
 	/**
@@ -158,7 +164,8 @@ class md4AI_Admin {
 	 * Enqueues admin scripts
 	 */
 	public function enqueue_admin_scripts($hook) {
-		if (!in_array($hook, ['post.php', 'post-new.php'])) {
+		// check if the current script is loaded in the admin area or in the md4ai admin page
+		if (!in_array($hook, ['post.php', 'post-new.php'] ) && get_current_screen()->base !== 'tools_page_md4ai') {
 			return;
 		}
 
@@ -174,8 +181,8 @@ class md4AI_Admin {
 		$rest_namespace = 'md4ai/v1'; // This should ideally be passed from the RestAPI class
 
 		wp_localize_script('md4ai-admin', 'aiMdData', [
-			'restUrl' => rest_url($rest_namespace . '/generate-markdown/'),
-			'nonce' => wp_create_nonce('wp_rest'),
+			'restUrl' => rest_url($rest_namespace ),
+			'nonce' => wp_create_nonce('wp_rest' ),
 			'postId' => get_the_ID(),
 			'messages' => [
 				'generating' => __('Generating...', 'md4ai'),
@@ -209,17 +216,59 @@ class md4AI_Admin {
 	public function add_admin_menu() {
 		add_management_page(
 			'AI Markdown Cache',
-			'md4AI',
+			'Md4AI',
 			'manage_options',
-			'Md4ai',
+			'md4ai',
 			[$this, 'render_admin_page']
 		);
 	}
 
-	public function display_llmstxt_buttons($field) {
-		$data_field = sprintf( 'data-field="%s"', $field );
-		echo '<button type="button" class="button button-primary" id="md4ai generate_llmstxt" ' . $data_field . '>Generate llms.txt</button>';
-		echo '<button type="button" class="button button-primary button-primary-ai" id="md4ai ai_generate_llmstxt" ' . $data_field . '>Generate llms.txt using AI</button>';
+	/**
+	 * Displays buttons for generating llms.txt content
+	 *
+	 * @param string $field The field name to pass as a data attribute
+	 * @param string $endpoint The REST API endpoint to call when generating llms.txt
+	 *
+	 * @return string The HTML output containing the buttons
+	 */
+	public function display_llmstxt_buttons( string $field, string $endpoint = 'generate-llmstxt'): string {
+		$output = '';
+
+		// the data field is used to pass the field name to the JavaScript, that is the HTML id of the textarea to update
+		$data_field = sprintf( 'data-field="%s" ', $field );
+
+		$output .= sprintf( '<button type="button" class="button md4ai-generate" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__('Generate llms.txt', 'md4ai') );
+
+		// if AI service is enabled, add the AI generate button
+		if ( $this->is_ai_service_enabled() ) {
+			$output .= sprintf( '<button type="button" class="button md4ai-ai-generate button-primary-ai" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__( 'Generate llms.txt using AI', 'md4ai' ) );
+		}
+
+		return $output;
+	}
+
+	private function render_card_cache() {
+		// Get cache statistics
+		$stats = $this->cache->get_statistics();
+		?>
+		<div class="card">
+			<h2><?php esc_html_e('Cache Statistics', 'md4ai'); ?></h2>
+			<p><strong><?php esc_html_e('Cached Files:', 'md4ai'); ?></strong> <?php echo esc_html($stats['file_count']); ?></p>
+			<p><strong><?php esc_html_e('Total Size:', 'md4ai'); ?></strong> <?php echo esc_html($stats['total_size_mb']); ?> MB</p>
+			<p><strong><?php esc_html_e('Cache Directory:', 'md4ai'); ?></strong> <code><?php echo esc_html($stats['cache_dir']); ?></code></p>
+		</div>
+
+		<div class="card">
+			<h2><?php esc_html_e('Clear Cache', 'md4ai'); ?></h2>
+			<p><?php esc_html_e('Clear all cached Markdown files. This will force regeneration on the next AI bot visit.', 'md4ai'); ?></p>
+			<form method="post">
+				<?php wp_nonce_field('ai_md_clear_cache'); ?>
+				<input type="submit" name="clear_cache" class="button button-primary"
+					   value="<?php esc_attr_e('Clear All Cache', 'md4ai'); ?>"
+					   onclick="return confirm('<?php esc_html_e('Are you sure you want to clear all cached files?', 'md4ai'); ?>');">
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
@@ -240,64 +289,63 @@ class md4AI_Admin {
 				echo '<div class="notice notice-success"><p>llms.txt updated successfully!</p></div>';
 			}
 		}
-
-		// Get cache statistics
-		$stats = $this->cache->get_statistics();
-		$llms_content = get_option($this->llms_txt_option, '');
-
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e('md4AI', 'md4ai'); ?></h1>
 
-			<div class="card">
-				<h2><?php esc_html_e('llms.txt Content', 'md4ai'); ?></h2>
-				<p><?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers. Leave empty to use default.', 'md4ai'); ?></p>
-				<form method="post">
-					<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
-					<p>
-						<label for="llmstxt_content"><?php esc_html_e('llms.txt Content', 'md4ai'); ?></label>
-						<textarea
-							name="llmstxt_content"
-							rows="20"
-							style="width: 100%; font-family: monospace; font-size: 13px;"
-							placeholder="<?php esc_attr_e('## Title
+			<?php self::render_card_llms_txt(); ?>
 
-> Optional description goes here
+			<?php self::render_card_cache(); ?>
 
-Optional details go here
+		</div>
+		<?php
+	}
 
-## Section name
+	/**
+	 * Renders the markdown metabox
+	 */
+	public function render_markdown_metabox($post) {
+		wp_nonce_field('ai_md_metabox', 'ai_md_metabox_nonce');
 
-- [Link title](https://link_url): Optional link details
+		$meta_key = $this->markdown->get_meta_key();
+		$custom_markdown = get_post_meta($post->ID, $meta_key, true);
+		$has_custom = !empty($custom_markdown);
+		$textarea_id = 'md4ai-textarea';
 
-## Optional
+		?>
+		<div id="md4ai-metabox">
+			<p class="description">
+				<?php esc_html_e('Customize the Markdown content that will be served to AI bots. Leave empty to auto-generate from post content.', 'md4ai'); ?>
+			</p>
 
-- [Link title](https://link_url)', 'md4ai'); ?>"
-						><?php echo esc_textarea($llms_content); ?></textarea>
-						<?php $this->display_llmstxt_buttons('llmstxt_content'); ?>
-						<input type="submit" name="update_llmstxt" class="button button-primary" data-field="llmstxt_content"
-							   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
-					</p>
-				</form>
-			</div>
+			<p>
+				<?php
+				// display the generate buttons
+				echo self::display_llmstxt_buttons($textarea_id, 'generate-markdown' );
+				// display the clear button if there is custom Markdown
+				if ($has_custom) {
+					printf( '<button type="button" class="button md4ai-clear" data-field="%s">%s</button>', $textarea_id, esc_html__('Clear Custom Markdown', 'md4ai'));
+				}
+				?>
+				<span id="md4ai-status" style="margin-left: 10px;"></span>
+			</p>
 
-			<div class="card">
-				<h2><?php esc_html_e('Cache Statistics', 'md4ai'); ?></h2>
-				<p><strong><?php esc_html_e('Cached Files:', 'md4ai'); ?></strong> <?php echo esc_html($stats['file_count']); ?></p>
-				<p><strong><?php esc_html_e('Total Size:', 'md4ai'); ?></strong> <?php echo esc_html($stats['total_size_mb']); ?> MB</p>
-				<p><strong><?php esc_html_e('Cache Directory:', 'md4ai'); ?></strong> <code><?php echo esc_html($stats['cache_dir']); ?></code></p>
-			</div>
+			<p>
+				<textarea
+					name="ai_md_custom_markdown"
+					id="md4ai-textarea"
+					rows="20"
+					style="width: 100%; font-family: monospace; font-size: 13px;"
+					placeholder="<?php esc_attr_e('Custom markdown will appear here...', 'md4ai'); ?>"
+				><?php echo esc_textarea($custom_markdown); ?></textarea>
+			</p>
 
-			<div class="card">
-				<h2><?php esc_html_e('Clear Cache', 'md4ai'); ?></h2>
-				<p><?php esc_html_e('Clear all cached Markdown files. This will force regeneration on the next AI bot visit.', 'md4ai'); ?></p>
-				<form method="post">
-					<?php wp_nonce_field('ai_md_clear_cache'); ?>
-					<input type="submit" name="clear_cache" class="button button-primary"
-						   value="<?php esc_attr_e('Clear All Cache', 'md4ai'); ?>"
-						   onclick="return confirm('<?php esc_html_e('Are you sure you want to clear all cached files?', 'md4ai'); ?>');">
-				</form>
-			</div>
+			<?php if ($has_custom): ?>
+				<p class="description" style="color: #d63638;">
+					<strong><?php esc_html_e('Note:', 'md4ai'); ?></strong>
+					<?php esc_html_e('Custom markdown is active. AI bots will see this content instead of the auto-generated version.', 'md4ai'); ?>
+				</p>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
