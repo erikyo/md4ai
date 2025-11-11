@@ -29,6 +29,9 @@ class md4AI_Admin {
 
 		// Enqueue admin scripts
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+		if ( function_exists( 'ai_services' ) ) {
+			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_services' ]);
+		}
 
 		// Add the admin menu for cache management
 		add_action('admin_menu', [$this, 'add_admin_menu']);
@@ -334,6 +337,23 @@ class md4AI_Admin {
 				'cleared' => __('Custom markdown cleared.', 'md4ai')
 			]
 		]);
+	}
+
+	/**
+	 * Enqueues admin AI services scripts
+	 */
+	public function enqueue_admin_services() {
+
+		$asset = include MD4AI_PLUGIN_DIR . '/build/md4ai-services.asset.php';
+		$asset['dependencies'][] = 'ais-ai';
+
+		wp_enqueue_script(
+			'md4ai-admin',
+			plugins_url('build/md4ai-services.js', dirname(__FILE__)),
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
 	}
 
 	/**
