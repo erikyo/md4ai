@@ -72,14 +72,14 @@ class md4AI_Admin {
 			</p>
 
 			<p>
-				<button type="button" id="md4ai-generate" class="button">
+				<button type="button" id="md4ai-generate" class="button" data-field="md4ai-textarea">
 					<?php esc_html_e('Generate from Current Content', 'md4ai'); ?>
 				</button>
-				<button type="button" id="md4ai-generate" class="button">
+				<button type="button" id="md4ai-generate" class="button" data-field="md4ai-textarea">
 					<?php esc_html_e('Generate from Current Content using AI', 'md4ai'); ?>
 				</button>
 				<?php if ($has_custom): ?>
-					<button type="button" id="md4ai-clear" class="button">
+					<button type="button" id="md4ai-clear" class="button" data-field="md4ai-textarea">
 						<?php esc_html_e('Clear Custom Markdown', 'md4ai'); ?>
 					</button>
 				<?php endif; ?>
@@ -216,11 +216,10 @@ class md4AI_Admin {
 		);
 	}
 
-	public function display_llmstxt_buttons() {
-		?>
-		<button type="button" class="button button-primary" id="md4ai generate_llmstxt">Generate llms.txt</button>
-		<button type="button" class="button button-primary button-primary-ai" id="md4ai ai_generate_llmstxt">Generate llms.txt using AI</button>
-		<?php
+	public function display_llmstxt_buttons($field) {
+		$data_field = sprintf( 'data-field="%s"', $field );
+		echo '<button type="button" class="button button-primary" id="md4ai generate_llmstxt" ' . $data_field . '>Generate llms.txt</button>';
+		echo '<button type="button" class="button button-primary button-primary-ai" id="md4ai ai_generate_llmstxt" ' . $data_field . '>Generate llms.txt using AI</button>';
 	}
 
 	/**
@@ -275,8 +274,8 @@ Optional details go here
 
 - [Link title](https://link_url)', 'md4ai'); ?>"
 						><?php echo esc_textarea($llms_content); ?></textarea>
-						<?php $this->display_llmstxt_buttons(); ?>
-						<input type="submit" name="update_llmstxt" class="button button-primary"
+						<?php $this->display_llmstxt_buttons('llmstxt_content'); ?>
+						<input type="submit" name="update_llmstxt" class="button button-primary" data-field="llmstxt_content"
 							   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
 					</p>
 				</form>

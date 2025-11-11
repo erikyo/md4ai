@@ -18,9 +18,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	let clearBtn = document.getElementById(
 		'md4ai-clear'
 	) as HTMLButtonElement | null;
-	const textarea = document.getElementById(
-		'md4ai-textarea'
-	) as HTMLTextAreaElement;
 	const statusEl = document.getElementById( 'md4ai-status' ) as HTMLElement;
 
 	/**
@@ -37,6 +34,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * Clears the custom markdown from the textarea.
 	 */
 	const clearMarkdown = (): void => {
+    const textarea = document.getElementById(clearBtn.dataset.field) as HTMLTextAreaElement;
+    if (!textarea) {
+      return;
+    }
 		// Use native confirmation dialog
 		if (
 			// eslint-disable-next-line no-alert
@@ -44,7 +45,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				'Are you sure you want to clear the custom markdown? Auto-generation will be used instead.'
 			)
 		) {
-			textarea.value = '';
+      textarea.value = '';
 			updateStatus( aiMdData.messages.cleared, '#46b450' ); // Green color for success
 
 			// Clear status after 3 seconds
@@ -58,6 +59,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	 * Handles the REST API call to generate markdown from current content.
 	 */
 	const handleGenerate = async (): Promise< void > => {
+    const textarea = document.getElementById(generateBtn.dataset.field) as HTMLTextAreaElement;
+    if (!textarea) {
+      return;
+    }
 		// Disable the button to prevent multiple submissions
 		generateBtn.disabled = true;
 		updateStatus( aiMdData.messages.generating, '#999' ); // Grey color for generating
