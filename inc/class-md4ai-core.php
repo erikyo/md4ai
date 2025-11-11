@@ -27,8 +27,8 @@ class md4AI_Core {
 	private $ai_bots;
 	private md4AI_Cache $cache;
 	private md4AI_Markdown $markdown;
-	private $rest_api;
-	private $admin;
+	private md4AI_RestAPI $rest_api;
+	private md4AI_Admin $admin;
 
 	public function __construct() {
 		$this->ai_bots = $this->setup_ai_useragents();
@@ -40,7 +40,11 @@ class md4AI_Core {
 		$this->admin = new md4AI_Admin($this->cache, $this->markdown);
 
 		// Hook into template redirect
-		add_action('template_redirect', [$this, 'serve_markdown_to_bots'], 1);
+		add_action('template_redirect', [$this, 'handle_requests'], 1);
+
+		// Add rewrite rule for llms.txt
+		add_action('init', [$this, 'add_llmstxt_rewrite']);
+		add_filter('query_vars', [$this, 'add_llmstxt_query_var']);
 	}
 
 	/**
@@ -70,9 +74,58 @@ class md4AI_Core {
 	}
 
 	/**
+	 * Add rewrite rule for llms.txt
+	 */
+	public function add_llmstxt_rewrite() {
+		add_rewrite_rule('^llms\.txt$', 'index.php?md4ai_llmstxt=1', 'top');
+	}
+
+	/**
+	 * Add query var for llms.txt
+	 */
+	public function add_llmstxt_query_var($vars) {
+		$vars[] = 'md4ai_llmstxt';
+		return $vars;
+	}
+
+	/**
+	 * Handles all requests (llms.txt or markdown for AI bots)
+	 */
+	public function handle_requests() {
+		// Check if requesting llms.txt
+		if (get_query_var('md4ai_llmstxt')) {
+			$this->serve_llmstxt();
+			return;
+		}
+
+		// Otherwise, check if it's an AI bot requesting content
+		$this->serve_markdown_to_bots();
+	}
+
+	/**
+	 * Serves the llms.txt content
+	 */
+	private function serve_llmstxt() {
+		$llms_content = $this->admin->get_llms_txt_content();
+
+		// If no content is set, provide a default message
+		if (empty($llms_content)) {
+			$llms_content = $this->admin->generate_default_llmstxt();
+		}
+
+		// Set appropriate headers
+		header('Content-Type: text/plain; charset=utf-8');
+		header('X-Robots-Tag: noindex, nofollow');
+		header('Cache-Control: public, max-age=3600'); // Cache for 1 hour
+
+		echo $llms_content;
+		exit;
+	}
+
+	/**
 	 * Serves the content in Markdown to AI bots
 	 */
-	public function serve_markdown_to_bots() {
+	private function serve_markdown_to_bots() {
 		// Check if it's an AI bot
 		if (!$this->is_ai_bot()) {
 			return;

@@ -37,56 +37,14 @@ class md4AI_Markdown {
 		return $this->convert_post_to_markdown($post, $args);
 	}
 
-	/**
-	 * Converts a WordPress post to Markdown
-	 */
-	public function convert_post_to_markdown($post, $args = []) {
-		$args = wp_parse_args($args, [
-			'content' => false,
-			'include_navigation' => false,
-			'include_categories' => false,
-			'include_tags' => false,
-			'include_footer' => false,
-		]);
-
-		/* Filter the post */
-		$post = apply_filters('md4ai_post', $post);
-
+	public function generate_website_links($args, $post = false) {
 		$output = "";
 
-		// Get header/footer data (cached)
-		if ($args['include_navigation'] === true) {
-			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
-
-			// Add header navigation
-			if (!empty($nav_data['header'])) {
-				$output .= $this->format_navigation_markdown($nav_data['header'], 'Site Navigation');
-				$output .= "---\n\n";
-			}
-		}
-
-		if (!empty($args['content'])) {
-			$output .= $args['content'];
-		} else {
-			// Title
-			$output .= '# ' . esc_html($post->post_title) . "\n\n";
-
-			// Meta information
-			$output .= '**URL:** ' . esc_url(get_permalink($post)) . "\n";
-			$output .= '**Date:** ' . get_the_date('Y-m-d', $post) . "\n";
-			$output .= '**Author:** ' . esc_html(get_the_author_meta('display_name', $post->post_author)) . "\n\n";
-			$output .= "---\n\n";
-
-			// Content
-			$content = apply_filters('md4ai_the_content', $post->post_content);
-			$content = $this->html_to_markdown($content);
-			$output .= $content . "\n\n";
-		}
-
 		// Categories and tags
-		if ($args['include_categories']) {
+		if ($post && $args['include_categories']) {
 			$categories = get_the_category($post->ID);
 			if (!empty($categories)) {
+				$output .= "---\n\n";
 				$output .= "## Categories\n\n";
 				foreach ($categories as $cat) {
 					$output .= '- ' . esc_html($cat->name) . "\n";
@@ -95,7 +53,18 @@ class md4AI_Markdown {
 			}
 		}
 
-		if ($args['include_tags']) {
+		// Get header/footer data (cached)
+		if ($args['include_navigation'] === true) {
+			$nav_data = $this->cache->get_header_footer_data([$this, 'extract_header_footer_links']);
+
+			// Add header navigation
+			if (!empty($nav_data['header'])) {
+				$output .= "---\n\n";
+				$output .= $this->format_navigation_markdown($nav_data['header'], 'Navigation');
+			}
+		}
+
+		if ($post && $args['include_tags']) {
 			$tags = get_the_tags($post->ID);
 			if (!empty($tags)) {
 				$output .= "## Tags\n\n";
@@ -114,6 +83,46 @@ class md4AI_Markdown {
 				$output .= $this->format_navigation_markdown($nav_data['footer'], 'Footer Links');
 			}
 		}
+
+		return $output;
+	}
+
+	/**
+	 * Converts a WordPress post to Markdown
+	 */
+	public function convert_post_to_markdown($post, $args = []) {
+		$args = wp_parse_args($args, [
+			'content' => false,
+			'include_navigation' => false,
+			'include_categories' => false,
+			'include_tags' => false,
+			'include_footer' => false,
+		]);
+
+		/* Filter the post */
+		$post = apply_filters('md4ai_post', $post);
+
+		$output = "";
+
+		if (!empty($args['content'])) {
+			$output .= $args['content'] . "\n\n";
+		} else {
+			// Title
+			$output .= '# ' . esc_html($post->post_title) . "\n\n";
+
+			// Meta information
+			$output .= '**URL:** ' . esc_url(get_permalink($post)) . "\n";
+			$output .= '**Date:** ' . get_the_date('Y-m-d', $post) . "\n";
+			$output .= '**Author:** ' . esc_html(get_the_author_meta('display_name', $post->post_author)) . "\n\n";
+			$output .= "---\n\n";
+
+			// Content
+			$content = apply_filters('md4ai_the_content', $post->post_content);
+			$content = $this->html_to_markdown($content);
+			$output .= $content . "\n\n";
+		}
+
+		$output .= $this->generate_website_links($args, $post);
 
 		return $output;
 	}
