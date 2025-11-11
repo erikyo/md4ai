@@ -1,3 +1,4 @@
+import {__} from "@wordpress/i18n";
 
 declare const aiMdData: {
 	restUrl: string;
@@ -12,12 +13,8 @@ declare const aiMdData: {
 };
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const generateBtn = document.getElementById(
-		'md4ai-generate'
-	) as HTMLButtonElement;
-	let clearBtn = document.getElementById(
-		'md4ai-clear'
-	) as HTMLButtonElement | null;
+	const generateBtn = document.querySelector('.md4ai-generate') as HTMLButtonElement;
+	let clearBtn = document.querySelector('.md4ai-clear') as HTMLButtonElement | null;
 	const statusEl = document.getElementById( 'md4ai-status' ) as HTMLElement;
 
 	/**
@@ -55,11 +52,28 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		}
 	};
 
+  function create_clear_button() {
+    // Create the new button element
+    const newClearBtn = document.createElement( 'button' );
+    newClearBtn.type = 'button';
+    newClearBtn.id = 'md4ai-clear';
+    newClearBtn.dataset.field = generateBtn.dataset.field;
+    newClearBtn.dataset.endpoint = generateBtn.dataset.endpoint;
+    newClearBtn.className = 'button md4ai-clear';
+    newClearBtn.textContent = __('Clear Custom Markdown', 'md4ai');
+    newClearBtn.addEventListener( 'click', clearMarkdown );
+
+    // Insert the new button after the generate button
+    generateBtn.after( newClearBtn );
+    return newClearBtn;
+  }
+
 	/**
 	 * Handles the REST API call to generate markdown from current content.
 	 */
 	const handleGenerate = async (): Promise< void > => {
     const textarea = document.getElementById(generateBtn.dataset.field) as HTMLTextAreaElement;
+    const endpoint = aiMdData.restUrl + '/' + generateBtn.dataset.endpoint;
     if (!textarea) {
       return;
     }
@@ -67,10 +81,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		generateBtn.disabled = true;
 		updateStatus( aiMdData.messages.generating, '#999' ); // Grey color for generating
 
+    const url = aiMdData.postId ? endpoint + '/' + aiMdData.postId : endpoint;
+
 		try {
 			// Use the native fetch API for REST API call
 			const response = await fetch(
-				`${ aiMdData.restUrl }${ aiMdData.postId }`,
+        url,
 				{
 					method: 'POST',
 					headers: {
@@ -95,17 +111,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 				// Add clear button if it doesn't exist
 				if ( ! clearBtn ) {
-					// Create the new button element
-					const newClearBtn = document.createElement( 'button' );
-					newClearBtn.type = 'button';
-					newClearBtn.id = 'md4ai-clear';
-					newClearBtn.className = 'button'; // WordPress button class
-					newClearBtn.textContent = 'Clear Custom Markdown';
-					newClearBtn.addEventListener( 'click', clearMarkdown );
-
-					// Insert the new button after the generate button
-					generateBtn.after( newClearBtn );
-					clearBtn = newClearBtn; // Update the reference
+					clearBtn = create_clear_button(); // Update the reference
 				}
 
 				// Clear status after 3 seconds
