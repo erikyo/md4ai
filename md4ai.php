@@ -12,6 +12,12 @@
 if (!defined('ABSPATH')) {
 	exit;
 }
+
+if (!defined('MD4AI_PLUGIN_DIR')) {
+	define('MD4AI_PLUGIN_DIR', plugin_dir_path(__FILE__));
+}
+
+
 // Include the class files
 require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-core.php';
 require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-admin.php';
