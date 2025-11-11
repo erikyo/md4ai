@@ -52,15 +52,6 @@ class md4AI_Admin {
 				'normal',
 				'low'
 			);
-
-			add_meta_box(
-				'ai_llmstxt_metabox',
-				__('llms.txt Content', 'md4ai'),
-				[$this, 'render_llmstxt_metabox'],
-				$post_type,
-				'normal',
-				'low'
-			);
 		}
 	}
 
@@ -83,6 +74,9 @@ class md4AI_Admin {
 			<p>
 				<button type="button" id="md4ai-generate" class="button">
 					<?php esc_html_e('Generate from Current Content', 'md4ai'); ?>
+				</button>
+				<button type="button" id="md4ai-generate" class="button">
+					<?php esc_html_e('Generate from Current Content using AI', 'md4ai'); ?>
 				</button>
 				<?php if ($has_custom): ?>
 					<button type="button" id="md4ai-clear" class="button">
@@ -108,51 +102,6 @@ class md4AI_Admin {
 					<?php esc_html_e('Custom markdown is active. AI bots will see this content instead of the auto-generated version.', 'md4ai'); ?>
 				</p>
 			<?php endif; ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the llms.txt metabox
-	 */
-	public function render_llmstxt_metabox($post) {
-		// Only show on first post type to avoid confusion
-		global $post_type;
-		$first_public_type = array_values(get_post_types(['public' => true], 'names'))[0];
-
-		if ($post_type !== $first_public_type) {
-			?>
-			<p class="description">
-				<?php esc_html_e('The llms.txt file is a site-wide setting. Edit it from the md4AI Cache admin page or from any ' . $first_public_type . ' post.', 'md4ai'); ?>
-			</p>
-			<?php
-			return;
-		}
-
-		wp_nonce_field('ai_llmstxt_metabox', 'ai_llmstxt_metabox_nonce');
-
-		$llms_content = get_option($this->llms_txt_option, '');
-
-		?>
-		<div id="md4ai-llmstxt-metabox">
-			<p class="description">
-				<?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers. Use this to provide structured information about your site.', 'md4ai'); ?>
-			</p>
-
-			<p>
-				<textarea
-					name="ai_md_llmstxt_content"
-					id="md4ai-llmstxt-textarea"
-					rows="20"
-					style="width: 100%; font-family: monospace; font-size: 13px;"
-					placeholder="<?php esc_attr_e('You can override the default page content displayed to AI bots here.', 'md4ai'); ?>"
-				><?php echo esc_textarea($llms_content); ?></textarea>
-			</p>
-
-			<p class="description">
-				<strong><?php esc_html_e('Note:', 'md4ai'); ?></strong>
-				<?php esc_html_e('This is a site-wide setting and will be saved regardless of which post you are editing.', 'md4ai'); ?>
-			</p>
 		</div>
 		<?php
 	}
@@ -193,23 +142,6 @@ class md4AI_Admin {
 
 			// Clear cache when custom markdown is updated
 			$this->cache->clear_post_cache($post_id);
-		}
-
-		// Save llms.txt content (site-wide option)
-		if (isset($_POST['ai_llmstxt_metabox_nonce']) &&
-			wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['ai_llmstxt_metabox_nonce'])), 'ai_llmstxt_metabox') &&
-			isset($_POST['ai_md_llmstxt_content'])) {
-
-			if (!current_user_can('manage_options')) {
-				return;
-			}
-
-			$llms_content = sanitize_textarea_field(
-			/* phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash */
-				$_POST['ai_md_llmstxt_content']
-			);
-
-			update_option($this->llms_txt_option, $llms_content);
 		}
 	}
 
@@ -364,9 +296,16 @@ class md4AI_Admin {
 			'AI Markdown Cache',
 			'md4AI',
 			'manage_options',
-			'md4ai',
+			'Md4ai',
 			[$this, 'render_admin_page']
 		);
+	}
+
+	public function display_llmstxt_buttons() {
+		?>
+		<button type="button" class="button button-primary" id="md4ai generate_llmstxt">Generate llms.txt</button>
+		<button type="button" class="button button-primary button-primary-ai" id="md4ai ai_generate_llmstxt">Generate llms.txt using AI</button>
+		<?php
 	}
 
 	/**
@@ -402,6 +341,7 @@ class md4AI_Admin {
 				<form method="post">
 					<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
 					<p>
+						<label for="llmstxt_content"><?php esc_html_e('llms.txt Content', 'md4ai'); ?></label>
 						<textarea
 							name="llmstxt_content"
 							rows="20"
@@ -420,8 +360,7 @@ Optional details go here
 
 - [Link title](https://link_url)', 'md4ai'); ?>"
 						><?php echo esc_textarea($llms_content); ?></textarea>
-					</p>
-					<p>
+						<?php $this->display_llmstxt_buttons(); ?>
 						<input type="submit" name="update_llmstxt" class="button button-primary"
 							   value="<?php esc_attr_e('Update llms.txt', 'md4ai'); ?>">
 					</p>
