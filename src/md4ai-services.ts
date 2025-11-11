@@ -1,6 +1,3 @@
-const { enums, helpers, store: aiStore } = window.aiServices.ai;
-const SERVICE_ARGS = { capabilities: [ enums.AiCapability.TEXT_GENERATION ] };
-
 declare const wp: {
   data: {
     select: (arg: string) => {
@@ -8,11 +5,12 @@ declare const wp: {
       hasAvailableServices: (a?: { capabilities: string[] }) => boolean;
       getAvailableService: (a?: { capabilities: string[] }) => boolean;
     };
+    subscribe: (callback: () => void, storeName?: string) => () => void;
   };
 };
 
 declare const window: {
-  addEventListener: (a:string, b: () => void) => void;
+  addEventListener: (a: string, b: () => void) => void;
   aiServices: {
     ai: {
       enums: {
@@ -27,15 +25,64 @@ declare const window: {
   };
 };
 
-async function runAiLogic() {
-  const { select } = wp.data;
-  const { getAvailableService } = select('ai-services/ai');
+const {enums, helpers, store: aiStore} = window.aiServices.ai;
+const SERVICE_ARGS = {capabilities: [enums.AiCapability.TEXT_GENERATION]};
 
-  // BUG FIX: Pass SERVICE_ARGS to getAvailableService
-  const service = getAvailableService( SERVICE_ARGS );
+/**
+ * Wait for AI services to be available and run the AI logic.
+ */
+function waitForAiServices() {
+  const {select, subscribe} = wp.data;
+  function checkAndRun() {
+    try {
+      const {hasAvailableServices} = select(aiStore.name);
+
+      if (hasAvailableServices(SERVICE_ARGS)) {
+        /** ready */
+        return true;
+      }
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+    return false;
+  }
+
+  // Try immediately first
+  if (checkAndRun()) {
+    try {
+      runAiLogic();
+    } catch (error) {
+      alert(error);
+    }
+    return;
+  }
+
+  // If not available, subscribe to changes
+  const unsubscribe = subscribe(() => {
+    if (checkAndRun()) {
+      unsubscribe();
+      try {
+        runAiLogic();
+      } catch (error) {
+        alert(error);
+      }
+    }
+  });
+}
+
+/**
+ * Run AI logic.
+ */
+async function runAiLogic() {
+  const {select} = wp.data;
+  const {getAvailableService} = select('ai-services/ai');
+
+  const service = getAvailableService(SERVICE_ARGS) as false | {
+    generateText: (arg: string, arg2: {feature: string}) => Promise<any>;
+  };
 
   if (!service) {
-    // This can happen if hasAvailableServices is true but getAvailableService fails
     alert('Failed to get an AI service instance.');
     return;
   }
@@ -43,7 +90,7 @@ async function runAiLogic() {
   try {
     const candidates = await service.generateText(
       'What is the Generative Engine Optimization?',
-      { feature: 'my-test-feature' }
+      {feature: 'my-test-feature'}
     );
 
     const text = helpers.getTextFromContents(
@@ -52,32 +99,17 @@ async function runAiLogic() {
 
     alert(text);
   } catch (error) {
-    // Show the error message, not just [object Object]
     alert(error.message || error);
   }
 }
 
-// This function sets up the subscription
-function waitForAiServices() {
-  const { select } = wp.data;
-  const { hasAvailableServices } = select( 'ai-services/ai' );
-  if ( hasAvailableServices( SERVICE_ARGS ) ) {
-    try {
-      return runAiLogic();
-    } catch ( error ) {
-      alert(error);
-    }
-  } else {
-    setTimeout(waitForAiServices, 100);
-  }
-}
-
-// Run the subscription setup function on window load
-if (typeof window) {
-  waitForAiServices()
+/**
+ * Run on DOMContentLoaded or immediately if DOM is ready
+ */
+if (document.readyState === 'loading') {
+  // document.addEventListener('DOMContentLoaded', waitForAiServices);
 } else {
-  window!.addEventListener('load', waitForAiServices);
+  // waitForAiServices();
 }
 
-// You can still export the main logic if needed
-export default runAiLogic;
+export {runAiLogic, waitForAiServices};
