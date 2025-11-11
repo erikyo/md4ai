@@ -35,6 +35,13 @@ class md4AI_RestAPI {
 				],
 			],
 		]);
+
+
+		register_rest_route($this->namespace, '/generate-llmstxt/', [
+			'methods' => 'POST',
+			'callback' => [$this, 'rest_generate_llmstxt'],
+			'permission_callback' => [$this, 'rest_permission_check']
+		]);
 	}
 
 	/**
@@ -65,6 +72,18 @@ class md4AI_RestAPI {
 
 		return new WP_REST_Response([
 			'markdown' => $markdown,
+		], 200);
+	}
+
+	private function rest_generate_llmstxt() {
+		$llmstxt = $this->markdown->generate_default_llmstxt();
+		if (!$llmstxt) {
+			return new WP_REST_Response([
+				'llmstxt' => '',
+			], 200);
+		}
+		return new WP_REST_Response([
+			'llmstxt' => $llmstxt,
 		], 200);
 	}
 
