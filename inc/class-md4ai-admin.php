@@ -234,11 +234,11 @@ Optional details go here
 		// the data field is used to pass the field name to the JavaScript, that is the HTML id of the textarea to update
 		$data_field = sprintf( 'data-field="%s" ', $field );
 
-		$output .= sprintf( '<button type="button" class="button md4ai-generate" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__('Generate llms.txt', 'md4ai') );
+		$output .= sprintf( '<button type="button" class="button md4ai-generate" data-action="replace" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__('Generate', 'md4ai') );
 
 		// if AI service is enabled, add the AI generate button
 		if ( $this->is_ai_service_enabled() ) {
-			$output .= sprintf( '<button type="button" class="button md4ai-ai-generate button-primary-ai" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__( 'Generate llms.txt using AI', 'md4ai' ) );
+			$output .= sprintf( '<button type="button" class="button md4ai-ai-generate button-primary-ai" data-action="append-after" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__( 'Generate using AI', 'md4ai' ) );
 		}
 
 		return $output;

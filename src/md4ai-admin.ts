@@ -81,6 +81,16 @@ function handleMd4aiButtons() {
     }
   };
 
+  function create_prompt_input() {
+    const promptInput = document.createElement('input');
+    promptInput.type = 'text';
+    promptInput.id = 'md4ai-prompt';
+    promptInput.className = 'md4ai-prompt';
+    promptInput.style.width = '100%';
+    promptInput.placeholder = __('Enter your prompt', 'md4ai');
+    return promptInput;
+  }
+
   function create_clear_button() {
     // Create the new button element
     const newClearBtn = document.createElement('button');
@@ -177,11 +187,10 @@ function handleMd4aiButtons() {
    * Handles the AI-enhanced markdown generation.
    * Fetches markdown from REST API, then enhances it using AI service.
    */
-  const handleAiGenerate = async (): Promise<void> => {
+  const handleAiGenerate = async (textarea: HTMLTextAreaElement, promptInput: HTMLInputElement): Promise<void> => {
     const {enums, helpers, store: aiStore} = window.aiServices.ai;
     const SERVICE_ARGS = { capabilities: [ enums.AiCapability.TEXT_GENERATION ] };
-    // Get the textarea element
-    const textarea = document.getElementById(generateAiBtn.dataset.field) as HTMLTextAreaElement;
+
     if (!textarea) {
       console.error(`Textarea ${generateAiBtn.dataset.field} not found`);
       return;
@@ -233,11 +242,8 @@ function handleMd4aiButtons() {
         throw new Error('AI service not available');
       }
 
-      // Determine which prompt to use based on the endpoint
-      const prompt = aiMdData.prompts[generateAiBtn.dataset.endpoint];
-
       // Combine the prompt with the fetched markdown
-      const fullPrompt = `${prompt}\n\nContent to process:\n${result.markdown}`;
+      const fullPrompt = `${promptInput.value}\n\nContent to process:\n${result.markdown}`;
 
       const candidates = await service.generateText(fullPrompt, {
         feature: 'md4ai-generation'
@@ -267,8 +273,20 @@ function handleMd4aiButtons() {
    */
   const initAiGenerate = () => {
     waitForAiServices(() => {
+
+      // Get the textarea element
+      const textarea = document.getElementById(generateAiBtn.dataset.field) as HTMLTextAreaElement;
+
+      // append prompt input
+      const promptInput = create_prompt_input();
+      textarea.before(promptInput);
+
+      // Determine which prompt to use based on the endpoint
+      const prompt = aiMdData.prompts[generateAiBtn.dataset.endpoint];
+      promptInput.value = prompt;
+
       // Attach the click listener once AI services are ready
-      generateAiBtn.addEventListener('click', handleAiGenerate);
+      generateAiBtn.addEventListener('click', () => handleAiGenerate(textarea, promptInput));
     });
   };
 
@@ -276,14 +294,10 @@ function handleMd4aiButtons() {
   generateBtn.addEventListener('click', handleGenerate);
 
   // Initialize AI-enhanced generation
-  if (generateAiBtn) {
-    initAiGenerate();
-  }
+  if (generateAiBtn) initAiGenerate();
 
   // Attach the click listener to the existing clear button if it's present
-  if (clearBtn) {
-    clearBtn.addEventListener('click', clearMarkdown);
-  }
+  if (clearBtn) clearBtn.addEventListener('click', clearMarkdown);
 }
 
 document.addEventListener('DOMContentLoaded', handleMd4aiButtons);
