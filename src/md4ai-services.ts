@@ -1,119 +1,77 @@
 declare const wp: {
-  data: {
-    select: (arg: string) => {
-      isServiceAvailable: (a: string) => boolean;
-      hasAvailableServices: (a?: { capabilities: string[] }) => boolean;
-      getAvailableService: (a?: { capabilities: string[] }) => boolean;
-    };
-    subscribe: (callback: () => void, storeName?: string) => () => void;
-  };
+	data: {
+		select: ( arg: string ) => {
+			isServiceAvailable: ( a: string ) => boolean;
+			hasAvailableServices: ( a?: { capabilities: string[] } ) => boolean;
+			getAvailableService: ( a?: { capabilities: string[] } ) => boolean;
+		};
+		subscribe: ( callback: () => void, storeName?: string ) => () => void;
+	};
 };
 
 declare const window: {
-  addEventListener: (a: string, b: () => void) => void;
-  aiServices: {
-    ai: {
-      enums: {
-        AiCapability: {
-          MULTIMODAL_INPUT: string;
-          TEXT_GENERATION: string;
-        };
-      };
-      helpers: any;
-      store: any;
-    };
-  };
+	addEventListener: ( a: string, b: () => void ) => void;
+	aiServices: {
+		ai: {
+			enums: {
+				AiCapability: {
+					MULTIMODAL_INPUT: string;
+					TEXT_GENERATION: string;
+				};
+			};
+			helpers: any;
+			store: any;
+		};
+	};
 };
 
-const {enums, helpers, store: aiStore} = window.aiServices.ai;
-const SERVICE_ARGS = {capabilities: [enums.AiCapability.TEXT_GENERATION]};
 
 /**
  * Wait for AI services to be available and run the AI logic.
+ * @param fn
  */
-function waitForAiServices(fn: () => void) {
-  const {select, subscribe} = wp.data;
-  function checkAndRun() {
-    try {
-      const {hasAvailableServices} = select(aiStore.name);
+function waitForAiServices( fn: () => void ) {
+  const { enums, store: aiStore } = window.aiServices.ai;
+  const SERVICE_ARGS = { capabilities: [ enums.AiCapability.TEXT_GENERATION ] };
 
-      if (hasAvailableServices(SERVICE_ARGS)) {
-        /** ready */
-        return true;
-      }
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-    return false;
-  }
+	const { select, subscribe } = wp.data;
+	function checkAndRun() {
+		try {
+			const { hasAvailableServices } = select( aiStore.name );
 
-  // Try immediately first
-  if (checkAndRun()) {
-    try {
-      fn();
-    } catch (error) {
-      alert(error);
-    }
-    return;
-  }
+			if ( hasAvailableServices( SERVICE_ARGS ) ) {
+        console.log('AI services are available');
+				/** ready */
+				return true;
+			}
+		} catch ( error ) {
+			console.error( error );
+			return false;
+		}
+		return false;
+	}
 
-  // If not available, subscribe to changes
-  const unsubscribe = subscribe(() => {
-    if (checkAndRun()) {
-      unsubscribe();
-      try {
-        fn();
-      } catch (error) {
-        alert(error);
-      }
-    }
-  });
+	// Try immediately first
+	if ( checkAndRun() ) {
+		try {
+			fn();
+		} catch ( error ) {
+			alert( error );
+		}
+		return;
+	}
+
+	// If not available, subscribe to changes
+	const unsubscribe = subscribe( () => {
+		if ( checkAndRun() ) {
+			unsubscribe();
+			try {
+				fn();
+			} catch ( error ) {
+				alert( error );
+			}
+		}
+	} );
 }
 
-/**
- * Run AI logic.
- */
-async function runAiLogic() {
-  const {select} = wp.data;
-  const {getAvailableService} = select(aiStore.name);
-
-  const service = getAvailableService(SERVICE_ARGS) as false | {
-    generateText: (arg: string, arg2: {feature: string}) => Promise<any>;
-  };
-
-  return {
-    'response': 'yomama'
-  }
-
-  if (!service) {
-    alert('Failed to get an AI service instance.');
-    return;
-  }
-
-  try {
-    const candidates = await service.generateText(
-      'What is the Generative Engine Optimization?',
-      {feature: 'my-test-feature'}
-    );
-
-    const text = helpers.getTextFromContents(
-      helpers.getCandidateContents(candidates)
-    );
-
-    alert(text);
-  } catch (error) {
-    alert(error.message || error);
-  }
-}
-
-/**
- * Run on DOMContentLoaded or immediately if DOM is ready
- */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => waitForAiServices( runAiLogic ));
-} else {
-  waitForAiServices( runAiLogic );
-}
-
-export {runAiLogic, waitForAiServices};
+export { waitForAiServices };

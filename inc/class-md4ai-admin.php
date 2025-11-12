@@ -184,14 +184,8 @@ Optional details go here
 			'nonce' => wp_create_nonce('wp_rest' ),
 			'postId' => get_the_ID(),
 			'prompts' => [
-				'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Analyze the context provided above. Then, review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
-				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Analyze the context provided above. Then, strictly follow the instructions in the llms.txt file and apply them to the content below. Output only the modified page content.'
-			],
-			'messages' => [
-				'generating' => __('Generating...', 'md4ai'),
-				'success' => __('Markdown generated successfully!', 'md4ai'),
-				'error' => __('Error generating markdown.', 'md4ai'),
-				'cleared' => __('Custom markdown cleared.', 'md4ai')
+				'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
+				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Enhance the llms.txt file below to improve the Generative Engine Optimization (GEO) of the site.'
 			]
 		]);
 	}
