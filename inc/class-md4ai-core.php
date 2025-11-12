@@ -110,7 +110,7 @@ class md4AI_Core {
 
 		// If no content is set, provide a default message
 		if (empty($llms_content)) {
-			$llms_content = $this->admin->generate_default_llmstxt();
+			$llms_content = $this->markdown->generate_default_llmstxt();
 		}
 
 		// Set appropriate headers

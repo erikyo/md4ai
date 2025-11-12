@@ -19,6 +19,13 @@ class md4AI_Markdown {
 	}
 
 	/**
+	 * Get the meta key
+	 */
+	public function get_meta_key() {
+		return $this->meta_key;
+	}
+
+	/**
 	 * Gets markdown for a post - checks custom meta first, then generates
 	 */
 	public function get_post_markdown($post) {
@@ -35,6 +42,63 @@ class md4AI_Markdown {
 
 		// Generate from post content
 		return $this->convert_post_to_markdown($post, $args);
+	}
+
+	/**
+	 * Basic HTML to Markdown conversion
+	 */
+	private function html_to_markdown($html) {
+		// Remove script, style and forms
+		$html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+		$html = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $html);
+		$html = preg_replace('/<form\b[^>]*>(.*?)<\/form>/is', '', $html);
+
+		// Headers
+		$html = preg_replace('/<h1[^>]*>(.*?)<\/h1>/i', "\n# $1\n", $html);
+		$html = preg_replace('/<h2[^>]*>(.*?)<\/h2>/i', "\n## $1\n", $html);
+		$html = preg_replace('/<h3[^>]*>(.*?)<\/h3>/i', "\n### $1\n", $html);
+		$html = preg_replace('/<h4[^>]*>(.*?)<\/h4>/i', "\n#### $1\n", $html);
+		$html = preg_replace('/<h5[^>]*>(.*?)<\/h5>/i', "\n##### $1\n", $html);
+		$html = preg_replace('/<h6[^>]*>(.*?)<\/h6>/i', "\n###### $1\n", $html);
+
+		// Bold and Italic
+		$html = preg_replace('/<(strong|b)[^>]*>(.*?)<\/(strong|b)>/i', '**$2**', $html);
+		$html = preg_replace('/<(em|i)[^>]*>(.*?)<\/(em|i)>/i', '*$2*', $html);
+
+		// Link
+		$html = preg_replace('/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/i', '[$2]($1)', $html);
+
+		// Images
+		$html = preg_replace('/<img[^>]+src="([^"]+)"[^>]*alt="([^"]*)"[^>]*>/i', '![$2]($1)', $html);
+		$html = preg_replace('/<img[^>]+src="([^"]+)"[^>]*>/i', '![]($1)', $html);
+
+		// Lists
+		$html = preg_replace('/<li[^>]*>(.*?)<\/li>/i', "- $1\n", $html);
+		$html = preg_replace('/<\/?ul[^>]*>/i', "\n", $html);
+		$html = preg_replace('/<\/?ol[^>]*>/i', "\n", $html);
+
+		// Paragraphs
+		$html = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n\n", $html);
+		$html = preg_replace('/<br[^>]*>/i', "\n", $html);
+
+		// Blockquote
+		$html = preg_replace('/<blockquote[^>]*>(.*?)<\/blockquote>/is', "> $1\n", $html);
+
+		// Code
+		$html = preg_replace('/<code[^>]*>(.*?)<\/code>/i', '`$1`', $html);
+		$html = preg_replace('/<pre[^>]*>(.*?)<\/pre>/is', "```\n$1\n```\n", $html);
+
+		// Remove all other HTML tags
+		$html = wp_strip_all_tags($html);
+
+		// Decode HTML entities
+		$html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+		// Clean up multiple spaces
+		$html = preg_replace('/\n\s*\n\s*\n/', "\n\n", $html);
+		$html = trim($html);
+
+		return $html;
 	}
 
 	public function generate_website_links($args, $post = false) {
@@ -212,66 +276,87 @@ class md4AI_Markdown {
 	}
 
 	/**
-	 * Basic HTML to Markdown conversion
+	 * Generates default llms.txt content using WordPress site data
+	 *
+	 * @return string Default llms.txt content
 	 */
-	private function html_to_markdown($html) {
-		// Remove script, style and forms
-		$html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
-		$html = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $html);
-		$html = preg_replace('/<form\b[^>]*>(.*?)<\/form>/is', '', $html);
+	public function generate_default_llmstxt() {
+		$site_title = get_bloginfo('name');
+		$site_description = get_bloginfo('description');
+		$site_url = home_url();
+		$admin_email = get_bloginfo('admin_email');
 
-		// Headers
-		$html = preg_replace('/<h1[^>]*>(.*?)<\/h1>/i', "\n# $1\n", $html);
-		$html = preg_replace('/<h2[^>]*>(.*?)<\/h2>/i', "\n## $1\n", $html);
-		$html = preg_replace('/<h3[^>]*>(.*?)<\/h3>/i', "\n### $1\n", $html);
-		$html = preg_replace('/<h4[^>]*>(.*?)<\/h4>/i', "\n#### $1\n", $html);
-		$html = preg_replace('/<h5[^>]*>(.*?)<\/h5>/i', "\n##### $1\n", $html);
-		$html = preg_replace('/<h6[^>]*>(.*?)<\/h6>/i', "\n###### $1\n", $html);
+		// Get recent posts
+		$recent_posts = get_posts([
+			'numberposts' => 5,
+			'post_status' => 'publish'
+		]);
 
-		// Bold and Italic
-		$html = preg_replace('/<(strong|b)[^>]*>(.*?)<\/(strong|b)>/i', '**$2**', $html);
-		$html = preg_replace('/<(em|i)[^>]*>(.*?)<\/(em|i)>/i', '*$2*', $html);
+		// Build the default content
+		$content = "# {$site_title}\n";
 
-		// Link
-		$html = preg_replace('/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/i', '[$2]($1)', $html);
+		if (!empty($site_description)) {
+			$content .= "> {$site_description}\n\n";
+		}
 
-		// Images
-		$html = preg_replace('/<img[^>]+src="([^"]+)"[^>]*alt="([^"]*)"[^>]*>/i', '![$2]($1)', $html);
-		$html = preg_replace('/<img[^>]+src="([^"]+)"[^>]*>/i', '![]($1)', $html);
+		$content .= "This file provides structured information about {$site_title} for AI bots and LLM crawlers.\n\n";
 
-		// Lists
-		$html = preg_replace('/<li[^>]*>(.*?)<\/li>/i', "- $1\n", $html);
-		$html = preg_replace('/<\/?ul[^>]*>/i', "\n", $html);
-		$html = preg_replace('/<\/?ol[^>]*>/i', "\n", $html);
+		// Add site information section
+		$content .= "## Site Information\n";
+		$content .= "- **Website**: [{$site_title}]({$site_url})\n";
 
-		// Paragraphs
-		$html = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n\n", $html);
-		$html = preg_replace('/<br[^>]*>/i', "\n", $html);
+		if (!empty($site_description)) {
+			$content .= "- **Description**: {$site_description}\n";
+		}
 
-		// Blockquote
-		$html = preg_replace('/<blockquote[^>]*>(.*?)<\/blockquote>/is', "> $1\n", $html);
+		$content .= "- **Contact**: {$admin_email}\n\n";
 
-		// Code
-		$html = preg_replace('/<code[^>]*>(.*?)<\/code>/i', '`$1`', $html);
-		$html = preg_replace('/<pre[^>]*>(.*?)<\/pre>/is', "```\n$1\n```\n", $html);
+		// Add recent content section
+		if (!empty($recent_posts)) {
+			$content .= "## Recent Content\n";
+			foreach ($recent_posts as $post) {
+				$post_url = get_permalink($post->ID);
+				$post_title = esc_html($post->post_title);
+				$post_excerpt = wp_trim_words(strip_tags($post->post_excerpt ?: $post->post_content), 20);
 
-		// Remove all other HTML tags
-		$html = wp_strip_all_tags($html);
+				$content .= "- [{$post_title}]({$post_url})";
+				if (!empty($post_excerpt)) {
+					$content .= ": {$post_excerpt}";
+				}
+				$content .= "\n";
+			}
+			$content .= "\n";
+		}
 
-		// Decode HTML entities
-		$html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+		// Add navigation/pages section if there are published pages
+		$pages = get_pages([
+			'post_status' => 'publish',
+			'number' => 10,
+			'sort_column' => 'menu_order'
+		]);
 
-		// Clean up multiple spaces
-		$html = preg_replace('/\n\s*\n\s*\n/', "\n\n", $html);
-		$html = trim($html);
+		if (!empty($pages)) {
+			$content .= "## Main Pages\n";
+			foreach ($pages as $page) {
+				$page_url = get_permalink($page->ID);
+				$page_title = esc_html($page->post_title);
+				$content .= "- [{$page_title}]({$page_url})\n";
+			}
+			$content .= "\n";
+		}
 
-		return $html;
-	}
+		// Add navigation sections if there are any
+		$content .= $this->generate_website_links([
+			'include_categories' => false,
+			'include_navigation' => true,
+			'include_tags' => false,
+			'include_footer' => true,
+		]);
 
-	/**
-	 * Get the meta key
-	 */
-	public function get_meta_key() {
-		return $this->meta_key;
+		// Add footer note
+		$content .= "---\n\n## Additional Information\n";
+		$content .= "For more information about our content and structure, please explore the links above or visit our homepage at {$site_url}.\n";
+
+		return $content;
 	}
 }

@@ -1,9 +1,9 @@
 {
-	"name": "md4ai",
-	"author": "Erik Golinelli <erik@codekraft.it>",
-	"license": "GPL-2.0-only",
-	"version": "1.0.0",
-	"description": "AntiSpam for Contact Form 7",
+  "name": "md4ai",
+  "author": "Erik Golinelli <erik@codekraft.it>",
+  "license": "GPL-2.0-only",
+  "version": "1.0.0",
+  "description": "AntiSpam for Contact Form 7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/erikyo/md4ai.git"
@@ -11,30 +11,30 @@
   "bugs": {
     "url": "https://github.com/erikyo/md4ai/issues"
   },
-	"files": [
+  "files": [
     "build/*",
     "inc/*",
-		"md4ai.php",
+    "md4ai.php",
     "readme.txt"
-	],
-	"scripts": {
-		"start": "wp-scripts start src/md4ai-admin",
-		"build": "wp-scripts build src/md4ai-admin",
-		"plugin-zip": "wp-scripts plugin-zip",
-		"lint:css": "wp-scripts lint-style ./src/**/*.scss --fix",
-		"lint:js": "wp-scripts lint-js ./src/**/*.ts --fix",
-		"packages-update": "wp-scripts packages-update",
-		"wp-env:start": "wp-env start",
-		"wp-env:xdebug": "wp-env start --xdebug",
-		"wp-env:stop": "wp-env stop",
-		"wp-env:destroy": "wp-env destroy",
-		"makepot": "npx make-pot"
-	},
-	"homepage": "https://github.com/erikyo/md4ai#readme",
-	"devDependencies": {
-		"@wordpress/env": "^10.34.0",
+  ],
+  "scripts": {
+    "start": "wp-scripts start src/md4ai-admin src/md4ai-services",
+    "build": "wp-scripts build src/md4ai-admin src/md4ai-services",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "lint:css": "wp-scripts lint-style ./src/**/*.scss --fix",
+    "lint:js": "wp-scripts lint-js ./src/**/*.ts --fix",
+    "packages-update": "wp-scripts packages-update",
+    "wp-env:start": "wp-env start",
+    "wp-env:xdebug": "wp-env start --xdebug",
+    "wp-env:stop": "wp-env stop",
+    "wp-env:destroy": "wp-env destroy",
+    "makepot": "npx make-pot"
+  },
+  "homepage": "https://github.com/erikyo/md4ai#readme",
+  "devDependencies": {
+    "@wordpress/env": "^10.34.0",
     "@wordpress/i18n": "^6.7.0",
-		"@wordpress/scripts": "^30.27.0",
-		"@wp-blocks/make-pot": "^1.6.3"
-	}
+    "@wordpress/scripts": "^30.27.0",
+    "@wp-blocks/make-pot": "^1.6.3"
+  }
 }

@@ -20,6 +20,13 @@ class md4AI_RestAPI {
 	}
 
 	/**
+	 * Get the REST namespace
+	 */
+	public function get_namespace() {
+		return $this->namespace;
+	}
+
+	/**
 	 * Register REST API routes
 	 */
 	public function register_rest_routes() {
@@ -35,6 +42,13 @@ class md4AI_RestAPI {
 				],
 			],
 		]);
+
+
+		register_rest_route($this->namespace, '/generate-llmstxt', [
+			'methods' => 'POST',
+			'callback' => [$this, 'rest_generate_llmstxt'],
+			'permission_callback' => [$this, 'admin_permission_check']
+		]);
 	}
 
 	/**
@@ -43,6 +57,13 @@ class md4AI_RestAPI {
 	public function rest_permission_check($request) {
 		$post_id = $request->get_param('id');
 		return current_user_can('edit_post', $post_id);
+	}
+
+	/**
+	 * Permission check for REST API
+	 */
+	public function admin_permission_check($request) {
+		return current_user_can('edit_posts');
 	}
 
 	/**
@@ -68,10 +89,16 @@ class md4AI_RestAPI {
 		], 200);
 	}
 
-	/**
-	 * Get the REST namespace
-	 */
-	public function get_namespace() {
-		return $this->namespace;
+	public function rest_generate_llmstxt() {
+		$llmstxt = $this->markdown->generate_default_llmstxt();
+		// If llmstxt is empty, return null
+		if (!$llmstxt) {
+			return new WP_REST_Response([
+				'markdown' => '',
+			], 200);
+		}
+		return new WP_REST_Response([
+			'markdown' => $llmstxt,
+		], 200);
 	}
 }
