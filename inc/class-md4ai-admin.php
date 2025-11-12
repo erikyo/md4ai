@@ -42,8 +42,10 @@ Optional details go here
 
 		// Enqueue admin scripts
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-		if ( $this->is_ai_service_enabled() ) {
-			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_services' ]);
+
+		// Enqueue admin services scripts
+		if ( function_exists( 'ai_services' ) ) {
+			add_action( 'admin_enqueue_scripts', [$this, 'enqueue_admin_services' ]);
 		}
 
 		// Add the admin menu for cache management
@@ -56,10 +58,7 @@ Optional details go here
 	 * @return bool Whether the AI services are enabled
 	 */
 	private function is_ai_service_enabled(): bool {
-		if ( function_exists( 'ai_services' ) ) {
-			return true;
-		}
-		return false;
+		return function_exists( 'ai_services' );
 	}
 
 	private function render_card_llms_txt() {
@@ -184,6 +183,10 @@ Optional details go here
 			'restUrl' => rest_url($rest_namespace ),
 			'nonce' => wp_create_nonce('wp_rest' ),
 			'postId' => get_the_ID(),
+			'prompts' => [
+				'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Analyze the context provided above. Then, review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
+				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Analyze the context provided above. Then, strictly follow the instructions in the llms.txt file and apply them to the content below. Output only the modified page content.'
+			],
 			'messages' => [
 				'generating' => __('Generating...', 'md4ai'),
 				'success' => __('Markdown generated successfully!', 'md4ai'),
@@ -202,7 +205,7 @@ Optional details go here
 		$asset['dependencies'][] = 'ais-ai';
 
 		wp_enqueue_script(
-			'md4ai-admin',
+			'md4ai-services',
 			plugins_url('build/md4ai-services.js', dirname(__FILE__)),
 			$asset['dependencies'],
 			$asset['version'],

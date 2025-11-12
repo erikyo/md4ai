@@ -31,7 +31,7 @@ const SERVICE_ARGS = {capabilities: [enums.AiCapability.TEXT_GENERATION]};
 /**
  * Wait for AI services to be available and run the AI logic.
  */
-function waitForAiServices() {
+function waitForAiServices(fn: () => void) {
   const {select, subscribe} = wp.data;
   function checkAndRun() {
     try {
@@ -51,7 +51,7 @@ function waitForAiServices() {
   // Try immediately first
   if (checkAndRun()) {
     try {
-      runAiLogic();
+      fn();
     } catch (error) {
       alert(error);
     }
@@ -63,7 +63,7 @@ function waitForAiServices() {
     if (checkAndRun()) {
       unsubscribe();
       try {
-        runAiLogic();
+        fn();
       } catch (error) {
         alert(error);
       }
@@ -76,11 +76,15 @@ function waitForAiServices() {
  */
 async function runAiLogic() {
   const {select} = wp.data;
-  const {getAvailableService} = select('ai-services/ai');
+  const {getAvailableService} = select(aiStore.name);
 
   const service = getAvailableService(SERVICE_ARGS) as false | {
     generateText: (arg: string, arg2: {feature: string}) => Promise<any>;
   };
+
+  return {
+    'response': 'yomama'
+  }
 
   if (!service) {
     alert('Failed to get an AI service instance.');
@@ -107,9 +111,9 @@ async function runAiLogic() {
  * Run on DOMContentLoaded or immediately if DOM is ready
  */
 if (document.readyState === 'loading') {
-  // document.addEventListener('DOMContentLoaded', waitForAiServices);
+  document.addEventListener('DOMContentLoaded', () => waitForAiServices( runAiLogic ));
 } else {
-  // waitForAiServices();
+  waitForAiServices( runAiLogic );
 }
 
 export {runAiLogic, waitForAiServices};
