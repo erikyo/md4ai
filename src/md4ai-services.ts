@@ -25,22 +25,24 @@ declare const window: {
 	};
 };
 
-
 /**
  * Wait for AI services to be available and run the AI logic.
  * @param fn
  */
 function waitForAiServices( fn: () => void ) {
-  const { enums, store: aiStore } = window.aiServices.ai;
-  const SERVICE_ARGS = { capabilities: [ enums.AiCapability.TEXT_GENERATION ] };
+	const { enums, store: aiStore } = window.aiServices.ai;
+	const SERVICE_ARGS = {
+		capabilities: [ enums.AiCapability.TEXT_GENERATION ],
+	};
 
 	const { select, subscribe } = wp.data;
+
 	function checkAndRun() {
 		try {
 			const { hasAvailableServices } = select( aiStore.name );
 
 			if ( hasAvailableServices( SERVICE_ARGS ) ) {
-        console.log('AI services are available');
+				console.log( 'AI services are available' );
 				/** ready */
 				return true;
 			}
