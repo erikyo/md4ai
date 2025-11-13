@@ -7,7 +7,7 @@ class md4AI_Markdown {
 	/**
 	 * Post-meta key for custom Markdown
 	 */
-	private $meta_key = '_ai_md_custom_markdown';
+	private string $meta_key = '_ai_md_custom_markdown';
 
 	/**
 	 * Cache instance
@@ -21,7 +21,7 @@ class md4AI_Markdown {
 	/**
 	 * Get the meta key
 	 */
-	public function get_meta_key() {
+	public function get_meta_key(): string {
 		return $this->meta_key;
 	}
 
@@ -280,7 +280,7 @@ class md4AI_Markdown {
 	 *
 	 * @return string Default llms.txt content
 	 */
-	public function generate_default_llmstxt() {
+	public function generate_default_llmstxt(): string {
 		$site_title = get_bloginfo('name');
 		$site_description = get_bloginfo('description');
 		$site_url = home_url();

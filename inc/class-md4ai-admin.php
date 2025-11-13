@@ -44,7 +44,7 @@ Optional details go here
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
 
 		// Enqueue admin services scripts
-		if ( function_exists( 'ai_services' ) ) {
+		if ( self::is_ai_service_enabled() ) {
 			add_action( 'admin_enqueue_scripts', [$this, 'enqueue_admin_services' ]);
 		}
 
@@ -59,6 +59,15 @@ Optional details go here
 	 */
 	private function is_ai_service_enabled(): bool {
 		return function_exists( 'ai_services' );
+	}
+
+	/**
+	 * Gets the llms.txt content
+	 *
+	 * @return string The llms.txt content
+	 */
+	public function get_llms_txt_content() {
+		return get_option($this->llms_txt_option, '');
 	}
 
 	private function render_card_llms_txt() {
@@ -112,6 +121,36 @@ Optional details go here
 	}
 
 	/**
+	 * Enqueues admin AI services scripts
+	 */
+	public function enqueue_admin_services() {
+
+		$asset = include MD4AI_PLUGIN_DIR . '/build/md4ai-services.asset.php';
+		$asset['dependencies'][] = 'ais-ai';
+
+		wp_enqueue_script(
+			'md4ai-services',
+			plugins_url('build/md4ai-services.js', dirname(__FILE__)),
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+	}
+
+	/**
+	 * Adds admin menu for cache management
+	 */
+	public function add_admin_menu() {
+		add_management_page(
+			'AI Markdown Cache',
+			'Md4AI',
+			'manage_options',
+			'md4ai',
+			[$this, 'render_admin_page']
+		);
+	}
+
+	/**
 	 * Saves the markdown metabox data
 	 */
 	public function save_markdown_metabox($post_id) {
@@ -151,15 +190,6 @@ Optional details go here
 	}
 
 	/**
-	 * Gets the llms.txt content
-	 *
-	 * @return string The llms.txt content
-	 */
-	public function get_llms_txt_content() {
-		return get_option($this->llms_txt_option, '');
-	}
-
-	/**
 	 * Enqueues admin scripts
 	 */
 	public function enqueue_admin_scripts($hook) {
@@ -188,36 +218,6 @@ Optional details go here
 				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Enhance the llms.txt file below to improve the Generative Engine Optimization (GEO) of the site.'
 			]
 		]);
-	}
-
-	/**
-	 * Enqueues admin AI services scripts
-	 */
-	public function enqueue_admin_services() {
-
-		$asset = include MD4AI_PLUGIN_DIR . '/build/md4ai-services.asset.php';
-		$asset['dependencies'][] = 'ais-ai';
-
-		wp_enqueue_script(
-			'md4ai-services',
-			plugins_url('build/md4ai-services.js', dirname(__FILE__)),
-			$asset['dependencies'],
-			$asset['version'],
-			true
-		);
-	}
-
-	/**
-	 * Adds admin menu for cache management
-	 */
-	public function add_admin_menu() {
-		add_management_page(
-			'AI Markdown Cache',
-			'Md4AI',
-			'manage_options',
-			'md4ai',
-			[$this, 'render_admin_page']
-		);
 	}
 
 	/**

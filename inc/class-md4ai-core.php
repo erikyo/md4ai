@@ -36,7 +36,7 @@ class md4AI_Core {
 		// Initialize sub-components
 		$this->cache = new md4AI_Cache();
 		$this->markdown = new md4AI_Markdown($this->cache);
-		$this->rest_api = new md4AI_RestAPI($this->markdown);
+		new md4AI_RestAPI($this->markdown);
 		$this->admin = new md4AI_Admin($this->cache, $this->markdown);
 
 		// Hook into template redirect

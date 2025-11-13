@@ -7,14 +7,19 @@ class md4AI_RestAPI {
 	/**
 	 * REST API namespace
 	 */
-	private $namespace = 'md4ai/v1';
+	private string $namespace = 'md4ai/v1';
 
 	/**
 	 * Markdown instance
 	 */
-	private $markdown;
+	private md4AI_Markdown $markdown;
 
-	public function __construct($markdown) {
+	/**
+	 * Constructs the REST API endpoints class
+	 *
+	 * @param md4AI_Markdown $markdown Markdown generation and conversion class instance
+	 */
+	public function __construct( md4AI_Markdown $markdown) {
 		$this->markdown = $markdown;
 		add_action('rest_api_init', [$this, 'register_rest_routes']);
 	}
@@ -91,12 +96,6 @@ class md4AI_RestAPI {
 
 	public function rest_generate_llmstxt() {
 		$llmstxt = $this->markdown->generate_default_llmstxt();
-		// If llmstxt is empty, return null
-		if (!$llmstxt) {
-			return new WP_REST_Response([
-				'markdown' => '',
-			], 200);
-		}
 		return new WP_REST_Response([
 			'markdown' => $llmstxt,
 		], 200);
