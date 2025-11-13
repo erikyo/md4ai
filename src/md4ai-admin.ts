@@ -75,7 +75,7 @@ function handleMd4aiButtons() {
 		if (
 			// eslint-disable-next-line no-alert
 			window.confirm(
-				'Are you sure you want to clear the custom markdown? Auto-generation will be used instead.'
+				__('Are you sure you want to clear the custom markdown? Auto-generation will be used instead.', 'md4ai')
 			)
 		) {
 			textarea.value = '';

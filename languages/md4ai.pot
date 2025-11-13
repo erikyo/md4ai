@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-11-12T11:19:05.995Z\n"
+"POT-Creation-Date: 2025-11-13T12:00:57.229Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -37,76 +37,82 @@ msgstr ""
 msgid "Codekraft"
 msgstr ""
 
-#: src/md4ai-admin.ts:75
+#: src/md4ai-admin.ts:78
+msgid ""
+"Are you sure you want to clear the custom markdown? Auto-generation will be "
+"used instead."
+msgstr ""
+
+#: src/md4ai-admin.ts:83
 msgid "Custom markdown cleared."
 msgstr ""
 
-#: src/md4ai-admin.ts:90
+#: src/md4ai-admin.ts:100
 msgid "Enter your prompt"
 msgstr ""
 
-#: src/md4ai-admin.ts:102
-#: inc/class-md4ai-admin.php:324
+#: src/md4ai-admin.ts:112
+#: inc/class-md4ai-admin.php:323
 msgid "Clear Custom Markdown"
 msgstr ""
 
-#: src/md4ai-admin.ts:114
+#: src/md4ai-admin.ts:124
 msgid "Markdown generated successfully!"
 msgstr ""
 
-#: src/md4ai-admin.ts:146
-msgid "Generating..."
+#: src/md4ai-admin.ts:164
+msgid "Generating?"
 msgstr ""
 
-#: src/md4ai-admin.ts:172
-#: src/md4ai-admin.ts:179
+#: src/md4ai-admin.ts:188
+#: src/md4ai-admin.ts:197
 msgid "Error generating markdown."
 msgstr ""
 
-#: src/md4ai-admin.ts:207
-msgid "Generating with AI..."
+#: src/md4ai-admin.ts:239
+msgid "Generating with AI?"
 msgstr ""
 
-#: src/md4ai-admin.ts:211
-msgid "Fetching content..."
+#: src/md4ai-admin.ts:243
+msgid "Fetching content?"
 msgstr ""
 
-#: src/md4ai-admin.ts:232
-msgid "Processing with AI..."
+#: src/md4ai-admin.ts:264
+msgid "Processing with AI?"
 msgstr ""
 
-#: src/md4ai-admin.ts:262
+#: src/md4ai-admin.ts:298
 msgid "Error generating AI-enhanced markdown."
 msgstr ""
 
-#: inc/class-md4ai-restapi.php:76
+#: inc/class-md4ai-restapi.php:81
 msgid "Invalid post ID."
 msgstr ""
 
-#: inc/class-md4ai-restapi.php:82
+#: inc/class-md4ai-restapi.php:87
 msgid "Post not found."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:68
-#: inc/class-md4ai-admin.php:73
+#: inc/class-md4ai-admin.php:77
+#: inc/class-md4ai-admin.php:82
 msgid "llms.txt Content"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:69
+#: inc/class-md4ai-admin.php:78
 msgid ""
 "This content will be served at /llms.txt for AI bots and crawlers. Leave "
 "empty to use default."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:85
+#: inc/class-md4ai-admin.php:94
 msgid "Clear llms.txt"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:88
+#: inc/class-md4ai-admin.php:97
 msgid "Update llms.txt"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:105
+#: inc/class-md4ai-admin.php:114
 msgid "AI Bot Markdown Content"
 msgstr ""
 
@@ -152,21 +158,29 @@ msgstr ""
 msgid "Are you sure you want to clear all cached files?"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:315
+#: inc/class-md4ai-admin.php:278
+msgid "Cache cleared successfully!"
+msgstr ""
+
+#: inc/class-md4ai-admin.php:286
+msgid "llms.txt updated successfully!"
+msgstr ""
+
+#: inc/class-md4ai-admin.php:314
 msgid ""
 "Customize the Markdown content that will be served to AI bots. Leave empty "
 "to auto-generate from post content."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:336
+#: inc/class-md4ai-admin.php:335
 msgid "Custom markdown will appear here..."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:342
+#: inc/class-md4ai-admin.php:341
 msgid "Note:"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:343
+#: inc/class-md4ai-admin.php:342
 msgid ""
 "Custom markdown is active. AI bots will see this content instead of the "
 "auto-generated version."

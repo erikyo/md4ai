@@ -275,7 +275,7 @@ Optional details go here
 		// Handle cache clear request
 		if (isset($_POST['clear_cache']) && check_admin_referer('ai_md_clear_cache')) {
 			$this->cache->clear_all_cache();
-			echo '<div class="notice notice-success"><p>Cache cleared successfully!</p></div>';
+			printf('<div class="notice notice-success"><p>%s</p></div>', esc_html__( 'Cache cleared successfully!', 'md4ai' ));
 		}
 
 		// Handle llms.txt update
@@ -283,7 +283,7 @@ Optional details go here
 			if (isset($_POST['llmstxt_content'])) {
 				$llms_content = sanitize_textarea_field(wp_unslash($_POST['llmstxt_content']));
 				update_option($this->llms_txt_option, $llms_content);
-				echo '<div class="notice notice-success"><p>llms.txt updated successfully!</p></div>';
+				printf('<div class="notice notice-success"><p>%s</p></div>', __('llms.txt updated successfully!', 'md4ai'));
 			}
 		}
 		?>
@@ -293,7 +293,6 @@ Optional details go here
 			<?php self::render_card_llms_txt(); ?>
 
 			<?php self::render_card_cache(); ?>
-
 		</div>
 		<?php
 	}
