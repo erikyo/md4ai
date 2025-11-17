@@ -19,8 +19,13 @@ declare const window: {
 					TEXT_GENERATION: string;
 				};
 			};
-			helpers: any;
-			store: any;
+			helpers: {
+        getTextFromContents: ( arg: string ) => string;
+        getCandidateContents: ( arg: string ) => string;
+      };
+			store: {
+        name: string;
+      };
 		};
 	};
 };

@@ -209,7 +209,7 @@ Optional details go here
 		// Get the REST API namespace from the RestAPI class instance
 		$rest_namespace = 'md4ai/v1'; // This should ideally be passed from the RestAPI class
 
-		wp_localize_script('md4ai-admin', 'aiMdData', [
+		wp_localize_script('md4ai-admin', 'md4aiData', [
 			'restUrl' => rest_url($rest_namespace ),
 			'nonce' => wp_create_nonce('wp_rest' ),
 			'postId' => get_the_ID(),

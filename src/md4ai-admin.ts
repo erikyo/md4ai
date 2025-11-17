@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { waitForAiServices } from './md4ai-services';
 
-declare const aiMdData: {
+declare const md4aiData: {
 	restUrl: string;
 	nonce: string;
 	postId: number;
@@ -152,9 +152,9 @@ function handleMd4aiButtons() {
 		}
 
 		// Get the endpoint from the dataset
-		const endpoint = aiMdData.restUrl + '/' + generateBtn.dataset.endpoint;
-		const url = aiMdData.postId
-			? endpoint + '/' + aiMdData.postId
+		const endpoint = md4aiData.restUrl + '/' + generateBtn.dataset.endpoint;
+		const url = md4aiData.postId
+			? endpoint + '/' + md4aiData.postId
 			: endpoint;
 
 		// Disable the button to prevent multiple submissions
@@ -169,7 +169,7 @@ function handleMd4aiButtons() {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-WP-Nonce': aiMdData.nonce,
+					'X-WP-Nonce': md4aiData.nonce,
 				},
 			} );
 
@@ -227,9 +227,9 @@ function handleMd4aiButtons() {
 
 		// Get the endpoint from the dataset
 		const endpoint =
-			aiMdData.restUrl + '/' + generateAiBtn.dataset.endpoint;
-		const url = aiMdData.postId
-			? endpoint + '/' + aiMdData.postId
+			md4aiData.restUrl + '/' + generateAiBtn.dataset.endpoint;
+		const url = md4aiData.postId
+			? endpoint + '/' + md4aiData.postId
 			: endpoint;
 
 		// Disable the button to prevent multiple submissions
@@ -246,7 +246,7 @@ function handleMd4aiButtons() {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-WP-Nonce': aiMdData.nonce,
+					'X-WP-Nonce': md4aiData.nonce,
 				},
 			} );
 
@@ -319,7 +319,7 @@ function handleMd4aiButtons() {
 			textarea.before( promptInput );
 
 			// Determine which prompt to use based on the endpoint
-			const prompt = aiMdData.prompts[ generateAiBtn.dataset.endpoint ];
+			const prompt = md4aiData.prompts[ generateAiBtn.dataset.endpoint ];
 			promptInput.value = prompt;
 
 			// Attach the click listener once AI services are ready
