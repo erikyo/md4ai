@@ -1,6 +1,6 @@
 === md4AI ===
 Contributors: codekraft
-Tags: AI, GEO, SEO, markdown, insights
+Tags: GEO, AI, SEO, markdown, llms.txt
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4

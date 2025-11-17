@@ -46,7 +46,7 @@ function md4ai_uninstall() {
 
 	// delete all the post meta data
 	global $wpdb;
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+	// WordPress.DB.DirectDatabaseQuery.DirectQuery phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->delete(
 		$wpdb->postmeta,
 		[ "meta_key" => "ai_md_custom_markdown"],

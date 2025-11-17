@@ -72,10 +72,17 @@ Optional details go here
 
 	private function render_card_llms_txt() {
 		$llms_content = get_option($this->llms_txt_option, '');
+		$llms_url = home_url('/llms.txt');
 		?>
 		<div class="card">
 			<h2><?php esc_html_e('llms.txt Content', 'md4ai'); ?></h2>
-			<p><?php esc_html_e('This content will be served at /llms.txt for AI bots and crawlers. Leave empty to use default.', 'md4ai'); ?></p>
+			<p><?php printf(
+				'%s <a href="%s">%s</a>. %s',
+					esc_html__('This content will be served to AI bots and crawlers at', 'md4ai'),
+					$llms_url,
+					$llms_url,
+					esc_html__('Leave empty to use default.', 'md4ai')
+				); ?></p>
 			<form method="post">
 				<?php wp_nonce_field('ai_md_update_llmstxt'); ?>
 				<p>
@@ -198,11 +205,13 @@ Optional details go here
 			return;
 		}
 
+		$asset = include MD4AI_PLUGIN_DIR . '/build/md4ai-admin.asset.php';
+
 		wp_enqueue_script(
 			'md4ai-admin',
 			plugins_url('build/md4ai-admin.js', dirname(__FILE__)),
-			[],
-			'1.0.0',
+			$asset['dependencies'],
+			$asset['version'],
 			true
 		);
 
@@ -307,11 +316,13 @@ Optional details go here
 		$custom_markdown = get_post_meta($post->ID, $meta_key, true);
 		$has_custom = !empty($custom_markdown);
 		$textarea_id = 'md4ai-textarea';
+		$post_url = esc_url(home_url('/?p=' . $post->ID . '&md4ai_md=1'));
 
 		?>
 		<div id="md4ai-metabox">
 			<p class="description">
 				<?php esc_html_e('Customize the Markdown content that will be served to AI bots. Leave empty to auto-generate from post content.', 'md4ai'); ?>
+				<?php printf('%s<a href="%s">%s</a>', esc_html__('To get the Markdown content, click ', 'md4ai'), $post_url, esc_html__('here', 'md4ai')) ?>
 			</p>
 
 			<p>
