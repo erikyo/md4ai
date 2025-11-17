@@ -85,6 +85,7 @@ class md4AI_Core {
 	 */
 	public function add_llmstxt_query_var($vars) {
 		$vars[] = 'md4ai_llmstxt';
+		$vars[] = 'md4ai_md';
 		return $vars;
 	}
 
@@ -92,14 +93,20 @@ class md4AI_Core {
 	 * Handles all requests (llms.txt or markdown for AI bots)
 	 */
 	public function handle_requests() {
+		if (is_admin()) {
+			return;
+		}
+
 		// Check if requesting llms.txt
 		if (get_query_var('md4ai_llmstxt')) {
 			$this->serve_llmstxt();
 			return;
 		}
 
-		// Otherwise, check if it's an AI bot requesting content
-		$this->serve_markdown_to_bots();
+		// Check if it's an AI bot or a request for markdown
+		if (get_query_var('md4ai_md') || $this->is_ai_bot()) {
+			$this->serve_markdown_to_bots();
+		}
 	}
 
 	/**
@@ -126,11 +133,6 @@ class md4AI_Core {
 	 * Serves the content in Markdown to AI bots
 	 */
 	private function serve_markdown_to_bots() {
-		// Check if it's an AI bot
-		if (!$this->is_ai_bot()) {
-			return;
-		}
-
 		// Get the current post
 		global $post;
 
