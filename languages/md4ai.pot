@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-11-13T13:31:41.174Z\n"
+"POT-Creation-Date: 2025-11-20T20:36:32.468Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Domain: md4ai\n"
 
 #: md4ai.php
-#: inc/class-md4ai-admin.php:291
+#: inc/Md4Ai_Admin_Views.php:109
 #. Name of the plugin
 msgid "md4AI"
 msgstr ""
@@ -37,151 +37,279 @@ msgstr ""
 msgid "Codekraft"
 msgstr ""
 
-#: src/md4ai-admin.ts:78
+#: src/md4ai-charts.ts:57
+msgid "Requests"
+msgstr ""
+
+#: src/md4ai-admin.ts:113
 msgid ""
 "Are you sure you want to clear the custom markdown? Auto-generation will be "
 "used instead."
 msgstr ""
 
-#: src/md4ai-admin.ts:83
+#: src/md4ai-admin.ts:125
 msgid "Custom markdown cleared."
 msgstr ""
 
-#: src/md4ai-admin.ts:100
+#: src/md4ai-admin.ts:145
 msgid "Enter your prompt"
 msgstr ""
 
-#: src/md4ai-admin.ts:112
-#: inc/class-md4ai-admin.php:323
+#: src/md4ai-admin.ts:161
 msgid "Clear Custom Markdown"
 msgstr ""
 
-#: src/md4ai-admin.ts:124
+#: src/md4ai-admin.ts:185
 msgid "Markdown generated successfully!"
 msgstr ""
 
-#: src/md4ai-admin.ts:164
+#: src/md4ai-admin.ts:222
 msgid "Generating?"
 msgstr ""
 
-#: src/md4ai-admin.ts:188
-#: src/md4ai-admin.ts:197
+#: src/md4ai-admin.ts:243
+#: src/md4ai-admin.ts:251
 msgid "Error generating markdown."
 msgstr ""
 
-#: src/md4ai-admin.ts:239
+#: src/md4ai-admin.ts:289
 msgid "Generating with AI?"
 msgstr ""
 
-#: src/md4ai-admin.ts:243
+#: src/md4ai-admin.ts:293
 msgid "Fetching content?"
 msgstr ""
 
-#: src/md4ai-admin.ts:264
+#: src/md4ai-admin.ts:315
 msgid "Processing with AI?"
 msgstr ""
 
-#: src/md4ai-admin.ts:298
+#: src/md4ai-admin.ts:357
 msgid "Error generating AI-enhanced markdown."
 msgstr ""
 
-#: inc/class-md4ai-restapi.php:81
-msgid "Invalid post ID."
-msgstr ""
-
-#: inc/class-md4ai-restapi.php:87
-msgid "Post not found."
-msgstr ""
-
-#: inc/class-md4ai-admin.php:77
-#: inc/class-md4ai-admin.php:82
-msgid "llms.txt Content"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:78
-msgid ""
-"This content will be served at /llms.txt for AI bots and crawlers. Leave "
-"empty to use default."
-msgstr ""
-
-#: inc/class-md4ai-admin.php:94
-msgid "Clear llms.txt"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:97
-msgid "Update llms.txt"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:114
-msgid "AI Bot Markdown Content"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:237
+#: inc/Md4Ai_Utils.php:21
 msgid "Generate"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:241
+#: inc/Md4Ai_Utils.php:25
 msgid "Generate using AI"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:252
-msgid "Cache Statistics"
+#: inc/Md4Ai_RestAPI.php:97
+msgid "Invalid post ID."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:253
-msgid "Cached Files:"
+#: inc/Md4Ai_RestAPI.php:103
+msgid "Post not found."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:254
-msgid "Total Size:"
+#: inc/Md4Ai_Metabox.php:26
+msgid "AI Bot Markdown Content"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:255
-msgid "Cache Directory:"
+#: inc/Md4Ai_Metabox.php:56
+msgid "Markdown Editor"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:259
-msgid "Clear Cache"
+#: inc/Md4Ai_Metabox.php:60
+msgid "View Output"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:260
-msgid ""
-"Clear all cached Markdown files. This will force regeneration on the next "
-"AI bot visit."
-msgstr ""
-
-#: inc/class-md4ai-admin.php:264
-msgid "Clear All Cache"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:265
-msgid "Are you sure you want to clear all cached files?"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:278
-msgid "Cache cleared successfully!"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:286
-msgid "llms.txt updated successfully!"
-msgstr ""
-
-#: inc/class-md4ai-admin.php:314
+#: inc/Md4Ai_Metabox.php:67
 msgid ""
 "Customize the Markdown content that will be served to AI bots. Leave empty "
 "to auto-generate from post content."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:335
+#: inc/Md4Ai_Metabox.php:75
+msgid "Custom markdown is active."
+msgstr ""
+
+#: inc/Md4Ai_Metabox.php:76
+msgid "AI bots will see this content instead of the auto-generated version."
+msgstr ""
+
+#: inc/Md4Ai_Metabox.php:84
 msgid "Custom markdown will appear here..."
 msgstr ""
 
-#: inc/class-md4ai-admin.php:341
-msgid "Note:"
+#: inc/Md4Ai_Metabox.php:104
+msgid "Clear Custom"
 msgstr ""
 
-#: inc/class-md4ai-admin.php:342
+#: inc/Md4Ai_Metabox.php:116
+msgid "Markdown Preview"
+msgstr ""
+
+#: inc/Md4Ai_Metabox.php:123
+#: inc/Md4Ai_Admin_Views.php:516
+msgid "Preview will appear here"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:95
+msgid "Cache cleared successfully!"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:104
+msgid "llms.txt updated successfully!"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:126
+msgid "Dashboard"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:134
+msgid "AI services are enabled!"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:138
+msgid "AI services are not enabled. Please configure them in Settings."
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:151
+msgid "Total Requests"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:152
+msgid "Last 7 days"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:162
+msgid "Unique Crawlers"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:163
+msgid "Different bots"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:173
+msgid "Posts Indexed"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:174
+msgid "Total posts"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:184
+msgid "Today\\'s Requests"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:193
+msgid "Requests per Day"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:198
+msgid "Requests by Crawler"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:205
+msgid "Most Indexed Posts"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:209
+msgid "Post Title"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:210
+msgid "Total Hits"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:211
+msgid "Last Crawled"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:232
+msgid "No data available yet"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:242
+msgid "Recent Crawler Activity"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:246
+msgid "Time"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:247
+msgid "Crawler"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:248
+msgid "Post"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:271
+msgid "No recent activity"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:432
+msgid "llms.txt"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:436
+msgid "View llms.txt"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:444
+msgid "Custom llms.txt is active."
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:445
+#: inc/Md4Ai_Admin_Views.php:448
+msgid "This content will be served at"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:450
+msgid "Leave empty to use default content."
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:463
+msgid "Editor"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:492
+msgid "Clear"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:498
+msgid "Save Changes"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:509
+msgid "Preview"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:534
+msgid "Cache Statistics"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:535
+msgid "Cached Files:"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:536
+msgid "Total Size:"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:537
+msgid "Cache Directory:"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:541
+msgid "Clear Cache"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:542
 msgid ""
-"Custom markdown is active. AI bots will see this content instead of the "
-"auto-generated version."
+"Clear all cached Markdown files. This will force regeneration on the next "
+"AI bot visit."
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:546
+msgid "Clear All Cache"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:547
+msgid "Are you sure you want to clear all cached files?"
 msgstr ""
