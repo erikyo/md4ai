@@ -1,13 +1,16 @@
 <?php
+
+namespace Md4Ai;
+
 /**
  * Markdown generation and conversion class
  */
-class md4AI_Markdown {
+class Md4Ai_Markdown {
 
 	/**
 	 * Post-meta key for custom Markdown
 	 */
-	private string $meta_key = '_ai_md_custom_markdown';
+	private string $meta_key = '_md4ai_custom_markdown';
 
 	/**
 	 * Cache instance
@@ -29,8 +32,12 @@ class md4AI_Markdown {
 	 * Gets markdown for a post - checks custom meta first, then generates
 	 */
 	public function get_post_markdown($post) {
-		// Get default args
-		$args = apply_filters('md4ai-post-args', [
+		/**
+		 * Filter to modify post arguments
+		 *
+		 * @param array $args The arguments to pass to the convert_post_to_markdown method
+		 */
+		$args = apply_filters('md4ai_post_args', [
 			'include_navigation' => true,
 			'include_categories' => true,
 			'include_tags' => true,
@@ -163,7 +170,11 @@ class md4AI_Markdown {
 			'include_footer' => false,
 		]);
 
-		/* Filter the post */
+		/**
+		 * Filter to modify post before conversion to Markdown
+		 *
+		 * @param object $post The post object
+		 */
 		$post = apply_filters('md4ai_post', $post);
 
 		$output = "";
@@ -174,16 +185,21 @@ class md4AI_Markdown {
 			// Title
 			$output .= '# ' . esc_html($post->post_title) . "\n\n";
 
-			// Meta information
+			// The Page Meta information
 			$output .= '**URL:** ' . esc_url(get_permalink($post)) . "\n";
 			$output .= '**Date:** ' . get_the_date('Y-m-d', $post) . "\n";
 			$output .= '**Author:** ' . esc_html(get_the_author_meta('display_name', $post->post_author)) . "\n\n";
 			$output .= "---\n\n";
 
-			// Content
+			/**
+			 * Filter to modify content before conversion to Markdown
+			 *
+			 * @param string $content The post content
+			 */
 			$content = apply_filters('md4ai_the_content', $post->post_content);
-			$content = $this->html_to_markdown($content);
-			$output .= $content . "\n\n";
+
+			// Convert HTML to Markdown
+			$output .= $this->html_to_markdown($content) . "\n\n";
 		}
 
 		$output .= $this->generate_website_links($args, $post);
@@ -195,7 +211,7 @@ class md4AI_Markdown {
 	 * Extracts links from header and footer
 	 */
 	public function extract_header_footer_links() {
-		// Start output buffering to capture header
+		// Start output buffering to capture the header
 		ob_start();
 		get_header();
 		$header_html = ob_get_clean();
@@ -231,9 +247,7 @@ class md4AI_Markdown {
 			$text = trim(preg_replace('/\s+/', ' ', $text));
 
 			// Skip empty links, anchors, and javascript
-			if (empty($text) ||
-			    strpos($url, '#') === 0 ||
-			    strpos($url, 'javascript:') === 0 ||
+			if (empty($text) || str_starts_with( $url, '#' ) || str_starts_with( $url, 'javascript:' ) ||
 			    strlen($text) > 100) { // Skip very long text (likely not navigation)
 				continue;
 			}
@@ -260,8 +274,10 @@ class md4AI_Markdown {
 
 	/**
 	 * Formats header/footer links as Markdown
+	 *
+	 * @return string The formatted Markdown
 	 */
-	private function format_navigation_markdown($links, $title) {
+	private function format_navigation_markdown($links, $title): string {
 		if (empty($links)) {
 			return '';
 		}
@@ -317,7 +333,7 @@ class md4AI_Markdown {
 			foreach ($recent_posts as $post) {
 				$post_url = get_permalink($post->ID);
 				$post_title = esc_html($post->post_title);
-				$post_excerpt = wp_trim_words(strip_tags($post->post_excerpt ?: $post->post_content), 20);
+				$post_excerpt = wp_trim_words(wp_strip_all_tags($post->post_excerpt ?: $post->post_content), 20);
 
 				$content .= "- [{$post_title}]({$post_url})";
 				if (!empty($post_excerpt)) {

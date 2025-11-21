@@ -6,6 +6,11 @@ class md4AI_Core {
 
 	/**
 	 * List of AI bots to detect
+	 *
+	 * Claude https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler
+	 * ChatGPT https://platform.openai.com/docs/bots/overview-of-openai-crawlers
+	 * Perplexity https://docs.perplexity.ai/guides/bots
+	 * Google https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers
 	 */
 	private $ai_useragents = [
 		'gptbot',
@@ -51,9 +56,14 @@ class md4AI_Core {
 	}
 
 	/**
-	 * Setup AI user agents with filter
+	 * Set up AI user agents
 	 */
 	private function setup_ai_useragents() {
+		/**
+		 * Filters the list of AI user agents
+		 *
+		 * @param array $ai_useragents The list of AI user agents
+		 */
 		return apply_filters('md4ai_ai_useragents', $this->ai_useragents);
 	}
 
@@ -79,12 +89,13 @@ class md4AI_Core {
 	/**
 	 * Add rewrite rule for llms.txt
 	 */
-	public function add_llmstxt_rewrite() {
+	public function add_llmstxt_rewrite(): void {
 		add_rewrite_rule('^llms\.txt$', 'index.php?md4ai_llmstxt=1', 'top');
 	}
 
 	/**
 	 * Add query var for llms.txt
+	 * Utilizes the add_query_var filter
 	 */
 	public function add_llmstxt_query_var($vars) {
 		$vars[] = 'md4ai_llmstxt';
