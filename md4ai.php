@@ -17,13 +17,13 @@ if (!defined('MD4AI_PLUGIN_DIR')) {
 	define('MD4AI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 }
 
+/**
+ * Option name for llms.txt content
+ */
+const MD4AI_OPTION = 'md4ai_options';
 
-// Include the class files
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-core.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-admin.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-cache.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-markdown.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-restapi.php';
+// Composer autoloader
+require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 // run the plugin
 function md4ai_init() {
