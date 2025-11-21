@@ -8,7 +8,6 @@
  * License: GPLv2 or later
  */
 
-
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -27,7 +26,7 @@ require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 // run the plugin
 function md4ai_init() {
-	new md4AI_Core();
+	new Md4Ai\Md4Ai_Core();
 }
 add_action('plugins_loaded', 'md4ai_init');
 
@@ -41,7 +40,7 @@ add_action('plugins_loaded', 'md4ai_init');
  * @since 1.0.0
  */
 function md4ai_uninstall() {
-	$cache = new md4AI_Cache;
+	$cache = new Md4Ai\Md4Ai_Cache;
 	$cache->clear_all_cache();
 
 	// delete all the post meta data
