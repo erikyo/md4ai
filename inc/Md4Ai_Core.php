@@ -1,8 +1,11 @@
 <?php
+
+namespace Md4Ai;
+
 /**
  * Core class - handles initialization and AI bot detection
  */
-class md4AI_Core {
+class Md4Ai_Core {
 
 	/**
 	 * List of AI bots to detect
@@ -131,7 +134,7 @@ class md4AI_Core {
 	 * Serves the llms.txt content
 	 */
 	private function serve_llmstxt() {
-		$llms_content = $this->admin->get_llms_txt_content();
+		$llms_content = Md4Ai_Utils::get_llms_txt_content();
 
 		// If no content is set, provide a default message
 		if (empty($llms_content)) {
@@ -143,7 +146,10 @@ class md4AI_Core {
 		header('X-Robots-Tag: noindex, nofollow');
 		header('Cache-Control: public, max-age=3600'); // Cache for 1 hour
 
-		echo $llms_content;
+		echo esc_textarea($llms_content);
+		$user_agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
+
+		Md4Ai_Utils::log_request( 0, $user_agent, $this->ai_bots );
 		exit;
 	}
 
@@ -179,6 +185,12 @@ class md4AI_Core {
 		header('X-Robots-Tag: noindex, nofollow');
 		header('X-Cache: ' . ($from_cache ? 'HIT' : 'MISS'));
 		echo esc_textarea($markdown);
+
+		// If is a bot log the request
+		if ($this->is_ai_bot()) {
+			$user_agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
+			Md4Ai_Utils::log_request( $post->ID, $user_agent, $this->ai_bots );
+		}
 		exit;
 	}
 }
