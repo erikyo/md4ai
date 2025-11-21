@@ -20,12 +20,12 @@ declare const window: {
 				};
 			};
 			helpers: {
-        getTextFromContents: ( arg: string ) => string;
-        getCandidateContents: ( arg: string ) => string;
-      };
+				getTextFromContents: ( arg: string ) => string;
+				getCandidateContents: ( arg: string ) => string;
+			};
 			store: {
-        name: string;
-      };
+				name: string;
+			};
 		};
 	};
 };
@@ -35,6 +35,10 @@ declare const window: {
  * @param fn
  */
 function waitForAiServices( fn: () => void ) {
+  // Check if aiServices is available, if not, return
+  if (!window.aiServices) return;
+
+  // Get aiServices
 	const { enums, store: aiStore } = window.aiServices.ai;
 	const SERVICE_ARGS = {
 		capabilities: [ enums.AiCapability.TEXT_GENERATION ],
@@ -45,10 +49,7 @@ function waitForAiServices( fn: () => void ) {
 	function checkAndRun() {
 		try {
 			const { hasAvailableServices } = select( aiStore.name );
-
 			if ( hasAvailableServices( SERVICE_ARGS ) ) {
-				console.log( 'AI services are available' );
-				/** ready */
 				return true;
 			}
 		} catch ( error ) {
@@ -63,7 +64,7 @@ function waitForAiServices( fn: () => void ) {
 		try {
 			fn();
 		} catch ( error ) {
-			alert( error );
+			console.error( error );
 		}
 		return;
 	}
@@ -75,7 +76,7 @@ function waitForAiServices( fn: () => void ) {
 			try {
 				fn();
 			} catch ( error ) {
-				alert( error );
+				console.error( error );
 			}
 		}
 	} );
