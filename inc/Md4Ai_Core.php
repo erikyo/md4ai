@@ -24,20 +24,23 @@ class md4AI_Core {
 		'youbot'
 	];
 
-	private $ai_bots;
-	private md4AI_Cache $cache;
-	private md4AI_Markdown $markdown;
-	private md4AI_RestAPI $rest_api;
-	private md4AI_Admin $admin;
+	private array $ai_bots;
+	private Md4Ai_Cache $cache;
+	private Md4Ai_Markdown $markdown;
+	private Md4Ai_Admin $admin;
 
 	public function __construct() {
 		$this->ai_bots = $this->setup_ai_useragents();
 
 		// Initialize sub-components
-		$this->cache = new md4AI_Cache();
-		$this->markdown = new md4AI_Markdown($this->cache);
-		new md4AI_RestAPI($this->markdown);
-		$this->admin = new md4AI_Admin($this->cache, $this->markdown);
+		$this->cache = new Md4Ai_Cache();
+		$this->markdown = new Md4Ai_Markdown($this->cache);
+
+		// Initialize REST API
+		new Md4Ai_RestAPI($this->markdown);
+
+		// Initialize metabox and admin
+		$this->admin = new Md4Ai_Admin($this->cache, $this->markdown);
 
 		// Hook into template redirect
 		add_action('template_redirect', [$this, 'handle_requests'], 1);
