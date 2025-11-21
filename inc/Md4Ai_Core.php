@@ -13,20 +13,24 @@ class md4AI_Core {
 	 * Google https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers
 	 */
 	private $ai_useragents = [
-		'gptbot',
-		'oai-searchbot',
-		'chatgpt-user',
-		'claudebot',
-		'perplexitybot',
-		'google-extended',
-		'bingbot',
-		'anthropic-ai',
-		'cohere-ai',
-		'omgilibot',
-		'omgili',
-		'facebookbot',
-		'applebot',
-		'youbot'
+		'oai-searchbot', // OAI-SearchBot/1.0; +https://openai.com/searchbot
+		'gptbot', // GPTBot/1.0 (+https://openai.com/gptbot)
+		'chatgpt-user', // ChatGPT-User/1.0; +https://openai.com/bot
+		'mistralai-user', // MistralAI-User/1.0; +https://docs.mistral.ai/robots
+		'gptbot', // GPTBot/1.1; +https://openai.com/gptbot
+		'deepseekbot', // DeepSeekBot/1.0; +http://www.deepseek.com/bot
+		'chatglm', // ChatGLM/1.0; +https://chatglm.com/bot
+		'claudebot', // ChatGLM-Spider # https://darkvisitors.com/agents/chatglm-spider
+		'claude-user', // Claude-User/1.0; +https://openai.com/bot
+		'anthropic-ai', // anthropic-ai/1.0 (+https://www.anthropic.com/bot)
+		'meta-externalagent', // meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)
+		'ccbot', // CCBot/2.0 (https://commoncrawl.org/faq/)
+		'perplexitybot', // PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)
+		'perplexity-user', // Perplexity‑User/1.0; +https://perplexity.ai/perplexityuser
+		'google-extended', // Google-Extended/1.0; +http://www.google.com/bot.html
+		'applebot-extended', // Applebot-Extended/1.0; +http://www.apple.com/bot.html
+		'cohere-training-data-crawler', // cohere-training-data-crawler/1.0; +http://www.cohere.ai/bot.html
+		'cohere-ai' // cohere-ai/1.0; +http://www.cohere.ai/bot.html
 	];
 
 	private array $ai_bots;
