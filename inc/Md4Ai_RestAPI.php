@@ -1,8 +1,14 @@
 <?php
+
+namespace Md4Ai;
+
+use WP_Error;
+use WP_REST_Response;
+
 /**
  * REST API endpoints class
  */
-class md4AI_RestAPI {
+class Md4Ai_RestAPI {
 
 	/**
 	 * REST API namespace
@@ -12,14 +18,14 @@ class md4AI_RestAPI {
 	/**
 	 * Markdown instance
 	 */
-	private md4AI_Markdown $markdown;
+	private Md4Ai_Markdown $markdown;
 
 	/**
 	 * Constructs the REST API endpoints class
 	 *
-	 * @param md4AI_Markdown $markdown Markdown generation and conversion class instance
+	 * @param Md4Ai_Markdown $markdown Markdown generation and conversion class instance
 	 */
-	public function __construct( md4AI_Markdown $markdown) {
+	public function __construct( Md4Ai_Markdown $markdown) {
 		$this->markdown = $markdown;
 		add_action('rest_api_init', [$this, 'register_rest_routes']);
 	}
@@ -54,10 +60,17 @@ class md4AI_RestAPI {
 			'callback' => [$this, 'rest_generate_llmstxt'],
 			'permission_callback' => [$this, 'admin_permission_check']
 		]);
+
+		register_rest_route( $this->namespace, '/get-stats', [
+			'methods' => 'GET',
+			'callback' => [$this, 'rest_get_stats'],
+			'permission_callback' => [$this, 'admin_permission_check']
+			]);
 	}
 
 	/**
 	 * Permission check for REST API
+	 * @return bool Whether the user has permission to access the API
 	 */
 	public function rest_permission_check($request) {
 		$post_id = $request->get_param('id');
@@ -66,6 +79,7 @@ class md4AI_RestAPI {
 
 	/**
 	 * Permission check for REST API
+	 * @return bool Whether the user has permission to access the API
 	 */
 	public function admin_permission_check($request) {
 		return current_user_can('edit_posts');
@@ -73,6 +87,8 @@ class md4AI_RestAPI {
 
 	/**
 	 * REST API handler for generating markdown
+	 *
+	 * @return WP_REST_Response | WP_Error The response from the API or an error
 	 */
 	public function rest_generate_markdown($request) {
 		$post_id = $request->get_param('id');
@@ -94,10 +110,36 @@ class md4AI_RestAPI {
 		], 200);
 	}
 
+	/**
+	 * REST API handler for generating llmstxt
+	 *
+	 * @return WP_REST_Response The response from the API or an error
+	 */
 	public function rest_generate_llmstxt() {
 		$llmstxt = $this->markdown->generate_default_llmstxt();
 		return new WP_REST_Response([
 			'markdown' => $llmstxt,
+		], 200);
+	}
+
+	/**
+	 * Generate Stats
+	 *
+	 * @returns WP_REST_Response | WP_Error The response from the API or an error
+	 */
+	public function rest_get_stats() {
+		$options = get_option( MD4AI_OPTION );
+		$analytics = $options['requests'] ?? [];
+
+		if (empty($analytics)) {
+			return new WP_REST_Response([
+				'stats' => [],
+			], 200);
+		}
+
+		$stats = Md4Ai_Admin_Views::prepare_dashboard_stats($analytics);
+		return new WP_REST_Response([
+			'stats' => $stats,
 		], 200);
 	}
 }
