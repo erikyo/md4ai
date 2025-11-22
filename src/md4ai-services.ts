@@ -90,10 +90,10 @@ async function generateAiText( fullPrompt: string ) {
 
 	// Sometimes we can find the whole response wrapped with ```text or ```markdown from the beginning. in this case we should remove it
 	if ( generated.startsWith( '```' ) ) {
-		generated = generated.replace( /^```text|```markdown/g, '' );
+    generated = generated.replace(/^```(?:text|markdown)?\s*/, '');
 
 		// then remove the last ```
-		generated = generated.replace( /```$/g, '' );
+    generated = generated.replace(/\s*```$/, '');
 	}
 
 	return generated;
