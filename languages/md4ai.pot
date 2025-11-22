@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-11-22T20:39:44.623Z\n"
+"POT-Creation-Date: 2025-11-22T20:51:00.822Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -126,45 +126,45 @@ msgstr ""
 msgid "Post not found."
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:26
+#: inc/Md4Ai_Metabox.php:31
 msgid "AI Bot Markdown Content"
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:56
+#: inc/Md4Ai_Metabox.php:61
 msgid "Markdown Editor"
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:60
+#: inc/Md4Ai_Metabox.php:65
 msgid "View Output"
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:67
+#: inc/Md4Ai_Metabox.php:72
 msgid ""
 "Customize the Markdown content that will be served to AI bots. Leave empty "
 "to auto-generate from post content."
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:75
+#: inc/Md4Ai_Metabox.php:80
 msgid "Custom markdown is active."
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:76
+#: inc/Md4Ai_Metabox.php:81
 msgid "AI bots will see this content instead of the auto-generated version."
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:84
+#: inc/Md4Ai_Metabox.php:89
 msgid "Custom markdown will appear here..."
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:104
+#: inc/Md4Ai_Metabox.php:109
 msgid "Clear Custom"
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:116
+#: inc/Md4Ai_Metabox.php:121
 msgid "Markdown Preview"
 msgstr ""
 
-#: inc/Md4Ai_Metabox.php:123
+#: inc/Md4Ai_Metabox.php:128
 #: inc/Md4Ai_Admin_Views.php:556
 msgid "Preview will appear here"
 msgstr ""

@@ -28,7 +28,7 @@ class Md4Ai_Admin {
 		add_action( 'plugin_action_links_' . MD4AI_PLUGIN_BASENAME, [$this, 'plugin_settings_link'] );
 
 		// Add meta-box for Markdown editing
-		new Md4Ai_Metabox($this->markdown);
+		new Md4Ai_Metabox($this->markdown, $this->cache);
 
 		// Enqueue admin scripts
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
@@ -43,7 +43,7 @@ class Md4Ai_Admin {
 
 		add_management_page(
 			'AI Markdown Cache',
-			'Md4Ai',
+			'Md4AI',
 			'manage_options',
 			'md4ai',
 			[$admin_views, 'render_admin_page']

@@ -3,10 +3,15 @@
 namespace Md4Ai;
 class Md4Ai_Metabox {
 
-	private $markdown;
+	// The Markdown class
+	private Md4Ai_Markdown $markdown;
 
-	public function __construct(Md4Ai_Markdown $markdown) {
+	// The Cache class
+	private Md4Ai_Cache $cache;
+
+	public function __construct(Md4Ai_Markdown $markdown, Md4Ai_Cache $cache) {
 		$this->markdown = $markdown;
+		$this->cache = $cache;
 
 		// Add metabox for Markdown editing
 		add_action('add_meta_boxes', [$this, 'add_markdown_metabox']);
@@ -14,7 +19,7 @@ class Md4Ai_Metabox {
 	}
 
 	/**
-	 * Adds metabox for markdown editing
+	 * Adds metabox for Markdown editing
 	 */
 	public function add_markdown_metabox() {
 		$post_types = get_post_types(['public' => true], 'names');
@@ -147,7 +152,7 @@ class Md4Ai_Metabox {
 			return;
 		}
 
-		// Save or delete custom markdown
+		// Save or delete custom Markdown
 		if (isset($_POST['md4ai_custom_markdown'])) {
 			$markdown = sanitize_textarea_field(
 			/* phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash */
@@ -162,7 +167,7 @@ class Md4Ai_Metabox {
 				delete_post_meta($post_id, $meta_key);
 			}
 
-			// Clear cache when custom markdown is updated
+			// Clear cache when custom Markdown is updated
 			$this->cache->clear_post_cache($post_id);
 		}
 	}
