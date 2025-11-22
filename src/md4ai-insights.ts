@@ -1,6 +1,7 @@
 // Declare global variables
 import {generateAiText, waitForAiServices} from './md4ai-services';
 import {GeoInsightsResult, Md4aiData} from "./types";
+import {__} from "@wordpress/i18n";
 
 declare const md4aiData: Md4aiData;
 
@@ -52,9 +53,9 @@ function createSuggestionBox(
       <div class="geo-suggestion-box geo-success">
         <div class="suggestion-header">
           <span class="suggestion-icon">✓</span>
-          <h3>All Checks Passed</h3>
+          <h3>${__( 'All Checks Passed', 'md4ai' )}</h3>
         </div>
-        <p>Your website's identity is properly configured for AI systems.</p>
+        <p>${__( 'Your website\'s identity is properly configured for AI systems.', 'md4ai' )}</p>
       </div>
     `;
   }
@@ -76,7 +77,7 @@ function createSuggestionBox(
       )}${correction.ai_value.length > 100 ? '...' : ''}</span>
         </div>
         <div class="suggestion-row">
-          <span class="label">Expected:</span>
+          <span class="label">${__( 'Expected:', 'md4ai' )}</span>
           <span class="value expected-value">${correction.real_value}</span>
         </div>
         <div class="suggestion-tip">
@@ -93,9 +94,9 @@ function createSuggestionBox(
     <div class="geo-suggestion-box geo-warning">
       <div class="suggestion-header">
         <span class="suggestion-icon">⚠</span>
-        <h3>Opportunities for Improvement</h3>
+        <h3>${__( 'Opportunities for Improvement', 'md4ai' )}</h3>
       </div>
-      <p class="suggestion-intro">AI systems detected the following discrepancies. Fixing these will improve your site's visibility:</p>
+      <p class="suggestion-intro">${__( 'AI systems detected the following discrepancies. Fixing these will improve your site\'s visibility:', 'md4ai' )}</p>
       <div class="suggestion-list">
         ${suggestionItems}
       </div>

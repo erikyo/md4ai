@@ -34,7 +34,7 @@ export async function md4aiCharts() {
 	}
 
 	if ( requestsCtx ) {
-		const lineChart = new Chart( requestsCtx, {
+		new Chart( requestsCtx, {
 			type: 'line',
 			data: {
 				labels: chartData.dates,
@@ -67,7 +67,7 @@ export async function md4aiCharts() {
 
 	// Grafico crawler
 	if ( crawlersCtx ) {
-		const doughnutChart = new Chart( crawlersCtx, {
+		new Chart( crawlersCtx, {
 			type: 'doughnut',
 			data: {
 				labels: chartData.crawler_labels,
