@@ -24,7 +24,10 @@ class Md4Ai_Admin {
 		// Add the admin menu for the admin page
 		add_action('admin_menu', [$this, 'add_admin_menu']);
 
-		// Add metabox for Markdown editing
+		// Add a settings link to the plugin action links (WordPress add plugin page)
+		add_action( 'plugin_action_links_' . MD4AI_PLUGIN_BASENAME, [$this, 'plugin_settings_link'] );
+
+		// Add meta-box for Markdown editing
 		new Md4Ai_Metabox($this->markdown);
 
 		// Enqueue admin scripts
@@ -45,6 +48,25 @@ class Md4Ai_Admin {
 			'md4ai',
 			[$admin_views, 'render_admin_page']
 		);
+	}
+
+	/**
+	 * Adds a settings link to the plugin action links
+	 *
+	 * @param array $links The plugin action links
+	 * @return array The modified plugin action links
+	 */
+	public function plugin_settings_link( array $links ) {
+		$settings_page_link = sprintf(
+			'<a href="%s">%s</a>',
+			admin_url( 'tools.php?page=md4ai' ),
+			esc_html__( 'Settings', 'md4ai' )
+		);
+
+		// Prepend the settings link to the plugin action links
+		array_unshift( $links, $settings_page_link );
+
+		return $links;
 	}
 
 	/**

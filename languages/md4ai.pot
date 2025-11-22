@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-11-22T20:11:39.323Z\n"
+"POT-Creation-Date: 2025-11-22T20:39:44.623Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -336,4 +336,8 @@ msgstr ""
 
 #: inc/Md4Ai_Admin_Views.php:593
 msgid "Are you sure you want to clear all cached files?"
+msgstr ""
+
+#: inc/Md4Ai_Admin.php:63
+msgid "Settings"
 msgstr ""

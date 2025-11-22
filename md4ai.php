@@ -8,12 +8,20 @@
  * License: GPLv2 or later
  */
 
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if (!defined('MD4AI_PLUGIN_DIR')) {
-	define('MD4AI_PLUGIN_DIR', plugin_dir_path(__FILE__));
+if ( ! defined( 'MD4AI_PLUGIN_PATH' ) ) {
+	define( 'MD4AI_PLUGIN_PATH', __FILE__ );
+}
+
+if ( ! defined( 'MD4AI_PLUGIN_DIR' ) ) {
+	define( 'MD4AI_PLUGIN_DIR', plugin_dir_path( MD4AI_PLUGIN_PATH ) );
+}
+
+if ( ! defined( 'MD4AI_PLUGIN_BASENAME' ) ) {
+	define( 'MD4AI_PLUGIN_BASENAME', plugin_basename( MD4AI_PLUGIN_PATH ) );
 }
 
 /**
