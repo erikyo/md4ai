@@ -84,6 +84,9 @@ class Md4Ai_Admin {
 			'restUrl' => rest_url($rest_namespace ),
 			'nonce' => wp_create_nonce('wp_rest' ),
 			'postId' => get_the_ID(),
+			'aiServiceEnabled' => Md4Ai_Utils::is_ai_service_enabled(),
+			'woo_active' => Md4Ai_Utils::is_woocommerce_active(),
+			'blogUrl' => get_home_url(),
 			'prompts' => [
 				'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
 				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Check and Enhance the current llms.txt file below to improve the Generative Engine Optimization (GEO) of the site. Output only the llms.txt content.'

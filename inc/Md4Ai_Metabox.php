@@ -86,7 +86,7 @@ class Md4Ai_Metabox {
 
 				<div class="md4ai-toolbar-section">
 					<?php
-					echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( $textarea_id, Md4Ai_Utils::is_ai_service_enabled(), 'generate-markdown' ), array(
+					echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( $textarea_id,  'generate-markdown' ), array(
 						'button' => array(
 							'type'          => true,
 							'class'         => true,
