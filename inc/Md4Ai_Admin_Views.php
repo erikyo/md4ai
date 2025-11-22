@@ -41,6 +41,7 @@ Optional details go here
 			'dashboard' => 'Dashboard',
 			'llms-txt' => 'llms.txt',
 			'cache'    => 'Cache',
+			'geo-insights' => 'Geo Insights',
 		];
 
 		// Check if 'tab' is present in the GET request.
@@ -64,7 +65,7 @@ Optional details go here
 						esc_attr($slug),
 						esc_attr($tab_active),
 						esc_url( wp_nonce_url( $this->get_tab_url($slug), $nonce_action)),
-						$tab
+						esc_html($tab)
 					);
 				}
 				?>
@@ -77,6 +78,8 @@ Optional details go here
 					$this->render_tab_llms_txt();
 				} else if ( $active_tab == 'cache' ) {
 					$this->render_tab_cache();
+				} else if ( $active_tab == 'geo-insights' ) {
+					$this->render_geo_insights_page();
 				} ?>
 			</div>
 		</div>
@@ -112,11 +115,18 @@ Optional details go here
 		<?php
 	}
 
+	/**
+	 * Renders the dashboard page
+	 *
+	 * @param Md4AI_Admin $instance
+	 *
+	 * @return void
+	 */
 	private function render_tab_dashboard() {
 		$options = get_option( MD4AI_OPTION );
-		$analytics = isset($options['requests']) ? $options['requests'] : [];
+		$analytics = $options['requests'] ?? [];
 
-		// Prepara i dati per i grafici
+		// Prepare stats
 		$stats = self::prepare_dashboard_stats($analytics);
 		?>
 		<div id="md4ai-tab-panel md4ai-dashboard">
@@ -182,7 +192,7 @@ Optional details go here
 					<div class="stat-content">
 						<h3><?php echo esc_html($stats['today_requests']); ?></h3>
 						<p><?php esc_html_e('Today\'s Requests', 'md4ai'); ?></p>
-						<span class="stat-period"><?php echo esc_html(date('d M Y')); ?></span>
+						<span class="stat-period"><?php echo esc_html(gmdate('d M Y')); ?></span>
 					</div>
 				</div>
 			</div>
@@ -191,12 +201,16 @@ Optional details go here
 			<div class="md4ai-charts-container">
 				<div class="md4ai-chart-box">
 					<h3><?php esc_html_e('Requests per Day', 'md4ai'); ?></h3>
-					<canvas id="md4ai-requests-chart" width="300" height="200"></canvas>
+					<div class="chartjs-wrapper">
+						<canvas id="md4ai-requests-chart" height="400" width="600"></canvas>
+					</div>
 				</div>
 
 				<div class="md4ai-chart-box">
 					<h3><?php esc_html_e('Requests by Crawler', 'md4ai'); ?></h3>
-					<canvas id="md4ai-crawlers-chart" width="300" height="200"></canvas>
+					<div class="chartjs-wrapper">
+						<canvas id="md4ai-crawlers-chart" height="150" width="400"></canvas>
+					</div>
 				</div>
 			</div>
 
@@ -217,7 +231,7 @@ Optional details go here
 							<tr>
 								<td>
 									<strong>
-										<a href="<?php echo get_edit_post_link($post_stat['post_id']); ?>">
+										<a href="<?php echo esc_url(get_edit_post_link($post_stat['post_id'])); ?>">
 											<?php echo esc_html(get_the_title($post_stat['post_id'])); ?>
 										</a>
 									</strong>
@@ -259,7 +273,7 @@ Optional details go here
                                     </span>
 								</td>
 								<td>
-									<a href="<?php echo get_edit_post_link($activity['post_id']); ?>">
+									<a href="<?php echo esc_url(get_edit_post_link($activity['post_id'])); ?>">
 										<?php echo esc_html(get_the_title($activity['post_id'])); ?>
 									</a>
 								</td>
@@ -286,7 +300,7 @@ Optional details go here
 	 *
 	 * @return array The stats
 	 */
-	public static function prepare_dashboard_stats( array $analytics): array {
+	public static function prepare_dashboard_stats($analytics) {
 		$stats = [
 			'total_requests' => 0,
 			'unique_crawlers' => 0,
@@ -309,7 +323,7 @@ Optional details go here
 		// 7 days
 		$last_7_days = [];
 		for ($i = 6; $i >= 0; $i--) {
-			$date = date('Y-m-d', strtotime("-$i days"));
+			$date = gmdate('Y-m-d', strtotime("-$i days"));
 			$last_7_days[$date] = 0;
 		}
 
@@ -319,20 +333,23 @@ Optional details go here
 		$recent = [];
 		$crawler_counts = [];
 
-		// Data parse
-		foreach ($analytics as $date => $requests) {
+		// parse the data
+		foreach ($analytics as $week_date => $requests) {
 			if (!is_array($requests)) continue;
 
 			foreach ($requests as $request) {
 				$stats['total_requests']++;
 
-				// Last 7 days count
-				if (isset($last_7_days[$date])) {
-					$last_7_days[$date]++;
+				// get the real date
+				$actual_date = gmdate('Y-m-d', $request['timestamp']);
+
+				// day count (last 7 days)
+				if (isset($last_7_days[$actual_date])) {
+					$last_7_days[$actual_date]++;
 				}
 
-				// Today
-				if ($date === date('Y-m-d')) {
+				// Today requests
+				if ($actual_date === gmdate('Y-m-d')) {
 					$stats['today_requests']++;
 				}
 
@@ -363,7 +380,7 @@ Optional details go here
 				$post_hits[$post_id]['count']++;
 				$post_hits[$post_id]['last_crawled'] = max($post_hits[$post_id]['last_crawled'], $request['timestamp']);
 
-				// Attività recente
+				// Recent activity
 				$recent[] = $request;
 			}
 		}
@@ -406,7 +423,7 @@ Optional details go here
 			];
 		}
 
-		// Last 10 attività
+		// Last 10 activity
 		usort($recent, function($a, $b) {
 			return $b['timestamp'] - $a['timestamp'];
 		});
@@ -472,7 +489,7 @@ Optional details go here
 						<div class="md4ai-toolbar-section">
 							<div class="md4ai-toolbar-group">
 								<?php
-								echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( 'llmstxt_content', true, 'generate-llmstxt' ), [
+								echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( 'llmstxt_content', 'generate-llmstxt' ), [
 									'button' => [
 										'type'          => true,
 										'class'         => true,
