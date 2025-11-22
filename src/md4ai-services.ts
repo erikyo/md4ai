@@ -1,40 +1,14 @@
-declare const wp: {
-	data: {
-		select: ( arg: string ) => {
-			isServiceAvailable: ( a: string ) => boolean;
-			hasAvailableServices: ( a?: { capabilities: string[] } ) => boolean;
-			getAvailableService: ( a?: {
-				capabilities: string[];
-			} ) => boolean | any;
-		};
-		subscribe: ( callback: () => void, storeName?: string ) => () => void;
-	};
-};
+import {Window, WP} from "./types";
 
-declare const window: {
-	addEventListener: ( a: string, b: () => void ) => void;
-	aiServices: {
-		ai: {
-			enums: {
-				AiCapability: {
-					MULTIMODAL_INPUT: string;
-					TEXT_GENERATION: string;
-				};
-			};
-			helpers: {
-				getTextFromContents: ( arg: string ) => string;
-				getCandidateContents: ( arg: string ) => string;
-			};
-			store: {
-				name: string;
-			};
-		};
-	};
-};
+declare const wp: WP;
+
+declare const window: Window;
 
 /**
  * Wait for AI services to be available and run the AI logic.
- * @param fn
+ *
+ * @param fn The function to run when AI services are available
+ * @throws Error if AI services are not available
  */
 function waitForAiServices( fn: () => void ) {
 	// Check if aiServices is available, if not, return
@@ -84,6 +58,13 @@ function waitForAiServices( fn: () => void ) {
 	} );
 }
 
+/**
+ * Generates AI text using the available service.
+ *
+ * @param fullPrompt The full prompt to generate text from
+ * @returns The generated text
+ * @throws Error if AI service is not available
+ */
 async function generateAiText( fullPrompt: string ) {
 	const { enums, helpers, store: aiStore } = window.aiServices.ai;
 	const SERVICE_ARGS = {

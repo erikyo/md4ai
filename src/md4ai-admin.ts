@@ -1,21 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import { generateAiText, waitForAiServices } from './md4ai-services';
 import './style.scss';
-
-// Interfaces for global variables
-export interface Md4aiData {
-	restUrl: string;
-	nonce: string;
-	postId: number;
-	prompts: {
-		'generate-markdown': string;
-		'generate-llmstxt': string;
-		[ key: string ]: string;
-	};
-}
+import {Md4aiData} from "./types";
 
 // Declare global variables
-export declare const md4aiData: Md4aiData;
+declare const md4aiData: Md4aiData;
 
 declare const window: {
 	confirm: ( a: string ) => boolean;
@@ -52,8 +41,8 @@ export function handleMd4aiButtons() {
 
 	// --- Constants ---
 	const COLORS = {
-		SUCCESS: '#46b450',
-		ERROR: '#dc3232',
+		SUCCESS: '#00d084',
+		ERROR: '#cf2e2e',
 		LOADING: '#999',
 	};
 

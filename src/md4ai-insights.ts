@@ -1,45 +1,14 @@
 // Declare global variables
 import {generateAiText, waitForAiServices} from './md4ai-services';
+import {GeoInsightsResult, Md4aiData} from "./types";
 
-declare const md4aiData: {
-  restUrl: string;
-  aiServiceEnabled: boolean;
-  woo_active: boolean;
-  blogUrl: string;
-  nonce: string;
-};
+declare const md4aiData: Md4aiData;
 
-interface GeoInsightsResult {
-  scores: {
-    identity_match: number;
-    tech_match: number;
-    ai_perception: number;
-  };
-  corrections: Array<{
-    field: string;
-    ai_value: string;
-    real_value: string;
-    tip: string;
-  }>;
-  raw_ai_data: {
-    score_auth: number;
-    score_relevance: number;
-    score_data: number;
-    score_crawler: number;
-    website_name: string;
-    author_name: string;
-    subject: string;
-    main_entity: string;
-    is_ecommerce: string;
-  };
-  ground_truth: {
-    website_name: string;
-    author_name: string;
-    topics: string[];
-    is_ecommerce: string;
-  };
-}
-
+/**
+ * Updates the gauge chart with the given percentage.
+ * @param selector The chart selector
+ * @param percentage The percentage to display
+ */
 function updateGaugeChart(selector: string, percentage: number) {
   const chart = document.querySelector(selector);
   if (!chart) {
@@ -55,6 +24,11 @@ function updateGaugeChart(selector: string, percentage: number) {
   }
 }
 
+/**
+ * Returns the color for the given score.
+ * @param score The score to get the color for
+ * @returns The color for the score
+ */
 function getScoreColor(score: number): string {
   if (score >= 90) {
     return 'green';
@@ -65,6 +39,11 @@ function getScoreColor(score: number): string {
   return 'red';
 }
 
+/**
+ * Creates a suggestion box for the given corrections.
+ * @param corrections The corrections to display
+ * @returns The suggestion box HTML
+ */
 function createSuggestionBox(
   corrections: GeoInsightsResult[ 'corrections' ]
 ): string {
@@ -124,6 +103,10 @@ function createSuggestionBox(
   `;
 }
 
+/**
+ * Displays the results in the results div.
+ * @param data The results data
+ */
 function displayResults(data: GeoInsightsResult) {
   const resultsDiv = document.getElementById('geo-results');
   if (!resultsDiv) {
@@ -246,7 +229,10 @@ function displayResults(data: GeoInsightsResult) {
   resultsDiv.style.display = 'block';
 }
 
-
+/**
+ * Builds the prompt template for the insights.
+ * @returns The prompt template
+ */
 function buildPromptTemplate() {
   let dynamicSection = '';
   const isWooActive = md4aiData.woo_active;
@@ -261,7 +247,7 @@ Specific Products Known: [List 3 SKUs]
 Estimated Best Sellers: [Complete]`;
   }
 
-  const promptTemplate = `Act as a Senior AI Search Engineer and SEO Specialist. Your task is to analyze your internal knowledge base regarding the following domain: ${targetUrl}
+  const promptTemplate = `Act as a Senior AI Search Engineer and SEO Specialist. Your task is to analyze your internal knowledge base regarding the following domain: ${md4aiData.blogUrl}
 You must output your analysis strictly following the schema below. Do not write conversational text. Use "Unknown" or "N/A" if needed.
 --- BEGIN ANALYSIS REPORT ---
 1. GENERAL OVERVIEW
@@ -293,6 +279,9 @@ The website is intelligible to crawlers: [0 to 10 where 10 is very intelligible]
   return promptTemplate;
 }
 
+/**
+ * Initializes the geo insights.
+ */
 export function initGeoInsights() {
   const btnStart = document.getElementById('btn-start-analysis');
   const loadingDiv = document.getElementById('geo-loading');

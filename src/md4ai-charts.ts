@@ -1,28 +1,14 @@
 import { __ } from '@wordpress/i18n';
 import Chart from 'chart.js/auto';
-export interface Md4aiData {
-	restUrl: string;
-	nonce: string;
-}
+import {Md4aiData, Md4aiStatsResponse} from "./types";
 
 // Declare global variables
-export declare const md4aiData: Md4aiData;
+declare const md4aiData: Md4aiData;
 
-interface Md4aiChartData {
-	dates: string[];
-	requests_per_day: number[];
-	crawler_labels: string[];
-	crawler_counts: number[];
-}
 
-interface Md4aiStatsResponse {
-	total_requests: number;
-	unique_crawlers: number;
-	unique_posts: number;
-	today_requests: number;
-	chart_data: Md4aiChartData;
-}
-
+/**
+ * Initializes the charts.
+ */
 export async function md4aiCharts() {
 	// Chart data
 	const response = await fetch( md4aiData.restUrl + '/get-stats', {

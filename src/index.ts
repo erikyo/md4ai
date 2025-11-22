@@ -7,17 +7,18 @@ import { handleMd4aiButtons } from './md4ai-admin';
 import { initGeoInsights } from './md4ai-insights';
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const isAdminPage = document.querySelector( '.md4ai-admin' ) !== null;
-	const isMetabox = document.getElementById( 'md4ai_metabox' ) !== null;
-
-	if ( isAdminPage || isMetabox ) {
+  // Admin
+	if ( document.querySelector( '.md4ai-admin' ) || document.getElementById( 'md4ai_metabox' ) ) {
 		md4ai_markdown();
 		handleMd4aiButtons();
 	}
 
+  // Charts
 	if ( document.querySelector( '.md4ai-charts-container' ) ) {
 		md4aiCharts();
 	}
+
+  // Geo Insights
 	if ( document.querySelector( '.geo-insights-wrapper' ) ) {
 		initGeoInsights();
 	}
