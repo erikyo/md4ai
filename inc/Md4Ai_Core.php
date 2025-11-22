@@ -39,7 +39,6 @@ class Md4Ai_Core {
 	private array $ai_bots;
 	private Md4Ai_Cache $cache;
 	private Md4Ai_Markdown $markdown;
-	private Md4Ai_Admin $admin;
 
 	public function __construct() {
 		$this->ai_bots = $this->setup_ai_useragents();
@@ -51,8 +50,8 @@ class Md4Ai_Core {
 		// Initialize REST API
 		new Md4Ai_RestAPI($this->markdown);
 
-		// Initialize metabox and admin
-		$this->admin = new Md4Ai_Admin($this->cache, $this->markdown);
+		// Initialize admin stuff
+		new Md4Ai_Admin($this->cache, $this->markdown);
 
 		// Hook into template redirect
 		add_action('template_redirect', [$this, 'handle_requests'], 1);
@@ -147,9 +146,11 @@ class Md4Ai_Core {
 		header('Cache-Control: public, max-age=3600'); // Cache for 1 hour
 
 		echo esc_textarea($llms_content);
-		$user_agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
 
-		Md4Ai_Utils::log_request( 0, $user_agent, $this->ai_bots );
+		if ($this->is_ai_bot()) {
+
+			Md4Ai_Utils::log_request( 0, $this->ai_bots );
+		}
 		exit;
 	}
 
@@ -188,8 +189,7 @@ class Md4Ai_Core {
 
 		// If is a bot log the request
 		if ($this->is_ai_bot()) {
-			$user_agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
-			Md4Ai_Utils::log_request( $post->ID, $user_agent, $this->ai_bots );
+			Md4Ai_Utils::log_request( $post->ID,  $this->ai_bots );
 		}
 		exit;
 	}
