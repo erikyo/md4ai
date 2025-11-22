@@ -5,6 +5,7 @@ import { md4ai_markdown } from './md4ai-markdown';
 import { md4aiCharts } from './md4ai-charts';
 import { handleMd4aiButtons } from './md4ai-admin';
 import { initGeoInsights } from './md4ai-insights';
+import './style.scss';
 
 document.addEventListener( 'DOMContentLoaded', () => {
   // Admin

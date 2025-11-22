@@ -1,27 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { generateAiText, waitForAiServices } from './md4ai-services';
-import './style.scss';
 import {Md4aiData} from "./types";
 
 // Declare global variables
 declare const md4aiData: Md4aiData;
 
-declare const window: {
-	confirm: ( a: string ) => boolean;
-	addEventListener: ( a: string, b: () => void ) => void;
-	aiServices: {
-		ai: {
-			enums: {
-				AiCapability: {
-					MULTIMODAL_INPUT: string;
-					TEXT_GENERATION: string;
-				};
-			};
-			helpers: any;
-			store: any;
-		};
-	};
-};
+declare const window: Window;
 
 /**
  * Main handler for MD4AI button logic and UI interactions.
