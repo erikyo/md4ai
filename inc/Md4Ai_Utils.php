@@ -12,7 +12,7 @@ class Md4Ai_Utils {
 	 *
 	 * @return string The HTML output containing the buttons
 	 */
-	public static function display_llmstxt_buttons( string $field, $is_ai_service_enabled = false, string $endpoint = 'generate-llmstxt' ): string {
+	public static function display_llmstxt_buttons( string $field, string $endpoint = 'generate-llmstxt' ): string {
 		$output = '';
 
 		// the data field is used to pass the field name to the JavaScript, that is the HTML id of the textarea to update
@@ -21,7 +21,7 @@ class Md4Ai_Utils {
 		$output .= sprintf( '<button type="button" class="button md4ai-generate" data-action="replace" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__( 'Generate', 'md4ai' ) );
 
 		// if AI service is enabled, add the AI generate button
-		if ( $is_ai_service_enabled ) {
+		if ( self::is_ai_service_enabled() ) {
 			$output .= sprintf( '<button type="button" class="button md4ai-ai-generate button-primary-ai" data-action="append-after" data-endpoint="%s" %s>%s</button>', $endpoint, $data_field, esc_html__( 'Generate using AI', 'md4ai' ) );
 		}
 
@@ -35,7 +35,7 @@ class Md4Ai_Utils {
 	 * @param string $user_agent The user agent of the request
 	 * @param array $ai_useragents A list of user agents to check against the user agent
 	 */
-	public static function log_request( int $ID, string $user_agent, $ai_useragents ) {
+	public static function log_request( int $ID, $ai_useragents ) {
 
 		$options = get_option( MD4AI_OPTION );
 
@@ -43,6 +43,8 @@ class Md4Ai_Utils {
 		if ( ! isset( $options['requests'] ) ) {
 			$options['requests'] = [];
 		}
+
+		$user_agent = sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']));
 
 		// the date of the last monday o today if today is monday
 		$date = strtotime( 'Monday this week' );
@@ -83,6 +85,10 @@ class Md4Ai_Utils {
 	 */
 	public static function is_ai_service_enabled(): bool {
 		return function_exists( 'ai_services' );
+	}
+
+	public static function is_woocommerce_active() {
+		return class_exists( 'WooCommerce' );
 	}
 }
 
