@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { waitForAiServices } from './md4ai-services';
+import { generateAiText, waitForAiServices } from './md4ai-services';
 import './style.scss';
-import { md4ai_markdown } from './md4ai-markdown';
-import { md4aiCharts } from './md4ai-charts';
 
 // Interfaces for global variables
 export interface Md4aiData {
@@ -18,19 +16,6 @@ export interface Md4aiData {
 
 // Declare global variables
 export declare const md4aiData: Md4aiData;
-
-declare const wp: {
-	data: {
-		select: ( arg: string ) => {
-			isServiceAvailable: ( a: string ) => boolean;
-			hasAvailableServices: ( a?: { capabilities: string[] } ) => boolean;
-			getAvailableService: ( a?: {
-				capabilities: string[];
-			} ) => boolean | any;
-		};
-		subscribe: ( callback: () => void, storeName?: string ) => () => void;
-	};
-};
 
 declare const window: {
 	confirm: ( a: string ) => boolean;
@@ -266,11 +251,6 @@ export function handleMd4aiButtons() {
 		textarea: HTMLTextAreaElement,
 		promptInput: HTMLTextAreaElement
 	): Promise< void > => {
-		const { enums, helpers, store: aiStore } = window.aiServices.ai;
-		const SERVICE_ARGS = {
-			capabilities: [ enums.AiCapability.TEXT_GENERATION ],
-		};
-
 		if ( ! textarea ) {
 			console.error(
 				`Textarea ${ generateAiBtn.dataset.field } not found`
@@ -316,41 +296,13 @@ export function handleMd4aiButtons() {
 				COLORS.LOADING
 			);
 
-			const { select } = wp.data;
-			const { getAvailableService } = select( aiStore.name );
-
-			const service = getAvailableService( SERVICE_ARGS );
-
-			if ( ! service ) {
-				throw new Error( 'AI service not available' );
-			}
-
 			// Combine the prompt with the fetched markdown
 			const fullPrompt = `${ promptInput.value }\n\nContent to process:\n${ result.markdown }`;
 
-			const candidates = await service.generateText( fullPrompt, {
-				feature: 'md4ai-generation',
-			} );
-
-			let aiEnhancedText = helpers.getTextFromContents(
-				helpers.getCandidateContents( candidates )
-			);
-
-			console.log( aiEnhancedText );
-
-			// Sometimes we can find the whole response wrapped with ```text or ```markdown from the beginning. in this case we should remove it
-			if ( aiEnhancedText.startsWith( '```' ) ) {
-				aiEnhancedText = aiEnhancedText.replace(
-					/^```text|```markdown/g,
-					''
-				);
-
-				// then remove the last ```
-				aiEnhancedText = aiEnhancedText.replace( /```$/g, '' );
-			}
+			const generated = await generateAiText( fullPrompt );
 
 			// Step 3: Update the textarea with AI-enhanced content
-			updateMarkdown( textarea, aiEnhancedText );
+			updateMarkdown( textarea, generated );
 		} catch ( error ) {
 			console.error( 'AI Generation Error:', error );
 			updateStatus(

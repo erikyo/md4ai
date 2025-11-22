@@ -3,7 +3,9 @@ declare const wp: {
 		select: ( arg: string ) => {
 			isServiceAvailable: ( a: string ) => boolean;
 			hasAvailableServices: ( a?: { capabilities: string[] } ) => boolean;
-			getAvailableService: ( a?: { capabilities: string[] } ) => boolean;
+			getAvailableService: ( a?: {
+				capabilities: string[];
+			} ) => boolean | any;
 		};
 		subscribe: ( callback: () => void, storeName?: string ) => () => void;
 	};
@@ -35,10 +37,12 @@ declare const window: {
  * @param fn
  */
 function waitForAiServices( fn: () => void ) {
-  // Check if aiServices is available, if not, return
-  if (!window.aiServices) return;
+	// Check if aiServices is available, if not, return
+	if ( ! window.aiServices ) {
+		return;
+	}
 
-  // Get aiServices
+	// Get aiServices
 	const { enums, store: aiStore } = window.aiServices.ai;
 	const SERVICE_ARGS = {
 		capabilities: [ enums.AiCapability.TEXT_GENERATION ],
@@ -53,8 +57,7 @@ function waitForAiServices( fn: () => void ) {
 				return true;
 			}
 		} catch ( error ) {
-			console.error( error );
-			return false;
+      throw error;
 		}
 		return false;
 	}
@@ -64,9 +67,8 @@ function waitForAiServices( fn: () => void ) {
 		try {
 			fn();
 		} catch ( error ) {
-			console.error( error );
+      throw error;
 		}
-		return;
 	}
 
 	// If not available, subscribe to changes
@@ -76,7 +78,7 @@ function waitForAiServices( fn: () => void ) {
 			try {
 				fn();
 			} catch ( error ) {
-				console.error( error );
+        throw error;
 			}
 		}
 	} );
