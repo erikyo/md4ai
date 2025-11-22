@@ -4,7 +4,7 @@
  * Description: Designed to optimise and serve content for generative engines (GEO)
  * Author: Codekraft
  * Text Domain: md4ai
- * Version: 1.0.0
+ * Version: 1.1.0
  * License: GPLv2 or later
  */
 
