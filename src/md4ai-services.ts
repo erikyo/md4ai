@@ -82,4 +82,38 @@ function waitForAiServices( fn: () => void ) {
 	} );
 }
 
-export { waitForAiServices };
+async function generateAiText( fullPrompt: string ) {
+	const { enums, helpers, store: aiStore } = window.aiServices.ai;
+	const SERVICE_ARGS = {
+		capabilities: [ enums.AiCapability.TEXT_GENERATION ],
+	};
+
+	const { select } = wp.data;
+	const { getAvailableService } = select( aiStore.name );
+
+	const service = getAvailableService( SERVICE_ARGS );
+
+	if ( ! service ) {
+		throw new Error( 'AI service not available' );
+	}
+
+	const candidates = await service.generateText( fullPrompt, {
+		feature: 'md4ai-generation',
+	} );
+
+	let generated = helpers.getTextFromContents(
+		helpers.getCandidateContents( candidates )
+	);
+
+	// Sometimes we can find the whole response wrapped with ```text or ```markdown from the beginning. in this case we should remove it
+	if ( generated.startsWith( '```' ) ) {
+		generated = generated.replace( /^```text|```markdown/g, '' );
+
+		// then remove the last ```
+		generated = generated.replace( /```$/g, '' );
+	}
+
+	return generated;
+}
+
+export { waitForAiServices, generateAiText };
