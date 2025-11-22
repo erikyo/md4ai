@@ -32,7 +32,7 @@ class Md4Ai_Admin {
 	}
 
 	/**
-	 * Adds admin menu for cache management
+	 * Adds an admin menu for cache management
 	 */
 	public function add_admin_menu() {
 

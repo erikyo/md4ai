@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-11-22T17:35:41.206Z\n"
+"POT-Creation-Date: 2025-11-22T20:11:39.323Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Domain: md4ai\n"
 
 #: md4ai.php
-#: inc/Md4Ai_Admin_Views.php:112
+#: inc/Md4Ai_Admin_Views.php:126
 #. Name of the plugin
 msgid "md4AI"
 msgstr ""
@@ -165,173 +165,175 @@ msgid "Markdown Preview"
 msgstr ""
 
 #: inc/Md4Ai_Metabox.php:123
-#: inc/Md4Ai_Admin_Views.php:533
+#: inc/Md4Ai_Admin_Views.php:556
 msgid "Preview will appear here"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:98
+#: inc/Md4Ai_Admin_Views.php:112
 msgid "Cache cleared successfully!"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:107
+#: inc/Md4Ai_Admin_Views.php:121
 msgid "llms.txt updated successfully!"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:136
+#: inc/Md4Ai_Admin_Views.php:150
 msgid "Dashboard"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:144
+#: inc/Md4Ai_Admin_Views.php:158
 msgid "AI services are enabled!"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:148
-msgid "AI services are not enabled. Please configure them in Settings."
+#: inc/Md4Ai_Admin_Views.php:162
+msgid ""
+"AI services plugin is not installed or not active. Please install and "
+"activate it to use the \"Generate with AI\" and \"Geo-Insights\" feature."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:161
+#: inc/Md4Ai_Admin_Views.php:175
 msgid "Total Requests"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:162
+#: inc/Md4Ai_Admin_Views.php:176
 msgid "Last 7 days"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:172
+#: inc/Md4Ai_Admin_Views.php:186
 msgid "Unique Crawlers"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:173
+#: inc/Md4Ai_Admin_Views.php:187
 msgid "Different bots"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:183
+#: inc/Md4Ai_Admin_Views.php:197
 msgid "Posts Indexed"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:184
+#: inc/Md4Ai_Admin_Views.php:198
 msgid "Total posts"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:194
+#: inc/Md4Ai_Admin_Views.php:208
 msgid "Today\\'s Requests"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:203
+#: inc/Md4Ai_Admin_Views.php:217
 msgid "Requests per Day"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:210
+#: inc/Md4Ai_Admin_Views.php:224
 msgid "Requests by Crawler"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:219
+#: inc/Md4Ai_Admin_Views.php:233
 msgid "Most Indexed Posts"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:223
+#: inc/Md4Ai_Admin_Views.php:237
 msgid "Post Title"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:224
+#: inc/Md4Ai_Admin_Views.php:238
 msgid "Total Hits"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:225
+#: inc/Md4Ai_Admin_Views.php:239
 msgid "Last Crawled"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:246
+#: inc/Md4Ai_Admin_Views.php:260
 msgid "No data available yet"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:256
+#: inc/Md4Ai_Admin_Views.php:270
 msgid "Recent Crawler Activity"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:260
+#: inc/Md4Ai_Admin_Views.php:274
 msgid "Time"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:261
+#: inc/Md4Ai_Admin_Views.php:275
 msgid "Crawler"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:262
+#: inc/Md4Ai_Admin_Views.php:276
 msgid "Post"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:285
+#: inc/Md4Ai_Admin_Views.php:299
 msgid "No recent activity"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:449
+#: inc/Md4Ai_Admin_Views.php:472
 msgid "llms.txt"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:453
+#: inc/Md4Ai_Admin_Views.php:476
 msgid "View llms.txt"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:461
+#: inc/Md4Ai_Admin_Views.php:484
 msgid "Custom llms.txt is active."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:462
-#: inc/Md4Ai_Admin_Views.php:465
+#: inc/Md4Ai_Admin_Views.php:485
+#: inc/Md4Ai_Admin_Views.php:488
 msgid "This content will be served at"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:467
+#: inc/Md4Ai_Admin_Views.php:490
 msgid "Leave empty to use default content."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:480
+#: inc/Md4Ai_Admin_Views.php:503
 msgid "Editor"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:509
+#: inc/Md4Ai_Admin_Views.php:532
 msgid "Clear"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:515
+#: inc/Md4Ai_Admin_Views.php:538
 msgid "Save Changes"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:526
+#: inc/Md4Ai_Admin_Views.php:549
 msgid "Preview"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:551
+#: inc/Md4Ai_Admin_Views.php:580
 msgid "Cache Statistics"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:552
+#: inc/Md4Ai_Admin_Views.php:581
 msgid "Cached Files:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:553
+#: inc/Md4Ai_Admin_Views.php:582
 msgid "Total Size:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:554
+#: inc/Md4Ai_Admin_Views.php:583
 msgid "Cache Directory:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:558
+#: inc/Md4Ai_Admin_Views.php:587
 msgid "Clear Cache"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:559
+#: inc/Md4Ai_Admin_Views.php:588
 msgid ""
 "Clear all cached Markdown files. This will force regeneration on the next "
 "AI bot visit."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:563
+#: inc/Md4Ai_Admin_Views.php:592
 msgid "Clear All Cache"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:564
+#: inc/Md4Ai_Admin_Views.php:593
 msgid "Are you sure you want to clear all cached files?"
 msgstr ""

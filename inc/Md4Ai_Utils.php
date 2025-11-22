@@ -28,6 +28,11 @@ class Md4Ai_Utils {
 		return $output;
 	}
 
+	/**
+	 * Gets the user agent
+	 *
+	 * @return string The user agent
+	 */
 	public static function get_user_agent(): string {
 		if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return '';
@@ -92,6 +97,11 @@ class Md4Ai_Utils {
 		return function_exists( 'ai_services' );
 	}
 
+	/**
+	 * Checks if WooCommerce is active
+	 *
+	 * @return bool Whether WooCommerce is active
+	 */
 	public static function is_woocommerce_active() {
 		return class_exists( 'WooCommerce' );
 	}

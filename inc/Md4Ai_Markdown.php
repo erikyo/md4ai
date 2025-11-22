@@ -108,6 +108,14 @@ class Md4Ai_Markdown {
 		return $html;
 	}
 
+	/**
+	 * Generates website links
+	 *
+	 * @param array $args The arguments to pass to the function
+	 * @param object $post The post object
+	 *
+	 * @return string The generated website links
+	 */
 	public function generate_website_links($args, $post = false) {
 		$output = "";
 

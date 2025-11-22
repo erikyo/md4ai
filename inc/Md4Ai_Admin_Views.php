@@ -32,10 +32,24 @@ Optional details go here
 - [Link title](https://link_url)';
 	}
 
+	/**
+	 * Returns the URL for a specific tab
+	 *
+	 * @param string $tab The tab slug
+	 *
+	 * @return string The tab URL
+	 */
 	private function get_tab_url( $tab ) {
 		return add_query_arg( 'tab', $tab, menu_page_url( 'md4ai', false ) );
 	}
 
+	/**
+	 * Renders the tabs
+	 *
+	 * @param Md4AI_Admin $instance
+	 *
+	 * @return void
+	 */
 	private function render_tabs() {
 		$tabs = [
 			'dashboard' => 'Dashboard',
@@ -145,7 +159,7 @@ Optional details go here
 					</div>
 				<?php else: ?>
 					<div class="notice notice-warning inline">
-						<p><span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'AI services are not enabled. Please configure them in Settings.', 'md4ai' ); ?></p>
+						<p><span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'AI services plugin is not installed or not active. Please install and activate it to use the "Generate with AI" and "Geo-Insights" feature.', 'md4ai' ); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -371,6 +385,7 @@ Optional details go here
 					$all_posts[] = $post_id;
 				}
 
+				// Post hits
 				if (!isset($post_hits[$post_id])) {
 					$post_hits[$post_id] = [
 						'count' => 0,
@@ -385,6 +400,7 @@ Optional details go here
 			}
 		}
 
+		// Stats
 		$stats['unique_crawlers'] = count($unique_crawlers);
 		$stats['unique_posts'] = count($all_posts);
 
@@ -392,7 +408,7 @@ Optional details go here
 		$stats['chart_data']['dates'] = array_keys($last_7_days);
 		$stats['chart_data']['requests_per_day'] = array_values($last_7_days);
 
-		// Top 5 crawler
+		// Top 10 crawlers
 		$crawler_counts = [];
 		foreach ($analytics as $date => $requests) {
 			if (!is_array($requests)) continue;
@@ -406,7 +422,7 @@ Optional details go here
 		}
 
 		arsort($crawler_counts);
-		$top_crawlers = array_slice($crawler_counts, 0, 5, true);
+		$top_crawlers = array_slice($crawler_counts, 0, 10, true);
 		$stats['chart_data']['crawler_labels'] = array_keys($top_crawlers);
 		$stats['chart_data']['crawler_counts'] = array_values($top_crawlers);
 
@@ -432,6 +448,13 @@ Optional details go here
 		return $stats;
 	}
 
+	/**
+	 * Renders the llms.txt page
+	 *
+	 * @param Md4AI_Admin $instance
+	 *
+	 * @return void
+	 */
 	public function render_tab_llms_txt() {
 		$options = get_option( MD4AI_OPTION );
 		if (empty($options)) {
@@ -542,8 +565,14 @@ Optional details go here
 		<?php
 	}
 
+	/**
+	 * Renders the cache page
+	 *
+	 * @param Md4AI_Admin $instance
+	 *
+	 * @return void
+	 */
 	public function render_tab_cache() {
-		// Get cache statistics
 		$stats = $this->cache->get_statistics();
 		?>
 		<div id="cf7a-tab-panel md4ai-cache">
@@ -568,13 +597,18 @@ Optional details go here
 		<?php
 	}
 
+	/**
+	 * Renders the geo insights page
+	 *
+	 * @param Md4AI_Admin $instance
+	 *
+	 * @return void
+	 */
 	public function render_geo_insights_page() {
 		// 1. Logic: Check if WooCommerce is active
 		$is_woo_active = class_exists('WooCommerce');
 
 		// 2. Configuration: Set dynamic labels and colors for the 3rd chart
-		$third_metric_color = $is_woo_active ? 'red' : 'blue';
-
 		// We pass this state to JS via a data attribute
 		?>
 		<div class="wrap geo-insights-wrapper" data-woo-active="<?php echo $is_woo_active ? 'true' : 'false'; ?>">
