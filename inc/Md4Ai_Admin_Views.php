@@ -551,4 +551,80 @@ Optional details go here
 		<?php
 	}
 
+	public function render_geo_insights_page() {
+		// 1. Logic: Check if WooCommerce is active
+		$is_woo_active = class_exists('WooCommerce');
+
+		// 2. Configuration: Set dynamic labels and colors for the 3rd chart
+		$third_metric_color = $is_woo_active ? 'red' : 'blue';
+
+		// We pass this state to JS via a data attribute
+		?>
+		<div class="wrap geo-insights-wrapper" data-woo-active="<?php echo $is_woo_active ? 'true' : 'false'; ?>">
+			<h1 class="wp-heading-inline">Geo Insights</h1>
+			<hr class="wp-header-end">
+
+			<div id="geo-loading" style="display:none;">
+				<span class="spinner is-active"></span>
+				<p>AI Analysis in progress...</p>
+			</div>
+
+			<div id="geo-results" style="display:none;">
+				<!-- Overall score will be injected here by JS -->
+
+				<div class="geo-scores-container">
+					<div class="geo-gauge-card">
+						<div class="single-chart">
+							<svg viewBox="0 0 36 36" class="circular-chart orange">
+								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<text x="18" y="20.35" class="percentage">0</text>
+							</svg>
+						</div>
+						<span class="gauge-label">Authority</span>
+					</div>
+
+					<div class="geo-gauge-card">
+						<div class="single-chart">
+							<svg viewBox="0 0 36 36" class="circular-chart green">
+								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<text x="18" y="20.35" class="percentage">0</text>
+							</svg>
+						</div>
+						<span class="gauge-label">Relevance</span>
+					</div>
+
+					<div class="geo-gauge-card">
+						<div class="single-chart">
+							<svg viewBox="0 0 36 36" class="circular-chart blue">
+								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<text x="18" y="20.35" class="percentage">0</text>
+							</svg>
+						</div>
+						<span class="gauge-label">Knowledge</span>
+					</div>
+
+					<div class="geo-gauge-card">
+						<div class="single-chart">
+							<svg viewBox="0 0 36 36" class="circular-chart purple">
+								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+								<text x="18" y="20.35" class="percentage">0</text>
+							</svg>
+						</div>
+						<span class="gauge-label">Crawler Intelligence</span>
+					</div>
+				</div>
+
+				<!-- Additional sections will be injected by JS -->
+			</div>
+
+			<div class="geo-search-bar">
+				<button id="btn-start-analysis" class="button button-primary button-hero">Start Analysis</button>
+			</div>
+		</div>
+		<?php
+	}
 }
