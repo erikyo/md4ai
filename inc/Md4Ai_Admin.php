@@ -29,28 +29,6 @@ class Md4Ai_Admin {
 
 		// Enqueue admin scripts
 		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-
-		// Enqueue admin services scripts
-		if ( Md4Ai_Utils::is_ai_service_enabled() ) {
-			add_action( 'admin_enqueue_scripts', [$this, 'enqueue_admin_services' ]);
-		}
-	}
-
-	/**
-	 * Enqueues admin AI services scripts
-	 */
-	public function enqueue_admin_services() {
-
-		$asset = include MD4AI_PLUGIN_DIR . '/build/md4ai-services.asset.php';
-		$asset['dependencies'][] = 'ais-ai';
-
-		wp_enqueue_script(
-			'md4ai-services',
-			plugins_url('build/md4ai-services.js', dirname(__FILE__)),
-			$asset['dependencies'],
-			$asset['version'],
-			true
-		);
 	}
 
 	/**
@@ -78,11 +56,15 @@ class Md4Ai_Admin {
 			return;
 		}
 
-		$asset = include MD4AI_PLUGIN_DIR . '/build/md4ai-admin.asset.php';
+		$asset = include MD4AI_PLUGIN_DIR . '/build/index.asset.php';
+
+		if ( Md4Ai_Utils::is_ai_service_enabled() ) {
+			$asset['dependencies'][] = 'ais-ai';
+		}
 
 		wp_enqueue_script(
 			'md4ai-admin',
-			plugins_url('build/md4ai-admin.js', dirname(__FILE__)),
+			plugins_url('build/index.js', dirname(__FILE__)),
 			$asset['dependencies'],
 			$asset['version'],
 			true
@@ -90,7 +72,7 @@ class Md4Ai_Admin {
 
 		wp_enqueue_style(
 			'md4ai-admin',
-			plugins_url('build/style-md4ai-admin.css', dirname(__FILE__)),
+			plugins_url('build/style-index.css', dirname(__FILE__)),
 			[],
 			$asset['version']
 		);
