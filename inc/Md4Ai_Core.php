@@ -77,11 +77,11 @@ class Md4Ai_Core {
 	 * Checks if the user agent matches an AI bot
 	 */
 	public function is_ai_bot() {
-		if (!isset($_SERVER['HTTP_USER_AGENT'])) {
+		$user_agent = Md4Ai_Utils::get_user_agent();
+
+		if (empty($user_agent)) {
 			return false;
 		}
-
-		$user_agent = strtolower(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])));
 
 		foreach ($this->ai_bots as $bot) {
 			if (strpos($user_agent, strtolower($bot)) !== false) {
@@ -148,7 +148,6 @@ class Md4Ai_Core {
 		echo esc_textarea($llms_content);
 
 		if ($this->is_ai_bot()) {
-
 			Md4Ai_Utils::log_request( 0, $this->ai_bots );
 		}
 		exit;

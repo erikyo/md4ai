@@ -28,6 +28,13 @@ class Md4Ai_Utils {
 		return $output;
 	}
 
+	public static function get_user_agent(): string {
+		if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return '';
+		}
+		return strtolower(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])));
+	}
+
 	/**
 	 * Logs a request to the md4ai_requests to the md4ai option in the database
 	 *
@@ -44,12 +51,10 @@ class Md4Ai_Utils {
 			$options['requests'] = [];
 		}
 
-		$user_agent = sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']));
+		$user_agent = self::get_user_agent();
 
 		// the date of the last monday o today if today is monday
 		$date = strtotime( 'Monday this week' );
-
-		$user_agent = strtolower( $user_agent );
 
 		// find the user agent string in the $ai_useragents array and keep only the name of the spider
 		foreach ( $ai_useragents as $bot ) {
