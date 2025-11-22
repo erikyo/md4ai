@@ -21,6 +21,7 @@ At its core, md4AI automatically detects requests from a comprehensive list of k
 ### 2. Per-Post Custom Markdown (Metabox)
 
 The plugin adds a new **metabox** to your post and page editor. From here, you can take full control of your content on a per-page basis.
+This is particular useful if your website has editors like Elementor / Beaver Builder / Divi Builder / other div bloated editors because bots usually skips complex and too much nested content.
 
 * **Generate Custom Markdown:** Convert your post's content into Markdown with one click.
 * **Manually Edit:** Modify and enhance the Markdown to be exactly as you want AIs to see it.
@@ -82,12 +83,17 @@ No. For automatic detection, the plugin runs early and immediately stops executi
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.1.0 =
+Enhanced admin UI
+GEO insights page
+Added crawler stats
 Added integration with the AI Services plugin.
 Added "Generate with AI" functionality to enhance content using prompts (e.g., add FAQs, summaries).
+Implemented REST API endpoints for generating base .md and .txt content.
+
+= 1.0.0 =
 Added metaboxes to the post editor to manually generate and store custom Markdown (.md) file.
 The plugin now serves the custom, manually-generated content to bots if it exists, falling back to the automatic conversion if not.
-Implemented REST API endpoints for generating base .md and .txt content.
 Initial release of the md4AI plugin.
 Includes a list of 14 known AI and search bots.
 Implements basic HTML to Markdown conversion for optimal AI consumption.
