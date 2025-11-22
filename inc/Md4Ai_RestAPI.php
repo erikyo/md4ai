@@ -3,6 +3,7 @@
 namespace Md4Ai;
 
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Response;
 
 /**
@@ -66,6 +67,20 @@ class Md4Ai_RestAPI {
 			'callback' => [$this, 'rest_get_stats'],
 			'permission_callback' => [$this, 'admin_permission_check']
 			]);
+
+		register_rest_route( $this->namespace, '/geo-insights', [
+			'methods' => 'POST',
+			'callback' => [$this, 'geo_insights'],
+			'permission_callback' => [$this, 'admin_permission_check'],
+			'args' => [
+				'content' => [
+					'required' => true,
+					'validate_callback' => function($param) {
+						return is_string($param);
+					}
+				]
+			],
+		]);
 	}
 
 	/**
@@ -140,6 +155,29 @@ class Md4Ai_RestAPI {
 		$stats = Md4Ai_Admin_Views::prepare_dashboard_stats($analytics);
 		return new WP_REST_Response([
 			'stats' => $stats,
+		], 200);
+	}
+
+	/**
+	 * Generate Geo Insights
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @returns WP_REST_Response | WP_Error The response from the API or an error
+	 */
+	public function geo_insights( WP_REST_Request $request ) {
+		$content = sanitize_text_field( $request['content'] );
+
+		if (empty($content)) {
+			return new WP_REST_Response([
+				'result' => 'No content provided',
+			], 400);
+		}
+
+		$geo_analyzer = new Md4Ai_Geo_Analyzer($content);
+
+		return new WP_REST_Response([
+			'result' => $geo_analyzer->get_analysis_results(),
 		], 200);
 	}
 }
