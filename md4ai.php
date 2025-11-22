@@ -4,30 +4,37 @@
  * Description: Designed to optimise and serve content for generative engines (GEO)
  * Author: Codekraft
  * Text Domain: md4ai
- * Version: 1.0.0
+ * Version: 1.1.0
  * License: GPLv2 or later
  */
 
-
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if (!defined('MD4AI_PLUGIN_DIR')) {
-	define('MD4AI_PLUGIN_DIR', plugin_dir_path(__FILE__));
+if ( ! defined( 'MD4AI_PLUGIN_PATH' ) ) {
+	define( 'MD4AI_PLUGIN_PATH', __FILE__ );
 }
 
+if ( ! defined( 'MD4AI_PLUGIN_DIR' ) ) {
+	define( 'MD4AI_PLUGIN_DIR', plugin_dir_path( MD4AI_PLUGIN_PATH ) );
+}
 
-// Include the class files
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-core.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-admin.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-cache.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-markdown.php';
-require_once plugin_dir_path(__FILE__) . 'inc/class-md4ai-restapi.php';
+if ( ! defined( 'MD4AI_PLUGIN_BASENAME' ) ) {
+	define( 'MD4AI_PLUGIN_BASENAME', plugin_basename( MD4AI_PLUGIN_PATH ) );
+}
+
+/**
+ * Option name for llms.txt content
+ */
+const MD4AI_OPTION = 'md4ai_options';
+
+// Composer autoloader
+require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 // run the plugin
 function md4ai_init() {
-	new md4AI_Core();
+	new Md4Ai\Md4Ai_Core();
 }
 add_action('plugins_loaded', 'md4ai_init');
 
@@ -41,7 +48,7 @@ add_action('plugins_loaded', 'md4ai_init');
  * @since 1.0.0
  */
 function md4ai_uninstall() {
-	$cache = new md4AI_Cache;
+	$cache = new Md4Ai\Md4Ai_Cache;
 	$cache->clear_all_cache();
 
 	// delete all the post meta data

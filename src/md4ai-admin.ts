@@ -1,45 +1,17 @@
 import { __ } from '@wordpress/i18n';
-import { waitForAiServices } from './md4ai-services';
+import { generateAiText, waitForAiServices } from './md4ai-services';
+import {Md4aiData} from "./types";
 
-declare const md4aiData: {
-	restUrl: string;
-	nonce: string;
-	postId: number;
-	prompts: {
-		'generate-markdown': string;
-		'generate-llmstxt': string;
-	};
-};
+// Declare global variables
+declare const md4aiData: Md4aiData;
 
-declare const wp: {
-	data: {
-		select: ( arg: string ) => {
-			isServiceAvailable: ( a: string ) => boolean;
-			hasAvailableServices: ( a?: { capabilities: string[] } ) => boolean;
-			getAvailableService: ( a?: { capabilities: string[] } ) => boolean;
-		};
-		subscribe: ( callback: () => void, storeName?: string ) => () => void;
-	};
-};
+declare const window: Window;
 
-declare const window: {
-	confirm: ( a: string ) => boolean;
-	addEventListener: ( a: string, b: () => void ) => void;
-	aiServices: {
-		ai: {
-			enums: {
-				AiCapability: {
-					MULTIMODAL_INPUT: string;
-					TEXT_GENERATION: string;
-				};
-			};
-			helpers: any;
-			store: any;
-		};
-	};
-};
-
-function handleMd4aiButtons() {
+/**
+ * Main handler for MD4AI button logic and UI interactions.
+ */
+export function handleMd4aiButtons() {
+	// --- DOM Elements ---
 	const generateBtn = document.querySelector(
 		'.md4ai-generate'
 	) as HTMLButtonElement;
@@ -51,38 +23,66 @@ function handleMd4aiButtons() {
 	) as HTMLButtonElement | null;
 	const statusEl = document.getElementById( 'md4ai-status' ) as HTMLElement;
 
+	// --- Constants ---
+	const COLORS = {
+		SUCCESS: '#00d084',
+		ERROR: '#cf2e2e',
+		LOADING: '#999',
+	};
+
 	/**
 	 * Updates the status element with a message and color.
-	 * @param message - The text message to display.
-	 * @param color   - The CSS color for the text.
+	 * @param {string} message - The text message to display.
+	 * @param {string} color   - The CSS color for the text.
 	 */
 	const updateStatus = ( message: string, color: string ): void => {
+		if ( ! statusEl ) {
+			return;
+		}
 		statusEl.textContent = message;
 		statusEl.style.color = color;
+	};
+
+	/**
+	 * Dispatches an input event to ensure listeners (like the previewer) detect the change.
+	 * @param {HTMLTextAreaElement} textarea - The element to trigger the event on.
+	 */
+	const triggerChangeEvent = ( textarea: HTMLTextAreaElement ): void => {
+		textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 	};
 
 	/**
 	 * Clears the custom markdown from the textarea.
 	 */
 	const clearMarkdown = (): void => {
+		const fieldId = clearBtn?.dataset.field;
 		const textarea = document.getElementById(
-			clearBtn.dataset.field
+			fieldId || ''
 		) as HTMLTextAreaElement;
+
 		if ( ! textarea ) {
 			return;
 		}
+
 		// Use native confirmation dialog
+		// eslint-disable-next-line no-alert
 		if (
-			// eslint-disable-next-line no-alert
 			window.confirm(
-				__('Are you sure you want to clear the custom markdown? Auto-generation will be used instead.', 'md4ai')
+				__(
+					'Are you sure you want to clear the custom markdown? Auto-generation will be used instead.',
+					'md4ai'
+				)
 			)
 		) {
 			textarea.value = '';
+
+			// Trigger update for previewer
+			triggerChangeEvent( textarea );
+
 			updateStatus(
 				__( 'Custom markdown cleared.', 'md4ai' ),
-				'#46b450'
-			); // Green color for success
+				COLORS.SUCCESS
+			);
 
 			// Clear status after 3 seconds
 			setTimeout( () => {
@@ -91,9 +91,12 @@ function handleMd4aiButtons() {
 		}
 	};
 
-	function create_prompt_input() {
-		const promptInput = document.createElement( 'input' );
-		promptInput.type = 'text';
+	/**
+	 * Creates a prompt text area element for AI input.
+	 * @return {HTMLTextAreaElement} The created text area element.
+	 */
+	function create_prompt_text_area(): HTMLTextAreaElement {
+		const promptInput = document.createElement( 'textarea' );
 		promptInput.id = 'md4ai-prompt';
 		promptInput.className = 'md4ai-prompt';
 		promptInput.style.width = '100%';
@@ -101,11 +104,15 @@ function handleMd4aiButtons() {
 		return promptInput;
 	}
 
-	function create_clear_button() {
-		// Create the new button element
+	/**
+	 * Creates a clear button element if it doesn't exist.
+	 * @return {HTMLButtonElement} The created button element.
+	 */
+	function create_clear_button(): HTMLButtonElement {
 		const newClearBtn = document.createElement( 'button' );
 		newClearBtn.type = 'button';
 		newClearBtn.id = 'md4ai-clear';
+		// Inherit data attributes from main button
 		newClearBtn.dataset.field = generateBtn.dataset.field;
 		newClearBtn.dataset.endpoint = generateBtn.dataset.endpoint;
 		newClearBtn.className = 'button md4ai-clear';
@@ -117,17 +124,29 @@ function handleMd4aiButtons() {
 		return newClearBtn;
 	}
 
-	function updateMarkdown( textarea: HTMLTextAreaElement, markdown: string ) {
+	/**
+	 * Updates the markdown in the textarea and handles UI feedback.
+	 * @param {HTMLTextAreaElement} textarea - The textarea element to update.
+	 * @param {string}              markdown - The markdown content to set.
+	 */
+	function updateMarkdown(
+		textarea: HTMLTextAreaElement,
+		markdown: string
+	): void {
 		// Set the value of the textarea
 		textarea.value = markdown;
+
+		// Vital: Notify other scripts (previewer) that the value changed programmatically
+		triggerChangeEvent( textarea );
+
 		updateStatus(
 			__( 'Markdown generated successfully!', 'md4ai' ),
-			'#46b450'
-		); // Green color for success
+			COLORS.SUCCESS
+		);
 
 		// Add clear button if it doesn't exist
 		if ( ! clearBtn ) {
-			clearBtn = create_clear_button(); // Update the reference
+			clearBtn = create_clear_button();
 		}
 
 		// Clear status after 3 seconds
@@ -137,34 +156,30 @@ function handleMd4aiButtons() {
 	}
 
 	/**
-	 * Handles the REST API call to generate markdown from current content.
+	 * Handles the REST API call to generate markdown from current content (Standard Generation).
 	 */
 	const handleGenerate = async (): Promise< void > => {
-		// Get the textarea element
+		const fieldId = generateBtn.dataset.field;
 		const textarea = document.getElementById(
-			generateBtn.dataset.field
+			fieldId || ''
 		) as HTMLTextAreaElement;
+
 		if ( ! textarea ) {
-			console.error(
-				`Textarea ${ generateBtn.dataset.field } not found`
-			);
+			console.error( `Textarea ${ fieldId } not found` );
 			return;
 		}
 
-		// Get the endpoint from the dataset
-		const endpoint = md4aiData.restUrl + '/' + generateBtn.dataset.endpoint;
+		// Construct URL
+		const endpoint = `${ md4aiData.restUrl }/${ generateBtn.dataset.endpoint }`;
 		const url = md4aiData.postId
-			? endpoint + '/' + md4aiData.postId
+			? `${ endpoint }/${ md4aiData.postId }`
 			: endpoint;
 
-		// Disable the button to prevent multiple submissions
+		// Disable UI
 		generateBtn.disabled = true;
-
-		// Update the status
-		updateStatus( __( 'Generating…', 'md4ai' ), '#999' ); // Grey color for generating
+		updateStatus( __( 'Generating…', 'md4ai' ), COLORS.LOADING );
 
 		try {
-			// Use the native fetch API for REST API call
 			const response = await fetch( url, {
 				method: 'POST',
 				headers: {
@@ -173,51 +188,42 @@ function handleMd4aiButtons() {
 				},
 			} );
 
-			// Check if the network request was successful (status 200-299)
 			if ( ! response.ok ) {
 				throw new Error( `HTTP error! status: ${ response.status }` );
 			}
 
-			// Parse the JSON response
 			const result = await response.json();
+
 			if ( result.markdown ) {
 				updateMarkdown( textarea, result.markdown );
 			} else {
-				// Handle missing markdown data
 				updateStatus(
 					__( 'Error generating markdown.', 'md4ai' ),
-					'#dc3232'
-				); // Red color for error
+					COLORS.ERROR
+				);
 			}
 		} catch ( error ) {
-			// Handle network errors or JSON parsing errors
 			// eslint-disable-next-line no-console
 			console.error( 'REST API Error:', error );
 			updateStatus(
 				__( 'Error generating markdown.', 'md4ai' ),
-				'#dc3232'
-			); // Red color for error
+				COLORS.ERROR
+			);
 		} finally {
-			// Re-enable the button regardless of success or failure
 			generateBtn.disabled = false;
 		}
 	};
 
 	/**
 	 * Handles the AI-enhanced markdown generation.
-	 * Fetches markdown from REST API, then enhances it using AI service.
-	 * @param textarea
-	 * @param promptInput
+	 * Flow: Fetch existing content -> Process via AI Service -> Update UI.
+	 * @param {HTMLTextAreaElement} textarea    - The target field.
+	 * @param {HTMLTextAreaElement} promptInput - The user prompt input.
 	 */
 	const handleAiGenerate = async (
 		textarea: HTMLTextAreaElement,
-		promptInput: HTMLInputElement
+		promptInput: HTMLTextAreaElement
 	): Promise< void > => {
-		const { enums, helpers, store: aiStore } = window.aiServices.ai;
-		const SERVICE_ARGS = {
-			capabilities: [ enums.AiCapability.TEXT_GENERATION ],
-		};
-
 		if ( ! textarea ) {
 			console.error(
 				`Textarea ${ generateAiBtn.dataset.field } not found`
@@ -225,22 +231,19 @@ function handleMd4aiButtons() {
 			return;
 		}
 
-		// Get the endpoint from the dataset
-		const endpoint =
-			md4aiData.restUrl + '/' + generateAiBtn.dataset.endpoint;
+		// Construct URL
+		const endpoint = `${ md4aiData.restUrl }/${ generateAiBtn.dataset.endpoint }`;
 		const url = md4aiData.postId
-			? endpoint + '/' + md4aiData.postId
+			? `${ endpoint }/${ md4aiData.postId }`
 			: endpoint;
 
-		// Disable the button to prevent multiple submissions
+		// Disable UI
 		generateAiBtn.disabled = true;
-
-		// Update the status
-		updateStatus( __( 'Generating with AI…', 'md4ai' ), '#999' );
+		updateStatus( __( 'Generating with AI…', 'md4ai' ), COLORS.LOADING );
 
 		try {
 			// Step 1: Fetch markdown from REST API
-			updateStatus( __( 'Fetching content…', 'md4ai' ), '#999' );
+			updateStatus( __( 'Fetching content…', 'md4ai' ), COLORS.LOADING );
 
 			const response = await fetch( url, {
 				method: 'POST',
@@ -261,65 +264,54 @@ function handleMd4aiButtons() {
 			}
 
 			// Step 2: Process with AI
-			updateStatus( __( 'Processing with AI…', 'md4ai' ), '#999' );
-
-			const { select } = wp.data;
-			const { getAvailableService } = select( aiStore.name );
-
-			const service = getAvailableService( SERVICE_ARGS ) as
-				| false
-				| {
-						generateText: (
-							arg: string,
-							arg2: { feature: string }
-						) => Promise< any >;
-				  };
-
-			if ( ! service ) {
-				throw new Error( 'AI service not available' );
-			}
+			updateStatus(
+				__( 'Processing with AI…', 'md4ai' ),
+				COLORS.LOADING
+			);
 
 			// Combine the prompt with the fetched markdown
 			const fullPrompt = `${ promptInput.value }\n\nContent to process:\n${ result.markdown }`;
 
-			const candidates = await service.generateText( fullPrompt, {
-				feature: 'md4ai-generation',
-			} );
-
-			const aiEnhancedText = helpers.getTextFromContents(
-				helpers.getCandidateContents( candidates )
-			);
+			const generated = await generateAiText( fullPrompt );
 
 			// Step 3: Update the textarea with AI-enhanced content
-			updateMarkdown( textarea, aiEnhancedText );
+			updateMarkdown( textarea, generated );
 		} catch ( error ) {
 			console.error( 'AI Generation Error:', error );
 			updateStatus(
 				__( 'Error generating AI-enhanced markdown.', 'md4ai' ),
-				'#dc3232'
+				COLORS.ERROR
 			);
 		} finally {
-			// Re-enable the button
 			generateAiBtn.disabled = false;
 		}
 	};
 
 	/**
-	 * Initialize AI-enhanced generation with service check
+	 * Initialize AI-enhanced generation with service check.
+	 * Waits for WP AI services to be available before attaching listeners.
 	 */
-	const initAiGenerate = () => {
+	const initAiGenerate = (): void => {
 		waitForAiServices( () => {
-			// Get the textarea element
+			const fieldId = generateAiBtn.dataset.field;
 			const textarea = document.getElementById(
-				generateAiBtn.dataset.field
+				fieldId || ''
 			) as HTMLTextAreaElement;
 
-			// append prompt input
-			const promptInput = create_prompt_input();
-			textarea.before( promptInput );
+			if ( ! textarea ) {
+				return;
+			}
+
+			// Append prompt input
+			const promptInput = create_prompt_text_area();
+			textarea.after( promptInput );
 
 			// Determine which prompt to use based on the endpoint
-			const prompt = md4aiData.prompts[ generateAiBtn.dataset.endpoint ];
+			const endpointKey = generateAiBtn.dataset.endpoint;
+			const prompt =
+				endpointKey && md4aiData.prompts[ endpointKey ]
+					? md4aiData.prompts[ endpointKey ]
+					: '';
 			promptInput.value = prompt;
 
 			// Attach the click listener once AI services are ready
@@ -329,8 +321,12 @@ function handleMd4aiButtons() {
 		} );
 	};
 
+	// --- Initialization ---
+
 	// Attach the click listener to the generate button
-	generateBtn.addEventListener( 'click', handleGenerate );
+	if ( generateBtn ) {
+		generateBtn.addEventListener( 'click', handleGenerate );
+	}
 
 	// Initialize AI-enhanced generation
 	if ( generateAiBtn ) {
@@ -342,5 +338,3 @@ function handleMd4aiButtons() {
 		clearBtn.addEventListener( 'click', clearMarkdown );
 	}
 }
-
-document.addEventListener( 'DOMContentLoaded', handleMd4aiButtons );

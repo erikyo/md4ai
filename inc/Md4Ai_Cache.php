@@ -1,8 +1,11 @@
 <?php
+
+namespace Md4Ai;
+
 /**
  * Cache management class
  */
-class md4AI_Cache {
+class Md4Ai_Cache {
 
 	/**
 	 * Cache directory path
