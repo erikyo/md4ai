@@ -43,9 +43,9 @@ This combination gives you full control, from automatic optimization to granular
 
 The dedicated GEO/AIO Insights tab provides a unique validation mechanism for your site's AI presence, offering measurable scores (0-100) on how well your brand is understood by Generative Engines.
 
-* **The Validation Process**: We ask a Large Language Model (LLM) di completare una "scheda di conoscenza" sul tuo sito (ad esempio, il nome del brand, gli argomenti principali e le categorie di prodotto).
-* **Ground Truth Check**: La risposta dell'AI viene immediatamente confrontata con i dati reali estratti dal tuo database WordPress (ad esempio, il titolo del sito, i nomi degli autori, le categorie di WooCommerce).
-* **Final Score**: In base a questa controverifica, l'insight fornisce un punteggio per l'identità del brand e la rilevanza tecnica, evidenziando esattamente dove l'AI ha fornito dati errati o insufficienti (allucinazioni o dati mancanti).
+* **The Validation Process**: We ask a Large Language Model (LLM) to complete a "knowledge card" about your site (e.g., brand name, main topics, product categories).
+* **Ground Truth Check**: The AI response is immediately compared with real data extracted from your WordPress database (e.g., site title, author names, WooCommerce categories)
+* **Final Score**: Based on this cross-check, the insight provides a score for brand identity and technical relevance, highlighting exactly where the AI provided incorrect or insufficient data (hallucinations or missing data).
 
 == Installation ==
 

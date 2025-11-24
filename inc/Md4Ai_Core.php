@@ -15,7 +15,7 @@ class Md4Ai_Core {
 	 * Perplexity https://docs.perplexity.ai/guides/bots
 	 * Google https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers
 	 */
-	private $ai_useragents = [
+	private array $ai_useragents = [
 		'oai-searchbot', // OAI-SearchBot/1.0; +https://openai.com/searchbot
 		'gptbot', // GPTBot/1.0 (+https://openai.com/gptbot)
 		'chatgpt-user', // ChatGPT-User/1.0; +https://openai.com/bot
@@ -36,12 +36,24 @@ class Md4Ai_Core {
 		'cohere-ai' // cohere-ai/1.0; +http://www.cohere.ai/bot.html
 	];
 
+	private array $default_llm_domains = [
+		'chatgpt.com',
+		'openai.com',
+		'claude.ai',
+		'gemini.google.com',
+		'perplexity.ai',
+		'copilot.microsoft.com',
+		'm365.cloud.microsoft', // Microsoft 365 Copilot
+		'grok.com',
+	];
+
 	private array $ai_bots;
 	private Md4Ai_Cache $cache;
 	private Md4Ai_Markdown $markdown;
 
 	public function __construct() {
 		$this->ai_bots = $this->setup_ai_useragents();
+		$this->llm_domains = $this->setup_llm_domains();
 
 		// Initialize sub-components
 		$this->cache = new Md4Ai_Cache();
@@ -74,9 +86,21 @@ class Md4Ai_Core {
 	}
 
 	/**
+	 * Set up LLM domains
+	 */
+	private function setup_llm_domains() {
+		/**
+		 * Filters the list of LLM domains
+		 *
+		 * @param array $llm_domains The list of LLM domains
+		 */
+		return apply_filters('md4ai_llm_domains', $this->default_llm_domains);
+	}
+
+	/**
 	 * Checks if the user agent matches an AI bot
 	 */
-	public function is_ai_bot() {
+	public function is_ai_bot(): bool {
 		$user_agent = Md4Ai_Utils::get_user_agent();
 
 		if (empty($user_agent)) {
@@ -90,6 +114,70 @@ class Md4Ai_Core {
 		}
 
 		return false;
+	}
+
+	private function get_referrer_insights() {
+		// Get the raw referrer URL
+		$referrer_url = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_url( $_SERVER['HTTP_REFERER'] ) : '';
+
+		if ( empty( $referrer_url ) ) {
+			// No referrer present, so nothing to track
+			return;
+		}
+
+		$source = 'Unknown';
+		$search_terms = '';
+
+		// Parse the referrer URL
+		$parsed_url = parse_url( $referrer_url );
+		$referrer_host = $parsed_url['host'] ?? '';
+
+		if ( empty( $referrer_host ) ) {
+			// Host couldn't be parsed, stop here
+			return;
+		}
+
+		// Check for LLM/AI Source
+		foreach ( $this->llm_domains as $domain ) {
+			if ( strpos( $referrer_host, $domain ) !== false ) {
+				$source = 'LLM: ' . $domain;
+				break;
+			}
+		}
+
+		// Fallback/Check for common Search Engines if not identified as LLM
+		if ( $source === 'Unknown' ) {
+			if ( strpos( $referrer_host, 'google.' ) !== false ) {
+				$source = 'Search: Google';
+			} elseif ( strpos( $referrer_host, 'bing.com' ) !== false ) {
+				$source = 'Search: Bing';
+			} elseif ( strpos( $referrer_host, 'duckduckgo.com' ) !== false ) {
+				$source = 'Search: DuckDuckGo';
+			}
+		}
+
+		// Try to extract search terms
+		// Search terms are usually in the query string, typically under 'q' or 'p'
+		$query = $parsed_url['query'] ?? '';
+		if ( ! empty( $query ) ) {
+			parse_str( $query, $query_params );
+
+			// Search term parameters for common engines/platforms
+			$search_param_keys = ['q', 'p', 'query', 'search', 'term'];
+
+			foreach ( $search_param_keys as $key ) {
+				if ( ! empty( $query_params[$key] ) ) {
+					// Decode URL-encoded terms and clean up.
+					$search_terms = sanitize_text_field( urldecode( $query_params[$key] ) );
+					break;
+				}
+			}
+		}
+
+		// Store the data (using your placeholder function)
+		if ( ! empty( $source ) && $source !== 'Unknown' ) {
+			Md4Ai_Utils::store_visitor_data( $source, $search_terms );
+		}
 	}
 
 	/**
@@ -126,6 +214,8 @@ class Md4Ai_Core {
 		// Check if it's an AI bot or a request for markdown
 		if (get_query_var('md4ai_md') || $this->is_ai_bot()) {
 			$this->serve_markdown_to_bots();
+		} else {
+			$this->get_referrer_insights();
 		}
 	}
 

@@ -123,7 +123,7 @@ Optional details go here
 		}
 		?>
 		<div class="wrap md4ai-admin">
-			<h1><?php esc_html_e( 'md4AI', 'md4ai' ); ?></h1>
+			<h1><?php esc_html_e( 'Md4AI', 'md4ai' ); ?></h1>
 			<?php $this->render_tabs(); ?>
 		</div>
 		<?php

@@ -30,7 +30,8 @@
     "wp-env:xdebug": "wp-env start --xdebug",
     "wp-env:stop": "wp-env stop",
     "wp-env:destroy": "wp-env destroy",
-    "makepot": "npx make-pot"
+    "makepot": "npx make-pot",
+    "test:unit:php": "wp-env run tests-wordpress /var/www/html/wp-content/plugins/md4ai/vendor/bin/phpunit -c /var/www/html/wp-content/plugins/md4ai/phpunit.xml.dist --verbose"
   },
   "homepage": "https://github.com/erikyo/md4ai#readme",
   "devDependencies": {

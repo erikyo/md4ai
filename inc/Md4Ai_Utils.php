@@ -78,6 +78,31 @@ class Md4Ai_Utils {
 	}
 
 	/**
+	 * Stores visitor data in the MD4AI_OPTION in the database
+	 *
+	 * @param string $source The source of the visitor
+	 * @param string $search_terms The search terms of the visitor
+	 */
+	public static function store_visitor_data( $source, $search_terms ) {
+		$options = get_option( MD4AI_OPTION );
+
+		// create the visitor array if it doesn't exist
+		if ( ! isset( $options['visitors'] ) ) {
+			$options['visitors'] = [];
+		}
+
+		// the date of the last monday o today if today is monday
+		$date = strtotime( 'Monday this week' );
+
+		$options['visitors'][ wp_date( 'Y-m-d', $date ) ][] = [
+			'source'        => $source,
+			'search_terms'  => $search_terms,
+			'date_recorded' => time(),
+		];
+		update_option( MD4AI_OPTION, $options );
+	}
+
+	/**
 	 * Gets the llms.txt content
 	 *
 	 * @return string The llms.txt content
