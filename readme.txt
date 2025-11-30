@@ -4,7 +4,7 @@ Tags: GEO, AI, SEO, markdown, llms.txt
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,11 @@ No. Regular users and traditional search engine crawlers (like standard Googlebo
 No. For automatic detection, the plugin runs early and immediately stops execution (`exit;`) after serving the Markdown content. For manual generation, the content is pre-generated and saved, so serving it is extremely fast.
 
 == Changelog ==
+
+= 1.1.1 =
+- Store and Display access logs (source and search terms only)
+- Updated dependencies
+- Updated dashboard UI
 
 = 1.1.0 =
 - Enhanced admin UI
