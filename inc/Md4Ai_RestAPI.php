@@ -22,11 +22,18 @@ class Md4Ai_RestAPI {
 	private Md4Ai_Markdown $markdown;
 
 	/**
+	 * Plugin options
+	 */
+	private array $options;
+
+	/**
 	 * Constructs the REST API endpoints class
 	 *
+	 * @param array $options Plugin options
 	 * @param Md4Ai_Markdown $markdown Markdown generation and conversion class instance
 	 */
-	public function __construct( Md4Ai_Markdown $markdown) {
+	public function __construct( array $options,  Md4Ai_Markdown $markdown) {
+		$this->options = $options;
 		$this->markdown = $markdown;
 		add_action('rest_api_init', [$this, 'register_rest_routes']);
 	}
@@ -66,7 +73,13 @@ class Md4Ai_RestAPI {
 			'methods' => 'GET',
 			'callback' => [$this, 'rest_get_stats'],
 			'permission_callback' => [$this, 'admin_permission_check']
-			]);
+		]);
+
+		register_rest_route( $this->namespace, '/get-visitors', [
+			'methods' => 'GET',
+			'callback' => [$this, 'rest_get_visitors'],
+			'permission_callback' => [$this, 'admin_permission_check']
+		]);
 
 		register_rest_route( $this->namespace, '/geo-insights', [
 			'methods' => 'POST',
@@ -143,8 +156,7 @@ class Md4Ai_RestAPI {
 	 * @returns WP_REST_Response | WP_Error The response from the API or an error
 	 */
 	public function rest_get_stats() {
-		$options = get_option( MD4AI_OPTION );
-		$analytics = $options['requests'] ?? [];
+		$analytics = $this->options['requests'] ?? [];
 
 		if (empty($analytics)) {
 			return new WP_REST_Response([
@@ -155,6 +167,23 @@ class Md4Ai_RestAPI {
 		$stats = Md4Ai_Admin_Views::prepare_dashboard_stats($analytics);
 		return new WP_REST_Response([
 			'stats' => $stats,
+		], 200);
+	}
+
+	/**
+	 * Get Access
+	 *
+	 * @returns WP_REST_Response | WP_Error The response from the API or an error
+	 */
+	public function rest_get_visitors() {
+		$visitors = $this->options['visitors'] ?? [];
+
+		// Use the helper we created in the View class
+		// Returns: ['source_counts', 'referral_chart_data', 'latest_views']
+		$stats = Md4Ai_Admin_Views::prepare_traffic_stats($visitors);
+
+		return new WP_REST_Response([
+			'access' => $stats
 		], 200);
 	}
 
