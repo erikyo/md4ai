@@ -219,43 +219,20 @@ class Md4Ai_Core {
 			foreach ($this->ai_useragents as $pattern) {
 				if (strpos($user_agent_lower, $pattern) !== false) {
 					$source = 'LLM Bot: ' . $pattern;
-					$additional_info['detected_via'] = 'user_agent';
 					break;
 				}
 			}
 		}
 
-		// === SEC-FETCH HEADERS ANALYSIS (Chrome/Edge) ===
-		// These headers indicate how the request was made
-		if (isset($_SERVER['HTTP_SEC_FETCH_SITE'])) {
-			$fetch_site = Md4Ai_Utils::get_fetch_site();
-			$fetch_mode = Md4Ai_Utils::get_fetch_mode();
-			$fetch_dest = Md4Ai_Utils::get_fetch_dest();
-
-			$additional_info['fetch_context'] = [
-				'site' => $fetch_site,
-				'mode' => $fetch_mode,
-				'dest' => $fetch_dest
-			];
-
-			// cross-site + navigate + document = link clicked from another site
-			if ($fetch_site === 'cross-site' && $fetch_mode === 'navigate' && $fetch_dest === 'document') {
-				if ($source === 'Unknown' && !empty($referrer_url)) {
-					$source = 'External Link: ' . wp_parse_url($referrer_url, PHP_URL_HOST);
-				}
-			}
-		}
-
 		// === DATA STORAGE ===
-		if ($source !== 'Unknown' || !empty($search_terms)) {
-			Md4Ai_Utils::store_visitor_data($source, $search_terms, $additional_info);
+		if ($source !== 'Unknown') {
+			Md4Ai_Utils::store_visitor_data($source, $search_terms);
 		}
 
 		return [
 			'source' => $source,
 			'search_terms' => $search_terms,
-			'referrer' => $referrer_url,
-			'additional_info' => $additional_info
+			'referrer' => $referrer_url
 		];
 	}
 

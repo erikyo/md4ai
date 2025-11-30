@@ -48,33 +48,6 @@ class Md4Ai_Utils {
 	}
 
 	/**
-	 * Gets the fetch site
-	 *
-	 * @return string The fetch site
-	 */
-	public static function get_fetch_site() {
-		return isset($_SERVER['HTTP_SEC_FETCH_SITE']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_SEC_FETCH_SITE'])) : null;
-	}
-
-	/**
-	 * Gets the fetch mode
-	 *
-	 * @return string The fetch mode
-	 */
-	public static function get_fetch_mode() {
-		return isset($_SERVER['HTTP_SEC_FETCH_MODE']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_SEC_FETCH_MODE'])) : '';
-	}
-
-	/**
-	 * Gets the fetch dest
-	 *
-	 * @return string The fetch dest
-	 */
-	public static function get_fetch_dest() {
-		return isset($_SERVER['HTTP_SEC_FETCH_DEST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_SEC_FETCH_DEST'])) : '';
-	}
-
-	/**
 	 * Logs a request to the md4ai_requests to the md4ai option in the database
 	 *
 	 * @param int $ID The ID of the post
@@ -117,7 +90,7 @@ class Md4Ai_Utils {
 	 * @param string $source The source of the visitor
 	 * @param string $search_terms The search terms of the visitor
 	 */
-	public static function store_visitor_data( $source, $search_terms, $additional_info = [] ) {
+	public static function store_visitor_data( $source, $search_terms ) {
 		$options = get_option( MD4AI_OPTION );
 
 		// create the visitor array if it doesn't exist
@@ -131,8 +104,7 @@ class Md4Ai_Utils {
 		$options['visitors'][ wp_date( 'Y-m-d', $date ) ][] = [
 			'source'        => $source,
 			'search_terms'  => $search_terms,
-			'date_recorded' => time(),
-			'additional_info' => $additional_info, // <--- ADD THIS LINE
+			'date_recorded' => time()
 		];
 		update_option( MD4AI_OPTION, $options );
 	}
