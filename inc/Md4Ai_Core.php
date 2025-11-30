@@ -36,6 +36,11 @@ class Md4Ai_Core {
 		'cohere-ai' // cohere-ai/1.0; +http://www.cohere.ai/bot.html
 	];
 
+	/**
+	 * Default list of LLM domains
+	 *
+	 * @var array
+	 */
 	private array $default_llm_domains = [
 		'chatgpt.com',
 		'openai.com',
@@ -45,22 +50,49 @@ class Md4Ai_Core {
 		'copilot.microsoft.com',
 		'm365.cloud.microsoft', // Microsoft 365 Copilot
 		'grok.com',
+		'you.com',
+		'phind.com',
+		'poe.com',
+		'character.ai',
+		'huggingface.co',
+		'deepseek.com',
+		'mistral.ai',
+		'cohere.ai',
+		'bard.google.com'
 	];
 
 	private array $ai_bots;
+	/**
+	 * @var Md4Ai_Cache
+	 */
 	private Md4Ai_Cache $cache;
+	/**
+	 * @var Md4Ai_Markdown
+	 */
 	private Md4Ai_Markdown $markdown;
+
+	/**
+	 * @var mixed|null
+	 */
+	private $llm_domains;
+
+	/**
+	 * @var array
+	 */
+	private $options;
 
 	public function __construct() {
 		$this->ai_bots = $this->setup_ai_useragents();
 		$this->llm_domains = $this->setup_llm_domains();
+
+		$this->options = get_option('md4ai_options');
 
 		// Initialize sub-components
 		$this->cache = new Md4Ai_Cache();
 		$this->markdown = new Md4Ai_Markdown($this->cache);
 
 		// Initialize REST API
-		new Md4Ai_RestAPI($this->markdown);
+		new Md4Ai_RestAPI($this->options, $this->markdown);
 
 		// Initialize admin stuff
 		new Md4Ai_Admin($this->cache, $this->markdown);
@@ -116,68 +148,115 @@ class Md4Ai_Core {
 		return false;
 	}
 
+	/**
+	 * Analyzes the referrer and user agent to determine the source of the request
+	 */
 	private function get_referrer_insights() {
-		// Get the raw referrer URL
-		$referrer_url = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_url( $_SERVER['HTTP_REFERER'] ) : '';
-
-		if ( empty( $referrer_url ) ) {
-			// No referrer present, so nothing to track
-			return;
-		}
+		$referrer_url = Md4Ai_Utils::get_referrer();
+		$user_agent = Md4Ai_Utils::get_user_agent();
 
 		$source = 'Unknown';
 		$search_terms = '';
+		$additional_info = [];
 
-		// Parse the referrer URL
-		$parsed_url = parse_url( $referrer_url );
-		$referrer_host = $parsed_url['host'] ?? '';
+		// === REFERER ANALYSIS (if present) ===
+		if (!empty($referrer_url)) {
+			$parsed_url = wp_parse_url($referrer_url);
+			$referrer_host = $parsed_url['host'] ?? '';
 
-		if ( empty( $referrer_host ) ) {
-			// Host couldn't be parsed, stop here
-			return;
-		}
+			if (!empty($referrer_host)) {
+				// Check LLM domains
+				foreach ($this->default_llm_domains as $domain) {
+					if (strpos($referrer_host, $domain) !== false) {
+						$source = 'LLM: ' . $domain;
+						break;
+					}
+				}
 
-		// Check for LLM/AI Source
-		foreach ( $this->llm_domains as $domain ) {
-			if ( strpos( $referrer_host, $domain ) !== false ) {
-				$source = 'LLM: ' . $domain;
-				break;
+				// Common search engines
+				if ($source === 'Unknown') {
+					$search_engines = [
+						'google.' => 'Search: Google',
+						'bing.com' => 'Search: Bing',
+						'duckduckgo.com' => 'Search: DuckDuckGo',
+						'yahoo.com' => 'Search: Yahoo',
+						'yandex.' => 'Search: Yandex',
+						'baidu.com' => 'Search: Baidu',
+						'ecosia.org' => 'Search: Ecosia',
+						'startpage.com' => 'Search: Startpage',
+					];
+
+					foreach ($search_engines as $domain => $label) {
+						if (strpos($referrer_host, $domain) !== false) {
+							$source = $label;
+							break;
+						}
+					}
+				}
+
+				// Extract search terms from query string
+				$query = $parsed_url['query'] ?? '';
+				if (!empty($query)) {
+					parse_str($query, $query_params);
+
+					// Common search term parameters
+					$search_param_keys = ['q', 'p', 'query', 'search', 'term', 'text', 's', 'qs'];
+
+					foreach ($search_param_keys as $key) {
+						if (!empty($query_params[$key])) {
+							$search_terms = sanitize_text_field(urldecode($query_params[$key]));
+							break;
+						}
+					}
+				}
 			}
 		}
 
-		// Fallback/Check for common Search Engines if not identified as LLM
-		if ( $source === 'Unknown' ) {
-			if ( strpos( $referrer_host, 'google.' ) !== false ) {
-				$source = 'Search: Google';
-			} elseif ( strpos( $referrer_host, 'bing.com' ) !== false ) {
-				$source = 'Search: Bing';
-			} elseif ( strpos( $referrer_host, 'duckduckgo.com' ) !== false ) {
-				$source = 'Search: DuckDuckGo';
-			}
-		}
+		// === USER AGENT ANALYSIS (fallback for LLM without referer) ===
+		if (!empty($user_agent) && $source === 'Unknown') {
+			$user_agent_lower = strtolower($user_agent);
 
-		// Try to extract search terms
-		// Search terms are usually in the query string, typically under 'q' or 'p'
-		$query = $parsed_url['query'] ?? '';
-		if ( ! empty( $query ) ) {
-			parse_str( $query, $query_params );
-
-			// Search term parameters for common engines/platforms
-			$search_param_keys = ['q', 'p', 'query', 'search', 'term'];
-
-			foreach ( $search_param_keys as $key ) {
-				if ( ! empty( $query_params[$key] ) ) {
-					// Decode URL-encoded terms and clean up.
-					$search_terms = sanitize_text_field( urldecode( $query_params[$key] ) );
+			foreach ($this->ai_useragents as $pattern) {
+				if (strpos($user_agent_lower, $pattern) !== false) {
+					$source = 'LLM Bot: ' . $pattern;
+					$additional_info['detected_via'] = 'user_agent';
 					break;
 				}
 			}
 		}
 
-		// Store the data (using your placeholder function)
-		if ( ! empty( $source ) && $source !== 'Unknown' ) {
-			Md4Ai_Utils::store_visitor_data( $source, $search_terms );
+		// === SEC-FETCH HEADERS ANALYSIS (Chrome/Edge) ===
+		// These headers indicate how the request was made
+		if (isset($_SERVER['HTTP_SEC_FETCH_SITE'])) {
+			$fetch_site = Md4Ai_Utils::get_fetch_site();
+			$fetch_mode = Md4Ai_Utils::get_fetch_mode();
+			$fetch_dest = Md4Ai_Utils::get_fetch_dest();
+
+			$additional_info['fetch_context'] = [
+				'site' => $fetch_site,
+				'mode' => $fetch_mode,
+				'dest' => $fetch_dest
+			];
+
+			// cross-site + navigate + document = link clicked from another site
+			if ($fetch_site === 'cross-site' && $fetch_mode === 'navigate' && $fetch_dest === 'document') {
+				if ($source === 'Unknown' && !empty($referrer_url)) {
+					$source = 'External Link: ' . wp_parse_url($referrer_url, PHP_URL_HOST);
+				}
+			}
 		}
+
+		// === DATA STORAGE ===
+		if ($source !== 'Unknown' || !empty($search_terms)) {
+			Md4Ai_Utils::store_visitor_data($source, $search_terms, $additional_info);
+		}
+
+		return [
+			'source' => $source,
+			'search_terms' => $search_terms,
+			'referrer' => $referrer_url,
+			'additional_info' => $additional_info
+		];
 	}
 
 	/**
