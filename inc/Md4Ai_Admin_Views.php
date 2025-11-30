@@ -123,10 +123,73 @@ Optional details go here
 		}
 		?>
 		<div class="wrap md4ai-admin">
-			<h1><?php esc_html_e( 'md4AI', 'md4ai' ); ?></h1>
+			<h1><?php esc_html_e( 'Md4AI', 'md4ai' ); ?></h1>
 			<?php $this->render_tabs(); ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Prepares the visitor data for the Traffic Insights dashboard
+	 *
+	 * @param array $visitors The raw visitors data from the database.
+	 *
+	 * @return array The processed traffic statistics.
+	 */
+	public static function prepare_traffic_stats($visitors) {
+		$source_counts = [];
+		$referral_counts_per_day = [];
+
+		if (empty($visitors)) {
+			return [
+				'source_counts' => [],
+				'referral_chart_data' => ['dates' => [], 'data' => []],
+				'latest_views' => []
+			];
+		}
+
+		$latest_views = [];
+
+		foreach ($visitors as $week_date => $daily_visits) {
+			if (!is_array($daily_visits)) continue;
+
+			foreach ($daily_visits as $visit) {
+				// 1. Source Counts (for Pie Chart)
+				$source = $visit['source'];
+				$source_counts[$source] = ($source_counts[$source] ?? 0) + 1;
+
+				// 2. Referral Counts per Day (for Bar Chart)
+				$date_str = gmdate('Y-m-d', $visit['date_recorded']);
+				if (stripos($source, 'search: ') === 0 || stripos($source, 'llm: ') === 0) {
+					$referral_counts_per_day[$date_str] = ($referral_counts_per_day[$date_str] ?? 0) + 1;
+				}
+
+				// 3. Latest Views (for Table)
+				$latest_views[] = $visit;
+			}
+		}
+
+		// Sort latest views by timestamp descending and take top 10
+		usort($latest_views, function($a, $b) {
+			return $b['date_recorded'] - $a['date_recorded'];
+		});
+		$latest_views = array_slice($latest_views, 0, 10);
+
+		// Prepare chart data for last 7 days for the new bar chart
+		$last_7_days = [];
+		for ($i = 6; $i >= 0; $i--) {
+			$date = gmdate('Y-m-d', strtotime("-$i days"));
+			$last_7_days[$date] = $referral_counts_per_day[$date] ?? 0;
+		}
+
+		return [
+			'source_counts' => $source_counts,
+			'referral_chart_data' => [
+				'dates' => array_keys($last_7_days),
+				'data' => array_values($last_7_days)
+			],
+			'latest_views' => $latest_views
+		];
 	}
 
 	/**
@@ -139,10 +202,12 @@ Optional details go here
 	private function render_tab_dashboard() {
 		$options = get_option( MD4AI_OPTION );
 		$analytics = $options['requests'] ?? [];
+		$visitors = $options['visitors'] ?? [];
 
 		// Prepare stats
 		$stats = self::prepare_dashboard_stats($analytics);
-		?>
+		$traffic_stats = self::prepare_traffic_stats($visitors);
+		?>252
 		<div id="md4ai-tab-panel md4ai-dashboard">
 			<div class="md4ai-section-header">
 				<h2 class="md4ai-section-title">
@@ -151,7 +216,6 @@ Optional details go here
 				</h2>
 			</div>
 
-			<!-- Status Alerts -->
 			<div class="md4ai-alerts">
 				<?php if ( Md4Ai_Utils::is_ai_service_enabled() ): ?>
 					<div class="notice notice-success inline">
@@ -164,7 +228,6 @@ Optional details go here
 				<?php endif; ?>
 			</div>
 
-			<!-- Statistics Cards -->
 			<div class="md4ai-stats-grid">
 				<div class="md4ai-stat-card">
 					<div class="stat-icon" style="background: #2271b1;">
@@ -211,7 +274,6 @@ Optional details go here
 				</div>
 			</div>
 
-			<!-- Charts Section -->
 			<div class="md4ai-charts-container">
 				<div class="md4ai-chart-box">
 					<h3><?php esc_html_e('Requests per Day', 'md4ai'); ?></h3>
@@ -228,7 +290,6 @@ Optional details go here
 				</div>
 			</div>
 
-			<!-- Top Posts Table -->
 			<div class="md4ai-table-container">
 				<h3><?php esc_html_e('Most Indexed Posts', 'md4ai'); ?></h3>
 				<table class="wp-list-table widefat fixed striped">
@@ -251,7 +312,14 @@ Optional details go here
 									</strong>
 								</td>
 								<td><?php echo esc_html($post_stat['count']); ?></td>
-								<td><?php echo esc_html(human_time_diff($post_stat['last_crawled'], current_time('timestamp'))); ?> ago</td>
+								<td>
+									<?php
+									// Format: 2024-01-01 14:30 (2 days ago)
+									$date_format = wp_date('Y-m-d H:i', $post_stat['last_crawled']);
+									$time_diff = human_time_diff($post_stat['last_crawled'], current_time('timestamp'));
+									echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
+									?>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 					<?php else: ?>
@@ -265,31 +333,37 @@ Optional details go here
 				</table>
 			</div>
 
-			<!-- Recent Activity -->
 			<div class="md4ai-table-container">
 				<h3><?php esc_html_e('Recent Crawler Activity', 'md4ai'); ?></h3>
 				<table class="wp-list-table widefat fixed striped">
 					<thead>
 					<tr>
-						<th><?php esc_html_e('Time', 'md4ai'); ?></th>
 						<th><?php esc_html_e('Crawler', 'md4ai'); ?></th>
 						<th><?php esc_html_e('Post', 'md4ai'); ?></th>
+						<th><?php esc_html_e('Date', 'md4ai'); ?></th>
 					</tr>
 					</thead>
 					<tbody>
 					<?php if (!empty($stats['recent_activity'])): ?>
 						<?php foreach ($stats['recent_activity'] as $activity): ?>
 							<tr>
-								<td><?php echo esc_html(human_time_diff($activity['timestamp'], current_time('timestamp'))); ?> ago</td>
 								<td>
-                                    <span class="md4ai-crawler-badge">
-                                        <?php echo esc_html($activity['user_agent']); ?>
-                                    </span>
+									<span class="md4ai-crawler-badge">
+										<?php echo esc_html($activity['user_agent']); ?>
+									</span>
 								</td>
 								<td>
 									<a href="<?php echo esc_url(get_edit_post_link($activity['post_id'])); ?>">
 										<?php echo esc_html(get_the_title($activity['post_id'])); ?>
 									</a>
+								</td>
+								<td>
+									<?php
+									// Format: 2024-01-01 14:30 (2 mins ago)
+									$date_format = wp_date('Y-m-d H:i', $activity['timestamp']);
+									$time_diff = human_time_diff($activity['timestamp'], current_time('timestamp'));
+									echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
+									?>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -302,6 +376,62 @@ Optional details go here
 					<?php endif; ?>
 					</tbody>
 				</table>
+			</div>
+
+			<h2 style="margin-top: 30px;">📊 Traffic Insights</h2>
+
+			<div class="md4ai-charts-container">
+				<div class="md4ai-chart-box">
+					<h3><?php esc_html_e('Search/LLM Referrals per Day', 'md4ai'); ?></h3>
+					<div class="chartjs-wrapper">
+						<canvas id="md4ai-referrals-chart" height="400" width="600"></canvas>
+					</div>
+				</div>
+				<div class="md4ai-chart-box">
+					<h3><?php esc_html_e('Source Distribution', 'md4ai'); ?></h3>
+					<div class="chartjs-wrapper">
+						<canvas id="md4ai-source-chart" height="150" width="400"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<div class="traffic-insights-container">
+				<div class="traffic-table-wrapper" style="width: 100%;">
+					<h3>Latest Views</h3>
+					<table class="wp-list-table widefat fixed striped traffic-table">
+						<thead>
+						<tr>
+							<th><?php esc_html_e('Source', 'md4ai'); ?></th>
+							<th><?php esc_html_e('Search Terms', 'md4ai'); ?></th>
+							<th><?php esc_html_e('Date', 'md4ai'); ?></th>
+						</tr>
+						</thead>
+						<tbody>
+						<?php if (!empty($traffic_stats['latest_views'])): ?>
+							<?php foreach ($traffic_stats['latest_views'] as $view): ?>
+								<tr>
+									<td><?php echo esc_html($view['source']); ?></td>
+									<td><?php echo esc_html($view['search_terms'] ?: 'N/A'); ?></td>
+									<td>
+										<?php
+										// Format: 2024-01-01 14:30 (2 hours ago)
+										$date_format = wp_date('Y-m-d H:i', $view['date_recorded']);
+										$time_diff = human_time_diff($view['date_recorded'], current_time('timestamp'));
+										echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
+										?>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php else: ?>
+							<tr>
+								<td colspan="3" style="text-align: center;">
+									<?php esc_html_e('No visitor data available yet', 'md4ai'); ?>
+								</td>
+							</tr>
+						<?php endif; ?>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -409,20 +539,23 @@ Optional details go here
 		$stats['chart_data']['requests_per_day'] = array_values($last_7_days);
 
 		// Top 10 crawlers
-		$crawler_counts = [];
-		foreach ($analytics as $date => $requests) {
+		$final_crawler_counts = []; // Use a different variable name to avoid confusion
+		foreach ($analytics as $week_date => $requests) {
 			if (!is_array($requests)) continue;
 			foreach ($requests as $request) {
 				$crawler = $request['user_agent'];
-				if (!isset($crawler_counts[$crawler])) {
-					$crawler_counts[$crawler] = 0;
+				if (!isset($final_crawler_counts[$crawler])) {
+					$final_crawler_counts[$crawler] = 0;
 				}
-				$crawler_counts[$crawler]++;
+				$final_crawler_counts[$crawler]++;
 			}
 		}
 
-		arsort($crawler_counts);
-		$top_crawlers = array_slice($crawler_counts, 0, 10, true);
+		arsort($final_crawler_counts);
+		$top_crawlers = array_slice($final_crawler_counts, 0, 5, true);
+		// get the count of the rest of the crawlers
+		$rest_count = array_sum(array_slice($final_crawler_counts, 5, null, true));
+		$top_crawlers['Others'] = $rest_count;
 		$stats['chart_data']['crawler_labels'] = array_keys($top_crawlers);
 		$stats['chart_data']['crawler_counts'] = array_values($top_crawlers);
 

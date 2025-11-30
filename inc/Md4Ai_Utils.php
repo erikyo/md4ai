@@ -29,15 +29,22 @@ class Md4Ai_Utils {
 	}
 
 	/**
+	 * Gets the referrer
+	 *
+	 * @return string The referrer
+	 */
+	public static function get_referrer() {
+		return isset($_SERVER['HTTP_REFERER']) ? sanitize_url(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
+	}
+
+
+	/**
 	 * Gets the user agent
 	 *
 	 * @return string The user agent
 	 */
-	public static function get_user_agent(): string {
-		if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			return '';
-		}
-		return strtolower(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])));
+	public static function get_user_agent() {
+		return isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 	}
 
 	/**
@@ -73,6 +80,31 @@ class Md4Ai_Utils {
 			'post_id'    => $ID,
 			'user_agent' => $user_agent,
 			'timestamp'  => time(),
+		];
+		update_option( MD4AI_OPTION, $options );
+	}
+
+	/**
+	 * Stores visitor data in the MD4AI_OPTION in the database
+	 *
+	 * @param string $source The source of the visitor
+	 * @param string $search_terms The search terms of the visitor
+	 */
+	public static function store_visitor_data( $source, $search_terms ) {
+		$options = get_option( MD4AI_OPTION );
+
+		// create the visitor array if it doesn't exist
+		if ( ! isset( $options['visitors'] ) ) {
+			$options['visitors'] = [];
+		}
+
+		// the date of the last monday o today if today is monday
+		$date = strtotime( 'Monday this week' );
+
+		$options['visitors'][ wp_date( 'Y-m-d', $date ) ][] = [
+			'source'        => $source,
+			'search_terms'  => $search_terms,
+			'date_recorded' => time()
 		];
 		update_option( MD4AI_OPTION, $options );
 	}

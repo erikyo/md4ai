@@ -1,5 +1,6 @@
 {
 	"name": "codekraft/md4ai",
+  "version": "1.0.0",
 	"description": "Markdown for AI - GEO optimization for WordPress",
 	"license": "GPL-3.0-or-later",
 	"type": "wordpress-plugin",
