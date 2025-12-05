@@ -27,7 +27,9 @@ class Md4Ai_Core {
 		'claude-user', // Claude-User/1.0; +https://openai.com/bot
 		'anthropic-ai', // anthropic-ai/1.0 (+https://www.anthropic.com/bot)
 		'meta-externalagent', // meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)
-		'ccbot', // CCBot/2.0 (https://commoncrawl.org/faq/)
+		'amazonbot', // Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot
+		'amzn-user', // Amzn-User/0.1; +https://developer.amazon.com/support/amazonbot
+		'ccbot', // CCCBot/2.0 (https://commoncrawl.org/faq/)
 		'perplexitybot', // PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)
 		'perplexity-user', // Perplexity‑User/1.0; +https://perplexity.ai/perplexityuser
 		'google-extended', // Google-Extended/1.0; +http://www.google.com/bot.html
@@ -61,6 +63,17 @@ class Md4Ai_Core {
 		'bard.google.com'
 	];
 
+	private array $default_search_engines = [
+		'google.' => 'Search: Google',
+		'bing.com' => 'Search: Bing',
+		'duckduckgo.com' => 'Search: DuckDuckGo',
+		'yahoo.com' => 'Search: Yahoo',
+		'yandex.' => 'Search: Yandex',
+		'baidu.com' => 'Search: Baidu',
+		'ecosia.org' => 'Search: Ecosia',
+		'startpage.com' => 'Search: Startpage',
+	];
+
 	private array $ai_bots;
 	/**
 	 * @var Md4Ai_Cache
@@ -80,10 +93,15 @@ class Md4Ai_Core {
 	 * @var array
 	 */
 	private $options;
+	/**
+	 * @var mixed|null
+	 */
+	private $search_engines;
 
 	public function __construct() {
 		$this->ai_bots = $this->setup_ai_useragents();
 		$this->llm_domains = $this->setup_llm_domains();
+		$this->search_engines = $this->setup_search_engines();
 
 		$this->options = get_option('md4ai_options');
 
@@ -130,17 +148,29 @@ class Md4Ai_Core {
 	}
 
 	/**
+	 * Set up search engines
+	 */
+	private function setup_search_engines() {
+		/**
+		 * Filters the list of search engines
+		 *
+		 * @param array $search_engines The list of search engines
+		 */
+		return apply_filters('md4ai_search_engines', $this->default_search_engines);
+	}
+
+	/**
 	 * Checks if the user agent matches an AI bot
 	 */
 	public function is_ai_bot(): bool {
-		$user_agent = Md4Ai_Utils::get_user_agent();
+		$user_agent = strtolower(Md4Ai_Utils::get_user_agent());
 
 		if (empty($user_agent)) {
 			return false;
 		}
 
 		foreach ($this->ai_bots as $bot) {
-			if (strpos($user_agent, strtolower($bot)) !== false) {
+			if (strpos($user_agent, $bot) !== false) {
 				return true;
 			}
 		}
@@ -150,61 +180,69 @@ class Md4Ai_Core {
 
 	/**
 	 * Analyzes the referrer and user agent to determine the source of the request
+	 *
+	 * @return array The source, medium, and search terms
 	 */
-	private function get_referrer_insights() {
+	private function get_referrer_insights(): array {
 		$referrer_url = Md4Ai_Utils::get_referrer();
-		$user_agent = Md4Ai_Utils::get_user_agent();
 
-		$source = 'Unknown';
+		// Get the current URL the user is visiting (to check for UTMs)
+		$current_url = $_SERVER['REQUEST_URI'] ?? '';
+
+		$source = 'Direct/Unknown';
 		$search_terms = '';
-		$additional_info = [];
+		$medium = 'unknown';
 
-		// === REFERER ANALYSIS (if present) ===
-		if (!empty($referrer_url)) {
-			$parsed_url = wp_parse_url($referrer_url);
-			$referrer_host = $parsed_url['host'] ?? '';
+		// 1. CHECK FOR UTM TAGS (The most reliable way to get terms for Ads)
+		// We check the *Current URL*, not the referrer
+		$parsed_current = wp_parse_url($current_url);
+		if (!empty($parsed_current['query'])) {
+			parse_str($parsed_current['query'], $current_params);
+
+			// Check for utm_term or utm_content
+			if (!empty($current_params['utm_term'])) {
+				$search_terms = sanitize_text_field(urldecode($current_params['utm_term']));
+				$source = $current_params['utm_source'] ?? 'Paid Source';
+				$medium = 'cpc'; // Cost per click
+			}
+		}
+
+		// 2. ANALYZE REFERRER (If UTMs didn't provide the answer)
+		if (!empty($referrer_url) && empty($search_terms)) {
+			$parsed_ref = wp_parse_url($referrer_url);
+			$referrer_host = $parsed_ref['host'] ?? '';
 
 			if (!empty($referrer_host)) {
-				// Check LLM domains
-				foreach ($this->default_llm_domains as $domain) {
+
+				// A. Check LLM domains
+				foreach ($this->llm_domains as $domain) {
 					if (strpos($referrer_host, $domain) !== false) {
 						$source = 'LLM: ' . $domain;
+						$medium = 'ai_referral';
 						break;
 					}
 				}
 
-				// Common search engines
-				if ($source === 'Unknown') {
-					$search_engines = [
-						'google.' => 'Search: Google',
-						'bing.com' => 'Search: Bing',
-						'duckduckgo.com' => 'Search: DuckDuckGo',
-						'yahoo.com' => 'Search: Yahoo',
-						'yandex.' => 'Search: Yandex',
-						'baidu.com' => 'Search: Baidu',
-						'ecosia.org' => 'Search: Ecosia',
-						'startpage.com' => 'Search: Startpage',
-					];
-
-					foreach ($search_engines as $domain => $label) {
+				// B. Common search engines
+				if ($source === 'Direct/Unknown') {
+					foreach ($this->search_engines as $domain => $label) {
 						if (strpos($referrer_host, $domain) !== false) {
 							$source = $label;
-							break;
-						}
-					}
-				}
+							$medium = 'organic'; // Organic search
 
-				// Extract search terms from query string
-				$query = $parsed_url['query'] ?? '';
-				if (!empty($query)) {
-					parse_str($query, $query_params);
-
-					// Common search term parameters
-					$search_param_keys = ['q', 'p', 'query', 'search', 'term', 'text', 's', 'qs'];
-
-					foreach ($search_param_keys as $key) {
-						if (!empty($query_params[$key])) {
-							$search_terms = sanitize_text_field(urldecode($query_params[$key]));
+							// Try to parse query (Only works for non-secure engines or very old links)
+							// We keep this just in case, but expect it to be empty for Google.
+							$query = $parsed_ref['query'] ?? '';
+							if (!empty($query)) {
+								parse_str($query, $query_params);
+								$search_param_keys = ['q', 'p', 'query', 'search', 's'];
+								foreach ($search_param_keys as $key) {
+									if (!empty($query_params[$key])) {
+										$search_terms = sanitize_text_field(urldecode($query_params[$key]));
+										break;
+									}
+								}
+							}
 							break;
 						}
 					}
@@ -212,25 +250,20 @@ class Md4Ai_Core {
 			}
 		}
 
-		// === USER AGENT ANALYSIS (fallback for LLM without referer) ===
-		if (!empty($user_agent) && $source === 'Unknown') {
-			$user_agent_lower = strtolower($user_agent);
-
-			foreach ($this->ai_useragents as $pattern) {
-				if (strpos($user_agent_lower, $pattern) !== false) {
-					$source = 'LLM Bot: ' . $pattern;
-					break;
-				}
-			}
+		// 3. FALLBACK: IF ORGANIC GOOGLE & NO TERMS
+		// We record the Landing Page URL. This is your "Search Intent" proxy.
+		if ($medium === 'organic' && empty($search_terms)) {
+			$search_terms = '(Not Provided) - Landed on: ' . $parsed_current['path'];
 		}
 
 		// === DATA STORAGE ===
-		if ($source !== 'Unknown') {
+		if ($source !== 'Direct/Unknown') {
 			Md4Ai_Utils::store_visitor_data($source, $search_terms);
 		}
 
 		return [
 			'source' => $source,
+			'medium' => $medium,
 			'search_terms' => $search_terms,
 			'referrer' => $referrer_url
 		];
@@ -257,7 +290,12 @@ class Md4Ai_Core {
 	 * Handles all requests (llms.txt or markdown for AI bots)
 	 */
 	public function handle_requests() {
-		if (is_admin()) {
+		if (is_admin() || defined('REST_REQUEST') || wp_doing_ajax()) {
+			return;
+		}
+
+		global $post;
+		if ((!$post || !is_singular()) && !is_home()) {
 			return;
 		}
 
@@ -306,10 +344,6 @@ class Md4Ai_Core {
 		// Get the current post
 		global $post;
 
-		if ((!$post || !is_singular()) && !is_home()) {
-			return;
-		}
-
 		$markdown = false;
 		$from_cache = false;
 
@@ -319,7 +353,7 @@ class Md4Ai_Core {
 			$from_cache = true;
 		}
 
-		// If no valid cache, get markdown and save to cache
+		// If no valid cache, get Markdown and save to cache
 		if ($markdown === false) {
 			$markdown = $this->markdown->get_post_markdown($post);
 			$this->cache->write_to_cache($post->ID, $markdown);
