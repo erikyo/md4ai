@@ -33,7 +33,7 @@ class Md4Ai_Utils {
 	 *
 	 * @return string The referrer
 	 */
-	public static function get_referrer() {
+	public static function get_referrer(): string {
 		return isset($_SERVER['HTTP_REFERER']) ? sanitize_url(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
 	}
 
@@ -43,7 +43,7 @@ class Md4Ai_Utils {
 	 *
 	 * @return string The user agent
 	 */
-	public static function get_user_agent() {
+	public static function get_user_agent(): string {
 		return isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 	}
 
@@ -51,10 +51,9 @@ class Md4Ai_Utils {
 	 * Logs a request to the md4ai_requests to the md4ai option in the database
 	 *
 	 * @param int $ID The ID of the post
-	 * @param string $user_agent The user agent of the request
 	 * @param array $ai_useragents A list of user agents to check against the user agent
 	 */
-	public static function log_request( int $ID, $ai_useragents ) {
+	public static function log_request( int $ID, array $ai_useragents ) {
 
 		$options = get_option( MD4AI_OPTION );
 
@@ -63,22 +62,14 @@ class Md4Ai_Utils {
 			$options['requests'] = [];
 		}
 
-		$user_agent = self::get_user_agent();
-
 		// the date of the last monday o today if today is monday
 		$date = strtotime( 'Monday this week' );
 
-		// find the user agent string in the $ai_useragents array and keep only the name of the spider
-		foreach ( $ai_useragents as $bot ) {
-			if ( str_contains( $user_agent, $bot ) ) {
-				$user_agent = $bot;
-				break;
-			}
-		}
+		$user_agent_string = self::get_user_agent_string($ai_useragents);
 
 		$options['requests'][ wp_date( 'Y-m-d', $date ) ][] = [
 			'post_id'    => $ID,
-			'user_agent' => $user_agent,
+			'user_agent' => $user_agent_string,
 			'timestamp'  => time(),
 		];
 		update_option( MD4AI_OPTION, $options );
@@ -90,7 +81,7 @@ class Md4Ai_Utils {
 	 * @param string $source The source of the visitor
 	 * @param string $search_terms The search terms of the visitor
 	 */
-	public static function store_visitor_data( $source, $search_terms ) {
+	public static function store_visitor_data( string $source, string $search_terms ) {
 		$options = get_option( MD4AI_OPTION );
 
 		// create the visitor array if it doesn't exist
@@ -114,7 +105,7 @@ class Md4Ai_Utils {
 	 *
 	 * @return string The llms.txt content
 	 */
-	public static function get_llms_txt_content() {
+	public static function get_llms_txt_content(): string {
 		$options = get_option( MD4AI_OPTION, '' );
 
 		return $options['llms_txt_content'] ?? '';
@@ -134,8 +125,30 @@ class Md4Ai_Utils {
 	 *
 	 * @return bool Whether WooCommerce is active
 	 */
-	public static function is_woocommerce_active() {
+	public static function is_woocommerce_active(): bool {
 		return class_exists( 'WooCommerce' );
+	}
+
+	/**
+	 * Gets the user agent string
+	 *
+	 * @param array $ai_useragents A list of user agents to check against the user agent
+	 *
+	 * @return string The user agent string
+	 */
+	private static function get_user_agent_string( array $ai_useragents): string {
+		// get the user agent and convert it to lowercase
+		$user_agent = strtolower(self::get_user_agent());
+
+		// find the user agent string in the $ai_useragents array and keep only the name of the spider
+		foreach ( $ai_useragents as $bot ) {
+			if ( str_contains( $user_agent, $bot ) ) {
+				$user_agent = $bot;
+				break;
+			}
+		}
+
+		return $user_agent;
 	}
 }
 
