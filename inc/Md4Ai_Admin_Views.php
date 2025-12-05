@@ -207,7 +207,7 @@ Optional details go here
 		// Prepare stats
 		$stats = self::prepare_dashboard_stats($analytics);
 		$traffic_stats = self::prepare_traffic_stats($visitors);
-		?>252
+		?>
 		<div id="md4ai-tab-panel md4ai-dashboard">
 			<div class="md4ai-section-header">
 				<h2 class="md4ai-section-title">
