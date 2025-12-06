@@ -39,37 +39,13 @@ function md4ai_init() {
 add_action('plugins_loaded', 'md4ai_init');
 
 /**
- * Uninstall md4AI plugin
- *
- * This function is called when the plugin is uninstalled.
- * It clears all cache files and deletes all post meta data
- * with the key 'ai_md_custom_markdown'.
- *
- * @since 1.0.0
+ * The code that runs during plugin activation.
+ * This action is documented in inc/Md4Ai_Activator.php
  */
-function md4ai_uninstall() {
-	$cache = new Md4Ai\Md4Ai_Cache;
-	$cache->clear_all_cache();
-
-	// delete all the post meta data
-	global $wpdb;
-	// WordPress.DB.DirectDatabaseQuery.DirectQuery phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->delete(
-		$wpdb->postmeta,
-		[ "meta_key" => "ai_md_custom_markdown"],
-		[ "%s"]
-	);
-}
-
-register_uninstall_hook(__FILE__, 'md4ai_uninstall');
-
+register_activation_hook( __FILE__, [ 'Md4Ai\Md4Ai_Activator', 'activate' ] );
 
 /**
- * On activation create the default options if they don't exist
+ * The code that runs during plugin uninstallation.
+ * This action is documented in inc/Md4Ai_Activator.php
  */
-function md4ai_activate() {
-	if ( ! get_option(MD4AI_OPTION) ) {
-		add_option(MD4AI_OPTION, array());
-	}
-}
-register_activation_hook(__FILE__, 'md4ai_activate');
+register_uninstall_hook( __FILE__, [ 'Md4Ai\Md4Ai_Activator', 'uninstall' ] );
