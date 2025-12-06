@@ -10,7 +10,7 @@
  */
 ?>
 <div class="wrap geo-insights-wrapper" data-woo-active="<?php echo $is_woo_active ? 'true' : 'false'; ?>" data-site-domain="<?php echo esc_attr( $site_domain ); ?>">
-	
+
 	<!-- Header Section -->
 	<div class="geo-header-section">
 		<div class="geo-header-content">
@@ -67,7 +67,6 @@
 	<!-- Loading State -->
 	<div id="geo-loading" style="display:none;">
 		<div class="geo-loading-content">
-			<div class="geo-loading-spinner"></div>
 			<h3><?php esc_html_e( 'Analyzing your website...', 'md4ai' ); ?></h3>
 			<p class="geo-loading-step" id="geo-loading-step"><?php esc_html_e( 'Connecting to AI service', 'md4ai' ); ?></p>
 			<div class="geo-loading-progress">
@@ -78,7 +77,7 @@
 
 	<!-- Results Section -->
 	<div id="geo-results" style="display:none;">
-		
+
 		<!-- Core GEO Scores (4 circular gauges) -->
 		<div class="geo-core-scores">
 			<h2 class="geo-section-title">
