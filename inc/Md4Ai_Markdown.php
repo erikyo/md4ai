@@ -185,18 +185,27 @@ class Md4Ai_Markdown {
 		 */
 		$post = apply_filters('md4ai_post', $post);
 
-		$output = "";
+		$output = "---\n";
 
 		if (!empty($args['content'])) {
 			$output .= $args['content'] . "\n\n";
 		} else {
+
+			// Get post type
+			$post_type = get_post_type($post);
+
 			// Title
 			$output .= '# ' . esc_html($post->post_title) . "\n\n";
 
 			// The Page Meta information
 			$output .= '**URL:** ' . esc_url(get_permalink($post)) . "\n";
-			$output .= '**Date:** ' . get_the_date('Y-m-d', $post) . "\n";
-			$output .= '**Author:** ' . esc_html(get_the_author_meta('display_name', $post->post_author)) . "\n\n";
+
+			// Generate meta information based on post type
+			if ($post_type !=='product') {
+				$output .= $this->generate_post_meta($post, $post_type);
+			} else {
+				$output .= $this->generate_product_meta($post);
+			}
 			$output .= "---\n\n";
 
 			/**
@@ -382,5 +391,127 @@ class Md4Ai_Markdown {
 		$content .= "For more information about our content and structure, please explore the links above or visit our homepage at {$site_url}.\n";
 
 		return $content;
+	}
+
+	private function generate_post_meta( $post, $post_type ) {
+		$post_id = is_object($post) ? $post->ID : (int) $post;
+
+		$output  = 'Date: ' . get_the_date('Y-m-d', $post_id) . "\n";
+		$output .= 'Author: ' . esc_html( get_the_author_meta( 'display_name', $post->post_author ) ) . "\n";
+		$output .= 'Post Type: ' . esc_html( $post_type ) . "\n";
+
+		// Excerpt / summary
+		$excerpt = get_the_excerpt( $post );
+		$output .= 'Summary: ' . esc_html( $excerpt ) . "\n";
+
+		// Categories — return names (safe)
+		$cat_names = wp_get_post_terms( $post_id, 'category', [ 'fields' => 'names' ] );
+		if ( is_wp_error( $cat_names ) ) {
+			$cat_names = [];
+		}
+		$cat_names = array_map( 'esc_html', $cat_names );
+		if (! empty( $cat_names )) {
+			$output .= 'Categories: ' . implode( ', ', $cat_names ) . "\n";
+		}
+
+		// Tags — return names (safe)
+		$tag_names = wp_get_post_terms( $post_id, 'post_tag', [ 'fields' => 'names' ] );
+		if ( is_wp_error( $tag_names ) ) {
+			$tag_names = [];
+		}
+		$tag_names = array_map( 'esc_html', $tag_names );
+		if (!empty($tag_names)) {
+			$output .= 'Tags: ' . implode( ', ', $tag_names ) . "\n";
+		}
+
+		// Featured image (use post ID)
+		$featured = get_the_post_thumbnail_url( $post_id, 'full' );
+		if ($featured) {
+			$output .= 'Featured Image: ' . esc_url( $featured ) . "\n";
+		}
+
+		return $output;
+	}
+
+	private function generate_product_meta( $post ) {
+
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return "WooCommerce not active.\n";
+		}
+
+		$product = wc_get_product($post->ID);
+		if (!$product) {
+			return "Invalid product.\n";
+		}
+
+		// Base product data
+		$title       = $post->post_title;
+		$type        = $product->get_type();
+		$sku         = $product->get_sku();
+		$price       = $product->is_type('variable') ? $product->get_price_html() : $product->get_price();
+		$summary     = wp_strip_all_tags($product->get_short_description());
+		$stock       = $product->is_in_stock() ? 'In Stock' : 'Out of Stock';
+
+		// Categories
+		$categories = wp_get_post_terms($post->ID, 'product_cat', ['fields' => 'names']);
+		$categories = $categories ? implode(', ', $categories) : '';
+
+		// Tags
+		$tags = wp_get_post_terms($post->ID, 'product_tag', ['fields' => 'names']);
+		$tags = $tags ? implode(', ', $tags) : '';
+
+		// Attributes
+		$attributes_list = [];
+		foreach ($product->get_attributes() as $attribute) {
+			$name  = wc_attribute_label($attribute->get_name());
+			$value = implode(', ', wc_get_product_terms($post->ID, $attribute->get_name(), ['fields' => 'names']));
+			$attributes_list[] = "$name: $value";
+		}
+
+		// Images
+		$images = [];
+		if (has_post_thumbnail($post)) {
+			$images[] = get_the_post_thumbnail_url($post, 'full');
+		}
+		$gallery = $product->get_gallery_image_ids();
+		if ($gallery) {
+			foreach ($gallery as $img_id) {
+				$images[] = wp_get_attachment_image_url($img_id, 'full');
+			}
+		}
+
+		// Build YAML-style metadata header
+		$output  = "---\n";
+		$output .= "Type: product\n";
+		$output .= "Title: " . esc_html($title) . "\n";
+		$output .= "Summary: " . esc_html($summary) . "\n";
+		$output .= "Sku: " . esc_html($sku) . "\n";
+		$output .= "Price: " . esc_html($price) . "\n";
+		$output .= "In Stock: " . esc_html($stock) . "\n";
+		$output .= "Product_type: " . esc_html($type) . "\n";
+		if ($categories) {
+			$output .= "Categories: " . esc_html( $categories ) . "\n";
+		}
+		if ($tags) {
+			$output .= "Tags: " . esc_html( $tags ) . "\n";
+		}
+
+		if (!empty($attributes_list)) {
+			$output .= "Attributes:\n";
+			foreach ($attributes_list as $attr) {
+				$output .= "  - " . esc_html($attr) . "\n";
+			}
+		}
+
+		if (!empty($images)) {
+			$output .= "Images:\n";
+			foreach ($images as $img) {
+				$output .= "  - " . esc_url($img) . "\n";
+			}
+		}
+
+		$output .= "---\n\n"; // end header
+
+		return $output;
 	}
 }

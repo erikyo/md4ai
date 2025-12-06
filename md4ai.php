@@ -62,3 +62,14 @@ function md4ai_uninstall() {
 }
 
 register_uninstall_hook(__FILE__, 'md4ai_uninstall');
+
+
+/**
+ * On activation create the default options if they don't exist
+ */
+function md4ai_activate() {
+	if ( ! get_option(MD4AI_OPTION) ) {
+		add_option(MD4AI_OPTION, array());
+	}
+}
+register_activation_hook(__FILE__, 'md4ai_activate');

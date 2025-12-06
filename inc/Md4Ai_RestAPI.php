@@ -195,7 +195,7 @@ class Md4Ai_RestAPI {
 	 * @returns WP_REST_Response | WP_Error The response from the API or an error
 	 */
 	public function geo_insights( WP_REST_Request $request ) {
-		$content = sanitize_text_field( $request['content'] );
+		$content = sanitize_textarea_field( $request['content'] );
 
 		if (empty($content)) {
 			return new WP_REST_Response([

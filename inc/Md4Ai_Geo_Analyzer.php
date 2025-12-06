@@ -45,6 +45,12 @@ class Md4Ai_Geo_Analyzer {
 		// Section 2 & 3 Parsing
 		$this->parsed_ai_data['main_entity'] = $extract( '/Main Entity Type:\s*(.*)$/m' );
 
+		// New GEO/AIO Metrics
+		$this->parsed_ai_data['brand_strength'] = $extract( '/Brand Entity Strength:\s*(.*)$/m' );
+		$this->parsed_ai_data['score_structure'] = (int) $extract( '/Content Structure Score:\s*(\d+)/m' );
+		$this->parsed_ai_data['score_multimedia'] = (int) $extract( '/Multimedia Usage Score:\s*(\d+)/m' );
+		$this->parsed_ai_data['score_tech_seo'] = (int) $extract( '/Technical SEO Perception:\s*(\d+)/m' );
+
 		// E-commerce specific parsing (if present in the text)
 		$this->parsed_ai_data['is_ecommerce'] = $extract( '/Is an E-commerce site:\s*(.*)$/m' );
 		$this->parsed_ai_data['woo_detected'] = $extract( '/Reasoning for Detection:\s*(.*)$/m' ); // Often used as a proxy
@@ -71,6 +77,10 @@ class Md4Ai_Geo_Analyzer {
 		$categories                   = get_terms( [ 'taxonomy' => 'category', 'hide_empty' => true, 'number' => 3 ] );
 		$this->ground_truth['topics'] = wp_list_pluck( $categories, 'name' );
 
+		// Technical Ground Truth
+		$this->ground_truth['is_ssl'] = is_ssl();
+		$this->ground_truth['has_schema_plugin'] = $this->detect_schema_plugin();
+
 		// E-commerce Data
 		if ( $this->is_woo_active ) {
 			$this->ground_truth['is_ecommerce'] = 'Yes';
@@ -89,6 +99,27 @@ class Md4Ai_Geo_Analyzer {
 		} else {
 			$this->ground_truth['is_ecommerce'] = 'No';
 		}
+	}
+
+	/**
+	 * Detects if a known Schema plugin is active
+	 */
+	private function detect_schema_plugin() {
+		$plugins = [
+			'wordpress-seo/wp-seo.php', // Yoast
+			'seo-by-rank-math/rank-math.php', // RankMath
+			'all-in-one-seo-pack/all_in_one_seo_pack.php', // AIOSEO
+			'schema/schema.php', // Schema
+			'wp-schema-pro/wp-schema-pro.php' // Schema Pro
+		];
+
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		foreach ( $plugins as $plugin ) {
+			if ( is_plugin_active( $plugin ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -151,11 +182,43 @@ class Md4Ai_Geo_Analyzer {
 		}
 		$scores['tech_match'] = $is_ecom_match;
 
-		// --- CHECK 4: AI Perception Score (Average of the 0–10 ratings normalized to 100) ---
-		$total_ai_points = $this->parsed_ai_data['score_auth'] + $this->parsed_ai_data['score_relevance'] + $this->parsed_ai_data['score_data'] + $this->parsed_ai_data['score_crawler'];
+		// --- CHECK 4: Technical SEO (SSL & Schema) ---
+		if ( ! $this->ground_truth['is_ssl'] ) {
+			$corrections[] = [
+				'field'      => 'Security (SSL)',
+				'ai_value'   => 'N/A',
+				'real_value' => 'Missing',
+				'tip'        => 'Install an SSL certificate (HTTPS) for better ranking and trust.'
+			];
+		}
 
-		// There are 4 metrics from 0 to 10 (max total 40). Multiply by 2.5 to get 100.
-		$scores['ai_perception'] = round( $total_ai_points * 2.5 );
+		if ( ! $this->ground_truth['has_schema_plugin'] ) {
+			$corrections[] = [
+				'field'      => 'Schema Markup',
+				'ai_value'   => 'N/A',
+				'real_value' => 'Missing Plugin',
+				'tip'        => 'Install a dedicated SEO/Schema plugin to help AI understand your content.'
+			];
+		}
+
+		// --- CHECK 5: AI Perception Score (Average of the 0–10 ratings normalized to 100) ---
+		// We now have 7 metrics: 4 original + 3 new (structure, multimedia, tech_seo)
+		$total_ai_points = 
+			$this->parsed_ai_data['score_auth'] + 
+			$this->parsed_ai_data['score_relevance'] + 
+			$this->parsed_ai_data['score_data'] + 
+			$this->parsed_ai_data['score_crawler'] +
+			$this->parsed_ai_data['score_structure'] +
+			$this->parsed_ai_data['score_multimedia'] +
+			$this->parsed_ai_data['score_tech_seo'];
+
+		// Max points = 70. Normalize to 100.
+		$scores['ai_perception'] = round( ($total_ai_points / 70) * 100 );
+
+		// Add sub-scores for detailed view
+		$scores['geo_structure'] = $this->parsed_ai_data['score_structure'] * 10;
+		$scores['geo_multimedia'] = $this->parsed_ai_data['score_multimedia'] * 10;
+		$scores['geo_tech'] = $this->parsed_ai_data['score_tech_seo'] * 10;
 
 		// --- FINAL OUTPUT ---
 		return [

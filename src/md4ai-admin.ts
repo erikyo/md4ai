@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { generateAiText, waitForAiServices } from './md4ai-services';
-import {Md4aiData} from "./types";
+import { Md4aiData } from './types';
 
 // Declare global variables
 declare const md4aiData: Md4aiData;

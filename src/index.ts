@@ -8,18 +8,21 @@ import { initGeoInsights } from './md4ai-insights';
 import './style.scss';
 
 document.addEventListener( 'DOMContentLoaded', () => {
-  // Admin
-	if ( document.querySelector( '.md4ai-admin' ) || document.getElementById( 'md4ai_metabox' ) ) {
+	// Admin
+	if (
+		document.querySelector( '.md4ai-admin' ) ||
+		document.getElementById( 'md4ai_metabox' )
+	) {
 		md4ai_markdown();
 		handleMd4aiButtons();
 	}
 
-  // Charts
+	// Charts
 	if ( document.querySelector( '.md4ai-charts-container' ) ) {
 		md4aiCharts();
 	}
 
-  // Geo Insights
+	// Geo Insights
 	if ( document.querySelector( '.geo-insights-wrapper' ) ) {
 		initGeoInsights();
 	}

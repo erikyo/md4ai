@@ -1,4 +1,4 @@
-import {Window, WP} from "./types";
+import { Window, WP } from './types';
 
 declare const wp: WP;
 
@@ -31,7 +31,7 @@ function waitForAiServices( fn: () => void ) {
 				return true;
 			}
 		} catch ( error ) {
-      throw error;
+			throw error;
 		}
 		return false;
 	}
@@ -41,7 +41,7 @@ function waitForAiServices( fn: () => void ) {
 		try {
 			fn();
 		} catch ( error ) {
-      throw error;
+			throw error;
 		}
 	}
 
@@ -52,7 +52,7 @@ function waitForAiServices( fn: () => void ) {
 			try {
 				fn();
 			} catch ( error ) {
-        throw error;
+				throw error;
 			}
 		}
 	} );
@@ -62,7 +62,7 @@ function waitForAiServices( fn: () => void ) {
  * Generates AI text using the available service.
  *
  * @param fullPrompt The full prompt to generate text from
- * @returns The generated text
+ * @return The generated text
  * @throws Error if AI service is not available
  */
 async function generateAiText( fullPrompt: string ) {
@@ -90,10 +90,10 @@ async function generateAiText( fullPrompt: string ) {
 
 	// Sometimes we can find the whole response wrapped with ```text or ```markdown from the beginning. in this case we should remove it
 	if ( generated.startsWith( '```' ) ) {
-    generated = generated.replace(/^```(?:text|markdown)?\s*/, '');
+		generated = generated.replace( /^```(?:text|markdown)?\s*/, '' );
 
 		// then remove the last ```
-    generated = generated.replace(/\s*```$/, '');
+		generated = generated.replace( /\s*```$/, '' );
 	}
 
 	return generated;
