@@ -22,11 +22,7 @@ class Md4Ai_Core {
 	private $options;
 
 	public function __construct() {
-		$this->ai_bots = $this->setup_ai_useragents();
-		$this->llm_domains = $this->setup_llm_domains();
-		$this->search_engines = $this->setup_search_engines();
-
-		$this->options = get_option('md4ai_options');
+		$this->options = get_option(MD4AI_OPTION) ?: [];
 
 		// Initialize sub-components
 		$this->cache = new Md4Ai_Cache();
