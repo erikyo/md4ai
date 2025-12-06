@@ -79,7 +79,7 @@ class Md4Ai_Geo_Analyzer {
 
 		// Technical Ground Truth
 		$this->ground_truth['is_ssl'] = is_ssl();
-		$this->ground_truth['has_schema_plugin'] = $this->detect_schema_plugin();
+		$this->ground_truth['context_sufficiency'] = $this->check_context_sufficiency();
 
 		// E-commerce Data
 		if ( $this->is_woo_active ) {
@@ -102,24 +102,32 @@ class Md4Ai_Geo_Analyzer {
 	}
 
 	/**
-	 * Detects if a known Schema plugin is active
+	 * Checks if the site provides enough context for AI (Description & Navigation)
 	 */
-	private function detect_schema_plugin() {
-		$plugins = [
-			'wordpress-seo/wp-seo.php', // Yoast
-			'seo-by-rank-math/rank-math.php', // RankMath
-			'all-in-one-seo-pack/all_in_one_seo_pack.php', // AIOSEO
-			'schema/schema.php', // Schema
-			'wp-schema-pro/wp-schema-pro.php' // Schema Pro
-		];
+	private function check_context_sufficiency() {
+		$issues = [];
 
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		foreach ( $plugins as $plugin ) {
-			if ( is_plugin_active( $plugin ) ) {
-				return true;
+		// 1. Check Site Description
+		$description = get_bloginfo( 'description' );
+		if ( empty( $description ) ) {
+			$issues[] = 'missing_description';
+		}
+
+		// 2. Check Navigation (Menus or Header/Footer links)
+		$has_menus = has_nav_menu( 'primary' ) || has_nav_menu( 'header' ) || has_nav_menu( 'footer' );
+		if ( ! $has_menus ) {
+			// Fallback: Check if there are any published pages that would appear in a default menu
+			$pages = wp_count_posts( 'page' );
+			if ( ! isset( $pages->publish ) || $pages->publish < 1 ) {
+				$issues[] = 'missing_navigation';
 			}
 		}
-		return false;
+
+		if ( empty( $issues ) ) {
+			return [ 'status' => true, 'issues' => [] ];
+		}
+
+		return [ 'status' => false, 'issues' => $issues ];
 	}
 
 	/**
@@ -182,7 +190,7 @@ class Md4Ai_Geo_Analyzer {
 		}
 		$scores['tech_match'] = $is_ecom_match;
 
-		// --- CHECK 4: Technical SEO (SSL & Schema) ---
+		// --- CHECK 4: Technical SEO (SSL & Context) ---
 		if ( ! $this->ground_truth['is_ssl'] ) {
 			$corrections[] = [
 				'field'      => 'Security (SSL)',
@@ -192,13 +200,26 @@ class Md4Ai_Geo_Analyzer {
 			];
 		}
 
-		if ( ! $this->ground_truth['has_schema_plugin'] ) {
-			$corrections[] = [
-				'field'      => 'Schema Markup',
-				'ai_value'   => 'N/A',
-				'real_value' => 'Missing Plugin',
-				'tip'        => 'Install a dedicated SEO/Schema plugin to help AI understand your content.'
-			];
+		if ( ! $this->ground_truth['context_sufficiency']['status'] ) {
+			$issues = $this->ground_truth['context_sufficiency']['issues'];
+			
+			if ( in_array( 'missing_description', $issues ) ) {
+				$corrections[] = [
+					'field'      => 'Context: Description',
+					'ai_value'   => 'N/A',
+					'real_value' => 'Missing Tagline',
+					'tip'        => 'Add a site tagline in Settings > General to help AI understand your site.'
+				];
+			}
+
+			if ( in_array( 'missing_navigation', $issues ) ) {
+				$corrections[] = [
+					'field'      => 'Context: Navigation',
+					'ai_value'   => 'N/A',
+					'real_value' => 'No Menus/Pages',
+					'tip'        => 'Ensure your site has navigation menus or crawlable internal links.'
+				];
+			}
 		}
 
 		// --- CHECK 5: AI Perception Score (Average of the 0–10 ratings normalized to 100) ---
