@@ -2,13 +2,13 @@
 # This file is distributed under the GPLv2 or later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: md4AI 1.1.0\n"
+"Project-Id-Version: md4AI 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugins/md4ai\n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-11-30T22:10:13.523Z\n"
+"POT-Creation-Date: 2025-12-06T19:45:25.102Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -36,29 +36,121 @@ msgstr ""
 msgid "Codekraft"
 msgstr ""
 
-#: src/md4ai-insights.ts:56
+#: src/md4ai-insights.ts:92
 msgid "All Checks Passed"
 msgstr ""
 
-#: src/md4ai-insights.ts:58
-msgid "Your website\\'s identity is properly configured for AI systems."
+#: src/md4ai-insights.ts:94
+msgid "Your website's identity is properly configured for AI systems."
 msgstr ""
 
-#: src/md4ai-insights.ts:80
+#: src/md4ai-insights.ts:119
 msgid "Expected:"
 msgstr ""
 
-#: src/md4ai-insights.ts:97
+#: src/md4ai-insights.ts:136
 msgid "Opportunities for Improvement"
 msgstr ""
 
-#: src/md4ai-insights.ts:99
+#: src/md4ai-insights.ts:138
 msgid ""
 "AI systems detected the following discrepancies. Fixing these will improve "
-"your site\\'s visibility:"
+"your site's visibility:"
 msgstr ""
 
-#: src/md4ai-charts.ts:60
+#: src/md4ai-insights.ts:220
+msgid "Performance Metrics"
+msgstr ""
+
+#: src/md4ai-insights.ts:230
+msgid "Identity Match"
+msgstr ""
+
+#: src/md4ai-insights.ts:248
+msgid "Technical Match"
+msgstr ""
+
+#: src/md4ai-insights.ts:266
+msgid "AI Perception"
+msgstr ""
+
+#: src/md4ai-insights.ts:280
+msgid "Detailed GEO Factors"
+msgstr ""
+
+#: src/md4ai-insights.ts:292
+msgid "Content Structure"
+msgstr ""
+
+#: src/md4ai-insights.ts:310
+msgid "Multimedia Usage"
+msgstr ""
+
+#: src/md4ai-insights.ts:328
+msgid "Tech SEO Perception"
+msgstr ""
+
+#: src/md4ai-insights.ts:357
+msgid "AI Knowledge Analysis"
+msgstr ""
+
+#: src/md4ai-insights.ts:361
+msgid "Website Name:"
+msgstr ""
+
+#: src/md4ai-insights.ts:370
+msgid "Author:"
+msgstr ""
+
+#: src/md4ai-insights.ts:374
+msgid "Topics:"
+msgstr ""
+
+#: src/md4ai-insights.ts:380
+msgid "E-Commerce:"
+msgstr ""
+
+#: src/md4ai-insights.ts:501
+msgid "AI Services Required"
+msgstr ""
+
+#: src/md4ai-insights.ts:513
+msgid "AI Services Plugin Required"
+msgstr ""
+
+#: src/md4ai-insights.ts:514
+msgid "Install the AI Services plugin to analyze your website with AI."
+msgstr ""
+
+#: src/md4ai-insights.ts:522
+msgid "Install Plugin"
+msgstr ""
+
+#: src/md4ai-insights.ts:551
+msgid "Generating AI analysis?"
+msgstr ""
+
+#: src/md4ai-insights.ts:556
+msgid "Processing results?"
+msgstr ""
+
+#: src/md4ai-insights.ts:579
+msgid "Re-Analyze"
+msgstr ""
+
+#: src/md4ai-insights.ts:589
+msgid "Analysis Failed"
+msgstr ""
+
+#: src/md4ai-insights.ts:590
+msgid "Unable to complete the analysis. Please try again."
+msgstr ""
+
+#: src/md4ai-insights.ts:623
+msgid "Connecting to AI service?"
+msgstr ""
+
+#: src/md4ai-charts.ts:59
 msgid "Requests"
 msgstr ""
 
@@ -164,7 +256,7 @@ msgid "Markdown Preview"
 msgstr ""
 
 #: inc/Md4Ai_Metabox.php:128
-#: inc/Md4Ai_Admin_Views.php:689
+#: inc/views/llms-txt.php:92
 msgid "Preview will appear here"
 msgstr ""
 
@@ -180,188 +272,424 @@ msgstr ""
 msgid "Md4AI"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:215
-msgid "Dashboard"
+#: inc/Md4Ai_Admin.php:63
+msgid "Settings"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:222
+#: inc/views/llms-txt.php:20
+msgid "Custom llms.txt is active."
+msgstr ""
+
+#: inc/views/llms-txt.php:21
+#: inc/views/llms-txt.php:24
+msgid "This content will be served at"
+msgstr ""
+
+#: inc/views/llms-txt.php:26
+msgid "Leave empty to use default content."
+msgstr ""
+
+#: inc/views/llms-txt.php:39
+msgid "Editor"
+msgstr ""
+
+#: inc/views/llms-txt.php:68
+msgid "Clear"
+msgstr ""
+
+#: inc/views/llms-txt.php:74
+msgid "Save Changes"
+msgstr ""
+
+#: inc/views/llms-txt.php:85
+msgid "Preview"
+msgstr ""
+
+#: inc/views/geo-insights.php:20
+msgid "Geo Insights"
+msgstr ""
+
+#: inc/views/geo-insights.php:21
+msgid "Analyze how AI systems perceive your website"
+msgstr ""
+
+#: inc/views/geo-insights.php:27
+msgid "90-100"
+msgstr ""
+
+#: inc/views/geo-insights.php:31
+msgid "50-89"
+msgstr ""
+
+#: inc/views/geo-insights.php:35
+msgid "0-49"
+msgstr ""
+
+#: inc/views/geo-insights.php:54
+msgid "Website URL"
+msgstr ""
+
+# %s is the site domain
+#: inc/views/geo-insights.php:61
+msgid "Analysis is restricted to %s"
+msgstr ""
+
+#: inc/views/geo-insights.php:65
+msgid "Analyze"
+msgstr ""
+
+#: inc/views/geo-insights.php:73
+msgid "Analyzing your website..."
+msgstr ""
+
+#: inc/views/geo-insights.php:74
+msgid "Connecting to AI service"
+msgstr ""
+
+#: inc/views/geo-insights.php:88
+msgid "Core GEO Metrics"
+msgstr ""
+
+#: inc/views/geo-insights.php:99
+#: inc/views/dashboard-empty.php:139
+msgid "Authority"
+msgstr ""
+
+#: inc/views/geo-insights.php:100
+msgid "Trustworthiness"
+msgstr ""
+
+#: inc/views/geo-insights.php:111
+#: inc/views/dashboard-empty.php:140
+msgid "Relevance"
+msgstr ""
+
+#: inc/views/geo-insights.php:112
+msgid "Content match"
+msgstr ""
+
+#: inc/views/geo-insights.php:123
+#: inc/views/dashboard-empty.php:141
+msgid "Knowledge"
+msgstr ""
+
+#: inc/views/geo-insights.php:124
+msgid "Data depth"
+msgstr ""
+
+#: inc/views/geo-insights.php:135
+msgid "Crawlability"
+msgstr ""
+
+#: inc/views/geo-insights.php:136
+msgid "Bot accessibility"
+msgstr ""
+
+#: inc/views/dashboard.php:13
 msgid "AI services are enabled!"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:226
+#: inc/views/dashboard.php:17
 msgid ""
 "AI services plugin is not installed or not active. Please install and "
 "activate it to use the \"Generate with AI\" and \"Geo-Insights\" feature."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:238
+#: inc/views/dashboard.php:29
 msgid "Total Requests"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:239
+#: inc/views/dashboard.php:30
 msgid "Last 7 days"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:249
+#: inc/views/dashboard.php:40
 msgid "Unique Crawlers"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:250
+#: inc/views/dashboard.php:41
 msgid "Different bots"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:260
+#: inc/views/dashboard.php:51
 msgid "Posts Indexed"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:261
+#: inc/views/dashboard.php:52
 msgid "Total posts"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:271
+#: inc/views/dashboard.php:62
 msgid "Today\\'s Requests"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:279
+#: inc/views/dashboard.php:70
 msgid "Requests per Day"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:286
+#: inc/views/dashboard.php:77
 msgid "Requests by Crawler"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:294
+#: inc/views/dashboard.php:85
 msgid "Most Indexed Posts"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:298
+#: inc/views/dashboard.php:89
 msgid "Post Title"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:299
+#: inc/views/dashboard.php:90
 msgid "Total Hits"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:300
+#: inc/views/dashboard.php:91
 msgid "Last Crawled"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:328
+#: inc/views/dashboard.php:119
 msgid "No data available yet"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:337
+#: inc/views/dashboard.php:128
 msgid "Recent Crawler Activity"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:341
+#: inc/views/dashboard.php:132
 msgid "Crawler"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:342
+#: inc/views/dashboard.php:133
 msgid "Post"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:343
-#: inc/Md4Ai_Admin_Views.php:406
+#: inc/views/dashboard.php:134
+#: inc/views/dashboard.php:197
 msgid "Date"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:373
+#: inc/views/dashboard.php:164
 msgid "No recent activity"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:385
+#: inc/views/dashboard.php:176
 msgid "Search/LLM Referrals per Day"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:391
+#: inc/views/dashboard.php:182
 msgid "Source Distribution"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:404
+#: inc/views/dashboard.php:195
 msgid "Source"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:405
+#: inc/views/dashboard.php:196
 msgid "Search Terms"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:428
+#: inc/views/dashboard.php:219
 msgid "No visitor data available yet"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:605
-msgid "llms.txt"
+#: inc/views/dashboard-empty.php:24
+msgid "Welcome to Md4AI!"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:609
-msgid "View llms.txt"
+#: inc/views/dashboard-empty.php:25
+msgid ""
+"No bot visits recorded yet. Once AI crawlers and LLMs start visiting your "
+"site, you\\'ll see detailed analytics here. In the meantime, explore these "
+"tips to get the most out of the plugin."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:617
-msgid "Custom llms.txt is active."
+#: inc/views/dashboard-empty.php:37
+msgid "Getting Started"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:618
-#: inc/Md4Ai_Admin_Views.php:621
-msgid "This content will be served at"
+#: inc/views/dashboard-empty.php:38
+msgid ""
+"Md4AI automatically serves optimized Markdown content to AI crawlers like "
+"GPTBot, Claude, and Perplexity. Your regular visitors see your normal HTML "
+"pages."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:623
-msgid "Leave empty to use default content."
+#: inc/views/dashboard-empty.php:40
+msgid "AI bots are detected automatically by user agent"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:636
-msgid "Editor"
+#: inc/views/dashboard-empty.php:41
+msgid "Content is converted to clean Markdown format"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:665
-msgid "Clear"
+#: inc/views/dashboard-empty.php:42
+msgid "Visit stats appear here once bots start crawling"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:671
-msgid "Save Changes"
+#: inc/views/dashboard-empty.php:53
+msgid "GEO Optimization Tips"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:682
-msgid "Preview"
+#: inc/views/dashboard-empty.php:54
+msgid ""
+"Generative Engine Optimization (GEO) helps AI models understand and cite "
+"your content better:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:713
+#: inc/views/dashboard-empty.php:56
+msgid "Use clear headings and structured content"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:57
+msgid "Include Q&A sections for common questions"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:58
+msgid "Add author bios and cite credible sources"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:59
+msgid "Keep content factual, fresh and well-organized"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:60
+msgid "Use statistics and data to support claims"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:71
+msgid "Create Your llms.txt"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:72
+msgid ""
+"The llms.txt file helps AI models understand your site\\'s structure and "
+"important content. Think of it as robots.txt but for LLMs."
+msgstr ""
+
+#: inc/views/dashboard-empty.php:74
+msgid "Describe your site and its purpose"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:75
+msgid "List key pages and their importance"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:76
+msgid "Guide AI on what content to prioritize"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:81
+msgid "Edit llms.txt"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:94
+msgid "Enable AI Features"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:95
+msgid "Install the AI Services plugin to unlock powerful features:"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:97
+msgid "Auto-generate Q&A sections for your content"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:98
+msgid "AI-powered llms.txt generation"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:99
+msgid "Geo Insights: AI analysis of your site\\'s GEO readiness"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:103
+msgid "Some AI providers offer free API keys!"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:108
+msgid "Get AI Services Plugin"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:119
+msgid "AI Features Enabled!"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:120
+msgid "Great! You have AI Services installed. You can now:"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:122
+msgid "Generate Q&A sections with AI on any post"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:123
+msgid "Auto-generate your llms.txt file"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:124
+msgid "Run Geo Insights analysis on your site"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:136
+msgid "Geo Insights Analysis"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:137
+msgid ""
+"Get an AI-powered evaluation of your website\\'s GEO performance with "
+"scores for:"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:139
+msgid "How trustworthy your content appears"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:140
+msgid "How well content matches user intent"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:141
+msgid "Depth and accuracy of information"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:147
+msgid "Run Analysis"
+msgstr ""
+
+#: inc/views/dashboard-empty.php:153
+msgid "Requires AI Services plugin"
+msgstr ""
+
+#: inc/views/cache.php:10
 msgid "Cache Statistics"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:714
+#: inc/views/cache.php:11
 msgid "Cached Files:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:715
+#: inc/views/cache.php:12
 msgid "Total Size:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:716
+#: inc/views/cache.php:13
 msgid "Cache Directory:"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:720
+#: inc/views/cache.php:17
 msgid "Clear Cache"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:721
+#: inc/views/cache.php:18
 msgid ""
 "Clear all cached Markdown files. This will force regeneration on the next "
 "AI bot visit."
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:725
+#: inc/views/cache.php:22
 msgid "Clear All Cache"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:726
+#: inc/views/cache.php:23
 msgid "Are you sure you want to clear all cached files?"
-msgstr ""
-
-#: inc/Md4Ai_Admin.php:63
-msgid "Settings"
 msgstr ""
