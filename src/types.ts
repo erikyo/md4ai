@@ -1,20 +1,20 @@
 // Window
 export interface WP {
   data: {
-    select: ( arg: string ) => {
-      isServiceAvailable: ( a: string ) => boolean;
-      hasAvailableServices: ( a?: { capabilities: string[] } ) => boolean;
-      getAvailableService: ( a?: {
+    select: (arg: string) => {
+      isServiceAvailable: (a: string) => boolean;
+      hasAvailableServices: (a?: { capabilities: string[] }) => boolean;
+      getAvailableService: (a?: {
         capabilities: string[];
-      } ) => boolean | any;
+      }) => boolean | any;
     };
-    subscribe: ( callback: () => void, storeName?: string ) => () => void;
+    subscribe: (callback: () => void, storeName?: string) => () => void;
   };
 }
 
 // Window
 export interface Window {
-  addEventListener: ( a: string, b: () => void ) => void;
+  addEventListener: (a: string, b: () => void) => void;
   aiServices: {
     ai: {
       enums: {
@@ -24,8 +24,8 @@ export interface Window {
         };
       };
       helpers: {
-        getTextFromContents: ( arg: string ) => string;
-        getCandidateContents: ( arg: string ) => string;
+        getTextFromContents: (arg: string) => string;
+        getCandidateContents: (arg: string) => string;
       };
       store: {
         name: string;
@@ -43,7 +43,7 @@ export interface Md4aiData {
   aiServiceEnabled: boolean;
   woo_active: boolean;
   prompts: {
-    [ key: string ]: string;
+    [key: string]: string;
   };
 }
 
@@ -69,6 +69,9 @@ export interface GeoInsightsResult {
     identity_match: number;
     tech_match: number;
     ai_perception: number;
+    geo_structure: number;
+    geo_multimedia: number;
+    geo_tech: number;
   };
   corrections: Array<{
     field: string;
@@ -81,6 +84,10 @@ export interface GeoInsightsResult {
     score_relevance: number;
     score_data: number;
     score_crawler: number;
+    score_structure: number;
+    score_multimedia: number;
+    score_tech_seo: number;
+    brand_strength: string;
     website_name: string;
     author_name: string;
     subject: string;
@@ -92,5 +99,7 @@ export interface GeoInsightsResult {
     author_name: string;
     topics: string[];
     is_ecommerce: string;
+    is_ssl: boolean;
+    has_schema_plugin: boolean;
   };
 }
