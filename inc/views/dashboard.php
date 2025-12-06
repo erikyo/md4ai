@@ -100,21 +100,21 @@
 			</thead>
 			<tbody>
 			<?php if (!empty($md4ai_stats['top_posts'])): ?>
-				<?php foreach ($md4ai_stats['top_posts'] as $post_stat): ?>
+				<?php foreach ($md4ai_stats['top_posts'] as $md4ai_post_stat): ?>
 					<tr>
 						<td>
 							<strong>
-								<a href="<?php echo esc_url(get_edit_post_link($post_stat['post_id'])); ?>">
-									<?php echo esc_html(get_the_title($post_stat['post_id'])); ?>
+								<a href="<?php echo esc_url(get_edit_post_link($md4ai_post_stat['post_id'])); ?>">
+									<?php echo esc_html(get_the_title($md4ai_post_stat['post_id'])); ?>
 								</a>
 							</strong>
 						</td>
-						<td><?php echo esc_html($post_stat['count']); ?></td>
+						<td><?php echo esc_html($md4ai_post_stat['count']); ?></td>
 						<td>
 							<?php
 							// Format: 2024-01-01 14:30 (2 days ago)
-							$md4ai_date_format = wp_date('Y-m-d H:i', $post_stat['last_crawled']);
-							$md4ai_time_diff   = human_time_diff($post_stat['last_crawled'], current_time('timestamp'));
+							$md4ai_date_format = wp_date('Y-m-d H:i', $md4ai_post_stat['last_crawled']);
+							$md4ai_time_diff   = human_time_diff($md4ai_post_stat['last_crawled'], current_time('timestamp'));
 							echo esc_html(sprintf('%s (%s ago)', $md4ai_date_format, $md4ai_time_diff));
 							?>
 						</td>
