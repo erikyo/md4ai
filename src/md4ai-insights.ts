@@ -1,7 +1,7 @@
 // Declare global variables
-import { generateAiText, waitForAiServices } from './md4ai-services';
-import { GeoInsightsResult, Md4aiData } from './types';
-import { __ } from '@wordpress/i18n';
+import {generateAiText, getAvailableModels, getAvailableServices, waitForAiServices,} from './md4ai-services';
+import {GeoInsightsResult, Md4aiData} from './types';
+import {__} from '@wordpress/i18n';
 
 declare const md4aiData: Md4aiData;
 
@@ -481,6 +481,74 @@ export function initGeoInsights() {
   ) as HTMLElement;
   const siteDomain = wrapper?.dataset.siteDomain || '';
 
+  const serviceSelect = document.getElementById(
+    'geo-service-select'
+  ) as HTMLSelectElement;
+  const modelSelect = document.getElementById(
+    'geo-model-select'
+  ) as HTMLSelectElement;
+
+  // Populate services when available
+  waitForAiServices(() => {
+    const services = getAvailableServices();
+    if (serviceSelect) {
+      serviceSelect.innerHTML = `<option value="">${__(
+        'Select Service',
+        'md4ai'
+      )}</option>`;
+      services.forEach((service) => {
+        const option = document.createElement('option');
+        option.value = service.identifier;
+        option.textContent = service.label;
+        serviceSelect.appendChild(option);
+      });
+      serviceSelect.disabled = false;
+
+      // Select first service by default if available
+      if (services.length > 0) {
+        serviceSelect.value = services[0].identifier;
+        updateModels(services[0].identifier);
+      }
+    }
+  });
+
+  function updateModels(serviceIdentifier: string) {
+    if (!modelSelect) return;
+
+    if (!serviceIdentifier) {
+      modelSelect.innerHTML = `<option value="">${__(
+        'Select service first',
+        'md4ai'
+      )}</option>`;
+      modelSelect.disabled = true;
+      return;
+    }
+
+    const models = getAvailableModels(serviceIdentifier);
+    modelSelect.innerHTML = `<option value="">${__(
+      'Select Model',
+      'md4ai'
+    )}</option>`;
+    models.forEach((model) => {
+      const option = document.createElement('option');
+      option.value = model.identifier;
+      option.textContent = model.label;
+      modelSelect.appendChild(option);
+    });
+    modelSelect.disabled = false;
+
+    // Select first model by default
+    if (models.length > 0) {
+      modelSelect.value = models[0].identifier;
+    }
+  }
+
+  if (serviceSelect) {
+    serviceSelect.addEventListener('change', () => {
+      updateModels(serviceSelect.value);
+    });
+  }
+
   /**
    * Validates that the URL is within the allowed domain
    * @param url
@@ -572,7 +640,14 @@ export function initGeoInsights() {
   async function GeoInsightsInit(promptTemplate: string): Promise<void> {
     updateLoadingStep(__('Generating AI analysis…', 'md4ai'));
 
-    const generated = await generateAiText(promptTemplate);
+    const serviceIdentifier = serviceSelect?.value;
+    const modelIdentifier = modelSelect?.value;
+
+    const generated = await generateAiText(
+      promptTemplate,
+      serviceIdentifier,
+      modelIdentifier
+    );
     console.log(generated);
 
     updateLoadingStep(__('Processing results…', 'md4ai'));
