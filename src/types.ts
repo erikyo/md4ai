@@ -7,6 +7,7 @@ export interface WP {
 			getAvailableService: ( a?: {
 				capabilities: string[];
 			} ) => boolean | any;
+      getServices: () => any;
 		};
 		subscribe: ( callback: () => void, storeName?: string ) => () => void;
 	};

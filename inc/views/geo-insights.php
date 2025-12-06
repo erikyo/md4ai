@@ -52,18 +52,35 @@
 		</div>
 		<div class="geo-analyze-form">
 			<label for="geo-url-input" class="screen-reader-text"><?php esc_html_e( 'Website URL', 'md4ai' ); ?></label>
-			<div class="geo-url-input-wrapper">
-				<span class="dashicons dashicons-admin-site"></span>
-				<input type="text" id="geo-url-input" class="geo-url-input" value="<?php echo esc_url( $site_url ); ?>" placeholder="<?php echo esc_attr( $site_url ); ?>">
+			<div class="geo-search-wrapper">
+				<div class="geo-url-input-wrapper">
+					<span class="dashicons dashicons-admin-site"></span>
+					<input type="text" id="geo-url-input" class="geo-url-input" value="<?php echo esc_url( $site_url ); ?>" placeholder="<?php echo esc_attr( $site_url ); ?>">
+				</div>
+				<p class="geo-url-hint"><?php printf(
+					/* translators: %s is the site domain */
+						esc_html__( 'Analysis is restricted to %s', 'md4ai' ), '<strong>' . esc_html( $site_domain ) . '</strong>'
+					); ?></p>
 			</div>
-			<p class="geo-url-hint"><?php printf(
-				/* translators: %s is the site domain */
-				esc_html__( 'Analysis is restricted to %s', 'md4ai' ), '<strong>' . esc_html( $site_domain ) . '</strong>'
-				); ?></p>
 			<button id="btn-start-analysis" class="geo-analyze-button">
 				<span class="dashicons dashicons-superhero"></span>
 				<?php esc_html_e( 'Analyze', 'md4ai' ); ?>
 			</button>
+		</div>
+
+		<div class="geo-service-selection">
+			<div class="geo-select-wrapper" style="flex: 1;">
+				<label for="geo-service-select" class="screen-reader-text"><?php esc_html_e( 'Select AI Service', 'md4ai' ); ?></label>
+				<select id="geo-service-select" class="geo-select" disabled>
+					<option value=""><?php esc_html_e( 'Loading services...', 'md4ai' ); ?></option>
+				</select>
+			</div>
+			<div class="geo-select-wrapper" style="flex: 1;">
+				<label for="geo-model-select" class="screen-reader-text"><?php esc_html_e( 'Select Model', 'md4ai' ); ?></label>
+				<select id="geo-model-select" class="geo-select" disabled>
+					<option value=""><?php esc_html_e( 'Select service first', 'md4ai' ); ?></option>
+				</select>
+			</div>
 		</div>
 	</div>
 
