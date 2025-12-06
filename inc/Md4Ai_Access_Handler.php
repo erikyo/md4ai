@@ -242,7 +242,7 @@ class Md4Ai_Access_Handler {
 
 		// 3. FALLBACK: IF ORGANIC GOOGLE & NO TERMS
 		// We record the Landing Page URL. This is your "Search Intent" proxy.
-		if ($medium === 'organic' && empty($search_terms)) {
+		if (empty($search_terms)) {
 			$search_terms = '(Not Provided) - Landed on: ' . $parsed_current['path'];
 		}
 
@@ -315,7 +315,8 @@ class Md4Ai_Access_Handler {
 			return;
 		}
 
-		$this->get_referrer_insights();
+
+			$this->get_referrer_insights();
 	}
 
 	/**
@@ -336,9 +337,10 @@ class Md4Ai_Access_Handler {
 
 		echo esc_textarea($llms_content);
 
-		if ($this->is_ai_bot()) {
+		if (!is_user_logged_in()) {
 			Md4Ai_Utils::log_request( 0, $this->ai_bots );
 		}
+
 		exit;
 	}
 
