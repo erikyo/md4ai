@@ -2,8 +2,8 @@
 /**
  * Dashboard View
  *
- * @var array $stats
- * @var array $traffic_stats
+ * @var array $md4ai_stats
+ * @var array $md4ai_traffic_stats
  */
 ?>
 <div id="md4ai-tab-panel md4ai-dashboard">
@@ -32,7 +32,7 @@
 				<span class="dashicons dashicons-chart-line"></span>
 			</div>
 			<div class="stat-content">
-				<h3><?php echo esc_html($stats['total_requests']); ?></h3>
+				<h3><?php echo esc_html($md4ai_stats['total_requests']); ?></h3>
 				<p><?php esc_html_e('Total Requests', 'md4ai'); ?></p>
 				<span class="stat-period"><?php esc_html_e('Last 7 days', 'md4ai'); ?></span>
 			</div>
@@ -43,7 +43,7 @@
 				<span class="dashicons dashicons-admin-users"></span>
 			</div>
 			<div class="stat-content">
-				<h3><?php echo esc_html($stats['unique_crawlers']); ?></h3>
+				<h3><?php echo esc_html($md4ai_stats['unique_crawlers']); ?></h3>
 				<p><?php esc_html_e('Unique Crawlers', 'md4ai'); ?></p>
 				<span class="stat-period"><?php esc_html_e('Different bots', 'md4ai'); ?></span>
 			</div>
@@ -54,7 +54,7 @@
 				<span class="dashicons dashicons-admin-post"></span>
 			</div>
 			<div class="stat-content">
-				<h3><?php echo esc_html($stats['unique_posts']); ?></h3>
+				<h3><?php echo esc_html($md4ai_stats['unique_posts']); ?></h3>
 				<p><?php esc_html_e('Posts Indexed', 'md4ai'); ?></p>
 				<span class="stat-period"><?php esc_html_e('Total posts', 'md4ai'); ?></span>
 			</div>
@@ -65,7 +65,7 @@
 				<span class="dashicons dashicons-calendar-alt"></span>
 			</div>
 			<div class="stat-content">
-				<h3><?php echo esc_html($stats['today_requests']); ?></h3>
+				<h3><?php echo esc_html($md4ai_stats['today_requests']); ?></h3>
 				<p><?php esc_html_e('Today\'s Requests', 'md4ai'); ?></p>
 				<span class="stat-period"><?php echo esc_html(gmdate('d M Y')); ?></span>
 			</div>
@@ -99,8 +99,8 @@
 			</tr>
 			</thead>
 			<tbody>
-			<?php if (!empty($stats['top_posts'])): ?>
-				<?php foreach ($stats['top_posts'] as $post_stat): ?>
+			<?php if (!empty($md4ai_stats['top_posts'])): ?>
+				<?php foreach ($md4ai_stats['top_posts'] as $post_stat): ?>
 					<tr>
 						<td>
 							<strong>
@@ -113,9 +113,9 @@
 						<td>
 							<?php
 							// Format: 2024-01-01 14:30 (2 days ago)
-							$date_format = wp_date('Y-m-d H:i', $post_stat['last_crawled']);
-							$time_diff = human_time_diff($post_stat['last_crawled'], current_time('timestamp'));
-							echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
+							$md4ai_date_format = wp_date('Y-m-d H:i', $post_stat['last_crawled']);
+							$md4ai_time_diff   = human_time_diff($post_stat['last_crawled'], current_time('timestamp'));
+							echo esc_html(sprintf('%s (%s ago)', $md4ai_date_format, $md4ai_time_diff));
 							?>
 						</td>
 					</tr>
@@ -142,25 +142,25 @@
 			</tr>
 			</thead>
 			<tbody>
-			<?php if (!empty($stats['recent_activity'])): ?>
-				<?php foreach ($stats['recent_activity'] as $activity): ?>
+			<?php if (!empty($md4ai_stats['recent_activity'])): ?>
+				<?php foreach ($md4ai_stats['recent_activity'] as $md4ai_activity): ?>
 					<tr>
 						<td>
 							<span class="md4ai-crawler-badge">
-								<?php echo esc_html($activity['user_agent']); ?>
+								<?php echo esc_html($md4ai_activity['user_agent']); ?>
 							</span>
 						</td>
 						<td>
-							<a href="<?php echo esc_url(get_edit_post_link($activity['post_id'])); ?>">
-								<?php echo esc_html(get_the_title($activity['post_id'])); ?>
+							<a href="<?php echo esc_url(get_edit_post_link($md4ai_activity['post_id'])); ?>">
+								<?php echo esc_html(get_the_title($md4ai_activity['post_id'])); ?>
 							</a>
 						</td>
 						<td>
 							<?php
 							// Format: 2024-01-01 14:30 (2 mins ago)
-							$date_format = wp_date('Y-m-d H:i', $activity['timestamp']);
-							$time_diff = human_time_diff($activity['timestamp'], current_time('timestamp'));
-							echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
+							$md4ai_date_format = wp_date('Y-m-d H:i', $md4ai_activity['timestamp']);
+							$md4ai_time_diff   = human_time_diff($md4ai_activity['timestamp'], current_time('timestamp'));
+							echo esc_html(sprintf('%s (%s ago)', $md4ai_date_format, $md4ai_time_diff));
 							?>
 						</td>
 					</tr>
@@ -205,17 +205,17 @@
 				</tr>
 				</thead>
 				<tbody>
-				<?php if (!empty($traffic_stats['latest_views'])): ?>
-					<?php foreach ($traffic_stats['latest_views'] as $view): ?>
+				<?php if (!empty($md4ai_traffic_stats['latest_views'])): ?>
+					<?php foreach ($md4ai_traffic_stats['latest_views'] as $md4ai_view): ?>
 						<tr>
-							<td><?php echo esc_html($view['source']); ?></td>
-							<td><?php echo esc_html($view['search_terms'] ?: 'N/A'); ?></td>
+							<td><?php echo esc_html($md4ai_view['source']); ?></td>
+							<td><?php echo esc_html($md4ai_view['search_terms'] ?: 'N/A'); ?></td>
 							<td>
 								<?php
 								// Format: 2024-01-01 14:30 (2 hours ago)
-								$date_format = wp_date('Y-m-d H:i', $view['date_recorded']);
-								$time_diff = human_time_diff($view['date_recorded'], current_time('timestamp'));
-								echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
+								$md4ai_date_format = wp_date('Y-m-d H:i', $md4ai_view['date_recorded']);
+								$md4ai_time_diff   = human_time_diff($md4ai_view['date_recorded'], current_time('timestamp'));
+								echo esc_html(sprintf('%s (%s ago)', $md4ai_date_format, $md4ai_time_diff));
 								?>
 							</td>
 						</tr>
