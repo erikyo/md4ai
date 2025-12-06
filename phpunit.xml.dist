@@ -9,7 +9,7 @@
 	>
 	<testsuites>
 		<testsuite name="Php tests">
-			<directory prefix="Md4ai" suffix=".php">./tests/</directory>
+			<directory prefix="Md4Ai" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

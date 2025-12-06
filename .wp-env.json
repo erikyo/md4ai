@@ -1,0 +1,16 @@
+{
+	"core": null,
+	"plugins": [
+		"https://downloads.wordpress.org/plugin/ai-services.zip",
+		"."
+	],
+	"config": {
+		"WP_DEBUG": true,
+		"WP_DEBUG_DISPLAY": true,
+		"SCRIPT_DEBUG": true
+	},
+	"phpVersion": "8.3",
+	"mappings": {
+		"/var/www/html/wp-content/plugins/md4ai": "./"
+	}
+}

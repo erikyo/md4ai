@@ -22,7 +22,8 @@
 		"wp-phpunit/wp-phpunit": "^5.9.5",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
 		"ext-dom": "*",
-		"ext-libxml": "*"
+		"ext-libxml": "*",
+		"yoast/phpunit-polyfills": "^4.0"
 	},
 	"require": {
 		"php": ">=7.4"
