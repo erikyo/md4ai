@@ -467,17 +467,17 @@ input.geo-url-input {
   font-size: 16px;
   font-weight: 700;
 
-  &.good {
+  &.green {
     background: rgba(12, 206, 107, 0.15);
     color: #0cce6b;
   }
 
-  &.average {
+  &.orange {
     background: rgba(255, 164, 0, 0.15);
     color: #ffa400;
   }
 
-  &.poor {
+  &.red {
     background: rgba(255, 78, 66, 0.15);
     color: #ff4e42;
   }
@@ -512,15 +512,15 @@ input.geo-url-input {
   border-radius: 2px;
   transition: width 0.5s ease-out;
 
-  &.good {
+  &.green {
     background: #0cce6b;
   }
 
-  &.average {
+  &.orange {
     background: #ffa400;
   }
 
-  &.poor {
+  &.red {
     background: #ff4e42;
   }
 }

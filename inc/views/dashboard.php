@@ -5,14 +5,13 @@
  * @var array $md4ai_stats
  * @var array $md4ai_traffic_stats
  */
+
+use Md4Ai\Md4Ai_Utils;
+
 ?>
 <div id="md4ai-tab-panel md4ai-dashboard">
 	<div class="md4ai-alerts">
-		<?php if ( Md4Ai_Utils::is_ai_service_enabled() ): ?>
-			<div class="notice notice-success inline">
-				<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'AI services are enabled!', 'md4ai' ); ?></p>
-			</div>
-		<?php else: ?>
+		<?php if ( ! Md4Ai_Utils::is_ai_service_enabled() ): ?>
 			<div class="notice notice-warning inline">
 				<p><span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'AI services plugin is not installed or not active. Please install and activate it to use the "Generate with AI" and "Geo-Insights" feature.', 'md4ai' ); ?></p>
 			</div>
