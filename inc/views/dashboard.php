@@ -7,13 +7,6 @@
  */
 ?>
 <div id="md4ai-tab-panel md4ai-dashboard">
-	<div class="md4ai-section-header">
-		<h2 class="md4ai-section-title">
-			<span class="dashicons dashicons-admin-generic"></span>
-			<?php esc_html_e( 'Dashboard', 'md4ai' ); ?>
-		</h2>
-	</div>
-
 	<div class="md4ai-alerts">
 		<?php if ( Md4Ai_Utils::is_ai_service_enabled() ): ?>
 			<div class="notice notice-success inline">

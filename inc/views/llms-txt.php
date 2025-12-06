@@ -12,16 +12,6 @@ use Md4Ai\Md4Ai_Utils;
 
 ?>
 <div id="cf7a-tab-panel md4ai-llms-txt">
-	<div class="md4ai-section-header">
-		<h2 class="md4ai-section-title">
-			<span class="dashicons dashicons-media-text"></span>
-			<?php esc_html_e( 'llms.txt', 'md4ai' ); ?>
-		</h2>
-		<a href="<?php echo esc_url( $llms_url ); ?>" target="_blank" class="button">
-			<span class="dashicons dashicons-external" style="margin-top: 3px;"></span>
-			<?php esc_html_e( 'View llms.txt', 'md4ai' ); ?>
-		</a>
-	</div>
 
 	<div class="md4ai-llms-notice <?php echo $has_content ? 'success' : ''; ?>">
 		<span class="md4ai-llms-notice-icon dashicons <?php echo $has_content ? 'dashicons-yes-alt' : 'dashicons-info'; ?>"></span>

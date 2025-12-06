@@ -53,12 +53,12 @@ function updateGaugeColor( chart: SVGElement, score: number ) {
  */
 function getScoreClass( score: number ): string {
 	if ( score >= 90 ) {
-		return 'green';
+		return 'good';
 	}
 	if ( score >= 50 ) {
-		return 'orange';
+		return 'average';
 	}
-	return 'red';
+	return 'poor';
 }
 
 /**
@@ -275,7 +275,7 @@ function displayResults( data: GeoInsightsResult ) {
             </div>
           </div>
         </div>
-        
+
         <!-- New GEO Metrics Row -->
         <h3 class="geo-subsection-title" style="margin-top: 20px; margin-bottom: 10px; font-size: 14px; color: #666;">${ __(
 			'Detailed GEO Factors',
