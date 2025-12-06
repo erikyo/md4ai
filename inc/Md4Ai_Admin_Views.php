@@ -204,237 +204,33 @@ Optional details go here
 		$analytics = $options['requests'] ?? [];
 		$visitors = $options['visitors'] ?? [];
 
+		// If no data yet, show educational empty state
+		$has_data = !empty($analytics) || !empty($visitors);
+		if (!$has_data) {
+			$this->render_dashboard_empty_state();
+			return;
+		}
+
 		// Prepare stats
 		$stats = self::prepare_dashboard_stats($analytics);
 		$traffic_stats = self::prepare_traffic_stats($visitors);
-		?>
-		<div id="md4ai-tab-panel md4ai-dashboard">
-			<div class="md4ai-section-header">
-				<h2 class="md4ai-section-title">
-					<span class="dashicons dashicons-admin-generic"></span>
-					<?php esc_html_e( 'Dashboard', 'md4ai' ); ?>
-				</h2>
-			</div>
+		include __DIR__ . '/views/dashboard.php';
 
-			<div class="md4ai-alerts">
-				<?php if ( Md4Ai_Utils::is_ai_service_enabled() ): ?>
-					<div class="notice notice-success inline">
-						<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'AI services are enabled!', 'md4ai' ); ?></p>
-					</div>
-				<?php else: ?>
-					<div class="notice notice-warning inline">
-						<p><span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'AI services plugin is not installed or not active. Please install and activate it to use the "Generate with AI" and "Geo-Insights" feature.', 'md4ai' ); ?></p>
-					</div>
-				<?php endif; ?>
-			</div>
+	}
 
-			<div class="md4ai-stats-grid">
-				<div class="md4ai-stat-card">
-					<div class="stat-icon" style="background: #2271b1;">
-						<span class="dashicons dashicons-chart-line"></span>
-					</div>
-					<div class="stat-content">
-						<h3><?php echo esc_html($stats['total_requests']); ?></h3>
-						<p><?php esc_html_e('Total Requests', 'md4ai'); ?></p>
-						<span class="stat-period"><?php esc_html_e('Last 7 days', 'md4ai'); ?></span>
-					</div>
-				</div>
+	/**
+	 * Renders the dashboard empty state with educational cards
+	 * Shown when no bot visits have been recorded yet
+	 *
+	 * @return void
+	 */
+	private function render_dashboard_empty_state() {
+		$llms_tab_url = wp_nonce_url( $this->get_tab_url( 'llms-txt' ), 'cf7a_admin_tab_switch' );
+		$geo_tab_url = wp_nonce_url( $this->get_tab_url( 'geo-insights' ), 'cf7a_admin_tab_switch' );
+		$ai_services_url = 'https://wordpress.org/plugins/ai-services/';
+		$is_ai_enabled = Md4Ai_Utils::is_ai_service_enabled();
+		include __DIR__ . '/views/dashboard-empty.php';
 
-				<div class="md4ai-stat-card">
-					<div class="stat-icon" style="background: #00a32a;">
-						<span class="dashicons dashicons-admin-users"></span>
-					</div>
-					<div class="stat-content">
-						<h3><?php echo esc_html($stats['unique_crawlers']); ?></h3>
-						<p><?php esc_html_e('Unique Crawlers', 'md4ai'); ?></p>
-						<span class="stat-period"><?php esc_html_e('Different bots', 'md4ai'); ?></span>
-					</div>
-				</div>
-
-				<div class="md4ai-stat-card">
-					<div class="stat-icon" style="background: #d63638;">
-						<span class="dashicons dashicons-admin-post"></span>
-					</div>
-					<div class="stat-content">
-						<h3><?php echo esc_html($stats['unique_posts']); ?></h3>
-						<p><?php esc_html_e('Posts Indexed', 'md4ai'); ?></p>
-						<span class="stat-period"><?php esc_html_e('Total posts', 'md4ai'); ?></span>
-					</div>
-				</div>
-
-				<div class="md4ai-stat-card">
-					<div class="stat-icon" style="background: #f0a800;">
-						<span class="dashicons dashicons-calendar-alt"></span>
-					</div>
-					<div class="stat-content">
-						<h3><?php echo esc_html($stats['today_requests']); ?></h3>
-						<p><?php esc_html_e('Today\'s Requests', 'md4ai'); ?></p>
-						<span class="stat-period"><?php echo esc_html(gmdate('d M Y')); ?></span>
-					</div>
-				</div>
-			</div>
-
-			<div class="md4ai-charts-container">
-				<div class="md4ai-chart-box">
-					<h3><?php esc_html_e('Requests per Day', 'md4ai'); ?></h3>
-					<div class="chartjs-wrapper">
-						<canvas id="md4ai-requests-chart" height="400" width="600"></canvas>
-					</div>
-				</div>
-
-				<div class="md4ai-chart-box">
-					<h3><?php esc_html_e('Requests by Crawler', 'md4ai'); ?></h3>
-					<div class="chartjs-wrapper">
-						<canvas id="md4ai-crawlers-chart" height="150" width="400"></canvas>
-					</div>
-				</div>
-			</div>
-
-			<div class="md4ai-table-container">
-				<h3><?php esc_html_e('Most Indexed Posts', 'md4ai'); ?></h3>
-				<table class="wp-list-table widefat fixed striped">
-					<thead>
-					<tr>
-						<th><?php esc_html_e('Post Title', 'md4ai'); ?></th>
-						<th><?php esc_html_e('Total Hits', 'md4ai'); ?></th>
-						<th><?php esc_html_e('Last Crawled', 'md4ai'); ?></th>
-					</tr>
-					</thead>
-					<tbody>
-					<?php if (!empty($stats['top_posts'])): ?>
-						<?php foreach ($stats['top_posts'] as $post_stat): ?>
-							<tr>
-								<td>
-									<strong>
-										<a href="<?php echo esc_url(get_edit_post_link($post_stat['post_id'])); ?>">
-											<?php echo esc_html(get_the_title($post_stat['post_id'])); ?>
-										</a>
-									</strong>
-								</td>
-								<td><?php echo esc_html($post_stat['count']); ?></td>
-								<td>
-									<?php
-									// Format: 2024-01-01 14:30 (2 days ago)
-									$date_format = wp_date('Y-m-d H:i', $post_stat['last_crawled']);
-									$time_diff = human_time_diff($post_stat['last_crawled'], current_time('timestamp'));
-									echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
-									?>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					<?php else: ?>
-						<tr>
-							<td colspan="3" style="text-align: center;">
-								<?php esc_html_e('No data available yet', 'md4ai'); ?>
-							</td>
-						</tr>
-					<?php endif; ?>
-					</tbody>
-				</table>
-			</div>
-
-			<div class="md4ai-table-container">
-				<h3><?php esc_html_e('Recent Crawler Activity', 'md4ai'); ?></h3>
-				<table class="wp-list-table widefat fixed striped">
-					<thead>
-					<tr>
-						<th><?php esc_html_e('Crawler', 'md4ai'); ?></th>
-						<th><?php esc_html_e('Post', 'md4ai'); ?></th>
-						<th><?php esc_html_e('Date', 'md4ai'); ?></th>
-					</tr>
-					</thead>
-					<tbody>
-					<?php if (!empty($stats['recent_activity'])): ?>
-						<?php foreach ($stats['recent_activity'] as $activity): ?>
-							<tr>
-								<td>
-									<span class="md4ai-crawler-badge">
-										<?php echo esc_html($activity['user_agent']); ?>
-									</span>
-								</td>
-								<td>
-									<a href="<?php echo esc_url(get_edit_post_link($activity['post_id'])); ?>">
-										<?php echo esc_html(get_the_title($activity['post_id'])); ?>
-									</a>
-								</td>
-								<td>
-									<?php
-									// Format: 2024-01-01 14:30 (2 mins ago)
-									$date_format = wp_date('Y-m-d H:i', $activity['timestamp']);
-									$time_diff = human_time_diff($activity['timestamp'], current_time('timestamp'));
-									echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
-									?>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					<?php else: ?>
-						<tr>
-							<td colspan="3" style="text-align: center;">
-								<?php esc_html_e('No recent activity', 'md4ai'); ?>
-							</td>
-						</tr>
-					<?php endif; ?>
-					</tbody>
-				</table>
-			</div>
-
-			<h2 style="margin-top: 30px;">📊 Traffic Insights</h2>
-
-			<div class="md4ai-charts-container">
-				<div class="md4ai-chart-box">
-					<h3><?php esc_html_e('Search/LLM Referrals per Day', 'md4ai'); ?></h3>
-					<div class="chartjs-wrapper">
-						<canvas id="md4ai-referrals-chart" height="400" width="600"></canvas>
-					</div>
-				</div>
-				<div class="md4ai-chart-box">
-					<h3><?php esc_html_e('Source Distribution', 'md4ai'); ?></h3>
-					<div class="chartjs-wrapper">
-						<canvas id="md4ai-source-chart" height="150" width="400"></canvas>
-					</div>
-				</div>
-			</div>
-
-			<div class="traffic-insights-container">
-				<div class="traffic-table-wrapper" style="width: 100%;">
-					<h3>Latest Views</h3>
-					<table class="wp-list-table widefat fixed striped traffic-table">
-						<thead>
-						<tr>
-							<th><?php esc_html_e('Source', 'md4ai'); ?></th>
-							<th><?php esc_html_e('Search Terms', 'md4ai'); ?></th>
-							<th><?php esc_html_e('Date', 'md4ai'); ?></th>
-						</tr>
-						</thead>
-						<tbody>
-						<?php if (!empty($traffic_stats['latest_views'])): ?>
-							<?php foreach ($traffic_stats['latest_views'] as $view): ?>
-								<tr>
-									<td><?php echo esc_html($view['source']); ?></td>
-									<td><?php echo esc_html($view['search_terms'] ?: 'N/A'); ?></td>
-									<td>
-										<?php
-										// Format: 2024-01-01 14:30 (2 hours ago)
-										$date_format = wp_date('Y-m-d H:i', $view['date_recorded']);
-										$time_diff = human_time_diff($view['date_recorded'], current_time('timestamp'));
-										echo esc_html(sprintf('%s (%s ago)', $date_format, $time_diff));
-										?>
-									</td>
-								</tr>
-							<?php endforeach; ?>
-						<?php else: ?>
-							<tr>
-								<td colspan="3" style="text-align: center;">
-									<?php esc_html_e('No visitor data available yet', 'md4ai'); ?>
-								</td>
-							</tr>
-						<?php endif; ?>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
@@ -597,105 +393,9 @@ Optional details go here
 		}
 		$llms_url     = home_url( '/llms.txt' );
 		$has_content  = ! empty( $llms_content );
-		?>
-		<div id="cf7a-tab-panel md4ai-llms-txt">
-			<div class="md4ai-section-header">
-				<h2 class="md4ai-section-title">
-					<span class="dashicons dashicons-media-text"></span>
-					<?php esc_html_e( 'llms.txt', 'md4ai' ); ?>
-				</h2>
-				<a href="<?php echo esc_url( $llms_url ); ?>" target="_blank" class="button">
-					<span class="dashicons dashicons-external" style="margin-top: 3px;"></span>
-					<?php esc_html_e( 'View llms.txt', 'md4ai' ); ?>
-				</a>
-			</div>
+		$llms_txt_placeholder = $this->llms_txt_placeholder;
+		include __DIR__ . '/views/llms-txt.php';
 
-			<div class="md4ai-llms-notice <?php echo $has_content ? 'success' : ''; ?>">
-				<span class="md4ai-llms-notice-icon dashicons <?php echo $has_content ? 'dashicons-yes-alt' : 'dashicons-info'; ?>"></span>
-				<div class="md4ai-llms-notice-content">
-					<?php if ( $has_content ): ?>
-						<strong><?php esc_html_e( 'Custom llms.txt is active.', 'md4ai' ); ?></strong>
-						<?php esc_html_e( 'This content will be served at', 'md4ai' ); ?>
-						<a href="<?php echo esc_url( $llms_url ); ?>" target="_blank"><?php echo esc_html( $llms_url ); ?></a>
-					<?php else: ?>
-						<?php esc_html_e( 'This content will be served at', 'md4ai' ); ?>
-						<a href="<?php echo esc_url( $llms_url ); ?>" target="_blank"><?php echo esc_html( $llms_url ); ?></a>.
-						<strong><?php esc_html_e( 'Leave empty to use default content.', 'md4ai' ); ?></strong>
-					<?php endif; ?>
-				</div>
-			</div>
-
-			<form method="post">
-				<?php wp_nonce_field( 'md4ai_update_llmstxt' ); ?>
-
-				<div class="md4ai-llms-container">
-					<!-- Editor Panel -->
-					<div class="md4ai-llms-editor">
-						<label for="llmstxt_content" class="md4ai-panel-title" style="display: block; margin-bottom: 8px; font-weight: 600; color: #1d2327;">
-							<span class="dashicons dashicons-edit" style="margin-right: 4px;"></span>
-							<?php esc_html_e( 'Editor', 'md4ai' ); ?>
-						</label>
-						<textarea
-							id="llmstxt_content"
-							name="llmstxt_content"
-							class="md4ai-llms-textarea"
-							placeholder="<?php echo esc_attr( $this->llms_txt_placeholder ); ?>"
-						><?php echo esc_textarea( $llms_content ); ?></textarea>
-
-						<div class="md4ai-toolbar-section">
-							<div class="md4ai-toolbar-group">
-								<?php
-								echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( 'llmstxt_content', 'generate-llmstxt' ), [
-									'button' => [
-										'type'          => true,
-										'class'         => true,
-										'data-action'   => true,
-										'data-endpoint' => true,
-										'data-field'    => true,
-									],
-								] );
-								?>
-							</div>
-
-							<span class="md4ai-toolbar-divider"></span>
-
-							<div class="md4ai-toolbar-group md4ai-flex md4ai-justify-between">
-								<button type="button" class="button md4ai-clear" data-field="llmstxt_content">
-									<span class="dashicons dashicons-trash" style="margin-top: 3px;"></span>
-									<?php esc_html_e( 'Clear', 'md4ai' ); ?>
-								</button>
-								<input type="submit"
-									   name="update_llmstxt"
-									   class="button button-primary"
-									   data-field="llmstxt_content"
-									   value="<?php esc_attr_e( 'Save Changes', 'md4ai' ); ?>">
-							</div>
-
-							<span id="md4ai-status"></span>
-						</div>
-					</div>
-
-					<!-- Preview Panel -->
-					<div class="md4ai-llms-preview">
-						<label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1d2327;">
-							<span class="dashicons dashicons-visibility" style="margin-right: 4px;"></span>
-							<?php esc_html_e( 'Preview', 'md4ai' ); ?>
-						</label>
-						<div class="md4ai-preview-box">
-							<div id="md4ai-preview-content">
-								<div class="md4ai-preview-empty">
-									<span class="dashicons dashicons-welcome-view-site"></span>
-									<p style="margin: 0; font-size: 14px;">
-										<?php esc_html_e( 'Preview will appear here', 'md4ai' ); ?>
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</form>
-		</div>
-		<?php
 	}
 
 	/**
@@ -707,27 +407,8 @@ Optional details go here
 	 */
 	public function render_tab_cache() {
 		$stats = $this->cache->get_statistics();
-		?>
-		<div id="cf7a-tab-panel md4ai-cache">
-			<div class="card">
-				<h2><?php esc_html_e( 'Cache Statistics', 'md4ai' ); ?></h2>
-				<p><strong><?php esc_html_e( 'Cached Files:', 'md4ai' ); ?></strong> <?php echo esc_html( $stats['file_count'] ); ?></p>
-				<p><strong><?php esc_html_e( 'Total Size:', 'md4ai' ); ?></strong> <?php echo esc_html( $stats['total_size_mb'] ); ?> MB</p>
-				<p><strong><?php esc_html_e( 'Cache Directory:', 'md4ai' ); ?></strong> <code><?php echo esc_html( $stats['cache_dir'] ); ?></code></p>
-			</div>
+		include __DIR__ . '/views/cache.php';
 
-			<div class="card">
-				<h2><?php esc_html_e( 'Clear Cache', 'md4ai' ); ?></h2>
-				<p><?php esc_html_e( 'Clear all cached Markdown files. This will force regeneration on the next AI bot visit.', 'md4ai' ); ?></p>
-				<form method="post">
-					<?php wp_nonce_field( 'md4ai_clear_cache' ); ?>
-					<input type="submit" name="clear_cache" class="button button-primary"
-						   value="<?php esc_attr_e( 'Clear All Cache', 'md4ai' ); ?>"
-						   onclick="return confirm('<?php esc_html_e( 'Are you sure you want to clear all cached files?', 'md4ai' ); ?>');">
-				</form>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
@@ -740,75 +421,16 @@ Optional details go here
 	public function render_geo_insights_page() {
 		// 1. Logic: Check if WooCommerce is active
 		$is_woo_active = class_exists('WooCommerce');
+		
+		// 2. Get theme screenshot for preview
+		$theme = wp_get_theme();
+		$theme_screenshot = $theme->get_screenshot();
+		$site_url = home_url();
+		$site_domain = wp_parse_url( $site_url, PHP_URL_HOST );
 
 		// 2. Configuration: Set dynamic labels and colors for the 3rd chart
 		// We pass this state to JS via a data attribute
-		?>
-		<div class="wrap geo-insights-wrapper" data-woo-active="<?php echo $is_woo_active ? 'true' : 'false'; ?>">
-			<h1 class="wp-heading-inline">Geo Insights</h1>
-			<hr class="wp-header-end">
+		include __DIR__ . '/views/geo-insights.php';
 
-			<div id="geo-loading" style="display:none;">
-				<span class="spinner is-active"></span>
-				<p>AI Analysis in progress...</p>
-			</div>
-
-			<div id="geo-results" style="display:none;">
-				<!-- Overall score will be injected here by JS -->
-
-				<div class="geo-scores-container">
-					<div class="geo-gauge-card">
-						<div class="single-chart">
-							<svg viewBox="0 0 36 36" class="circular-chart orange">
-								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<text x="18" y="20.35" class="percentage">0</text>
-							</svg>
-						</div>
-						<span class="gauge-label">Authority</span>
-					</div>
-
-					<div class="geo-gauge-card">
-						<div class="single-chart">
-							<svg viewBox="0 0 36 36" class="circular-chart green">
-								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<text x="18" y="20.35" class="percentage">0</text>
-							</svg>
-						</div>
-						<span class="gauge-label">Relevance</span>
-					</div>
-
-					<div class="geo-gauge-card">
-						<div class="single-chart">
-							<svg viewBox="0 0 36 36" class="circular-chart blue">
-								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<text x="18" y="20.35" class="percentage">0</text>
-							</svg>
-						</div>
-						<span class="gauge-label">Knowledge</span>
-					</div>
-
-					<div class="geo-gauge-card">
-						<div class="single-chart">
-							<svg viewBox="0 0 36 36" class="circular-chart purple">
-								<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<path class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-								<text x="18" y="20.35" class="percentage">0</text>
-							</svg>
-						</div>
-						<span class="gauge-label">Crawler Intelligence</span>
-					</div>
-				</div>
-
-				<!-- Additional sections will be injected by JS -->
-			</div>
-
-			<div class="geo-search-bar">
-				<button id="btn-start-analysis" class="button button-primary button-hero">Start Analysis</button>
-			</div>
-		</div>
-		<?php
 	}
 }
