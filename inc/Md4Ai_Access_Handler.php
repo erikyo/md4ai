@@ -177,7 +177,9 @@ class Md4Ai_Access_Handler {
 		$referrer_url = Md4Ai_Utils::get_referrer();
 
 		// Get the current URL the user is visiting (to check for UTMs)
-		$current_url = $_SERVER['REQUEST_URI'] ?? '';
+		$current_url = sanitize_text_field(
+			wp_unslash($_SERVER['REQUEST_URI'] ?? '')
+		);
 
 		$source = 'Direct/Unknown';
 		$search_terms = '';

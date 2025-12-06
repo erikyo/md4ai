@@ -212,8 +212,8 @@ Optional details go here
 		}
 
 		// Prepare stats
-		$stats = self::prepare_dashboard_stats($analytics);
-		$traffic_stats = self::prepare_traffic_stats($visitors);
+		$md4ai_stats = self::prepare_dashboard_stats($analytics);
+		$md4ai_traffic_stats = self::prepare_traffic_stats($visitors);
 		include __DIR__ . '/views/dashboard.php';
 
 	}
@@ -408,7 +408,6 @@ Optional details go here
 	public function render_tab_cache() {
 		$stats = $this->cache->get_statistics();
 		include __DIR__ . '/views/cache.php';
-
 	}
 
 	/**
@@ -421,7 +420,7 @@ Optional details go here
 	public function render_geo_insights_page() {
 		// 1. Logic: Check if WooCommerce is active
 		$is_woo_active = class_exists('WooCommerce');
-		
+
 		// 2. Get theme screenshot for preview
 		$theme = wp_get_theme();
 		$theme_screenshot = $theme->get_screenshot();
@@ -431,6 +430,5 @@ Optional details go here
 		// 2. Configuration: Set dynamic labels and colors for the 3rd chart
 		// We pass this state to JS via a data attribute
 		include __DIR__ . '/views/geo-insights.php';
-
 	}
 }
