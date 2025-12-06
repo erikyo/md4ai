@@ -56,7 +56,10 @@
 				<span class="dashicons dashicons-admin-site"></span>
 				<input type="text" id="geo-url-input" class="geo-url-input" value="<?php echo esc_url( $site_url ); ?>" placeholder="<?php echo esc_attr( $site_url ); ?>">
 			</div>
-			<p class="geo-url-hint"><?php printf( esc_html__( 'Analysis is restricted to %s', 'md4ai' ), '<strong>' . esc_html( $site_domain ) . '</strong>' ); ?></p>
+			<p class="geo-url-hint"><?php printf(
+				/* translators: %s is the site domain */
+				esc_html__( 'Analysis is restricted to %s', 'md4ai' ), '<strong>' . esc_html( $site_domain ) . '</strong>'
+				); ?></p>
 			<button id="btn-start-analysis" class="geo-analyze-button">
 				<span class="dashicons dashicons-superhero"></span>
 				<?php esc_html_e( 'Analyze', 'md4ai' ); ?>

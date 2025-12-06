@@ -114,6 +114,44 @@ class Md4Ai_Admin {
 				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Check and Enhance the current llms.txt file below to improve the Generative Engine Optimization (GEO) of the site. Output only the llms.txt content.'
 			]
 		]);
+
+		// Cleanup old data
+		$this->cleanup_old_data();
+	}
+
+	/**
+	 * Cleans up visitor and request data older than 30 days
+	 */
+	private function cleanup_old_data() {
+		$options = get_option(MD4AI_OPTION);
+		$changed = false;
+
+		// Calculate the cutoff date (30 days ago)
+		$cutoff_date = strtotime('-30 days');
+
+		// Cleanup visitors
+		if (!empty($options['visitors'])) {
+			foreach ($options['visitors'] as $date => $data) {
+				if (strtotime($date) < $cutoff_date) {
+					unset($options['visitors'][$date]);
+					$changed = true;
+				}
+			}
+		}
+
+		// Cleanup requests
+		if (!empty($options['requests'])) {
+			foreach ($options['requests'] as $date => $data) {
+				if (strtotime($date) < $cutoff_date) {
+					unset($options['requests'][$date]);
+					$changed = true;
+				}
+			}
+		}
+
+		if ($changed) {
+			update_option(MD4AI_OPTION, $options);
+		}
 	}
 
 }
