@@ -17,21 +17,21 @@ class Md4Ai_Admin {
 	 */
 	private Md4Ai_Markdown $markdown;
 
-	public function __construct($cache, $markdown) {
-		$this->cache = $cache;
+	public function __construct( $cache, $markdown ) {
+		$this->cache    = $cache;
 		$this->markdown = $markdown;
 
 		// Add the admin menu for the admin page
-		add_action('admin_menu', [$this, 'add_admin_menu']);
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
 		// Add a settings link to the plugin action links (WordPress add plugin page)
-		add_action( 'plugin_action_links_' . MD4AI_PLUGIN_BASENAME, [$this, 'plugin_settings_link'] );
+		add_action( 'plugin_action_links_' . MD4AI_PLUGIN_BASENAME, array( $this, 'plugin_settings_link' ) );
 
 		// Add meta-box for Markdown editing
-		new Md4Ai_Metabox($this->markdown, $this->cache);
+		new Md4Ai_Metabox( $this->markdown, $this->cache );
 
 		// Enqueue admin scripts
-		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
@@ -39,14 +39,14 @@ class Md4Ai_Admin {
 	 */
 	public function add_admin_menu() {
 
-		$admin_views = new Md4Ai_Admin_Views($this->cache);
+		$admin_views = new Md4Ai_Admin_Views( $this->cache );
 
 		add_management_page(
 			'AI Markdown Cache',
 			'Md4AI',
 			'manage_options',
 			'md4ai',
-			[$admin_views, 'render_admin_page']
+			array( $admin_views, 'render_admin_page' )
 		);
 	}
 
@@ -72,9 +72,9 @@ class Md4Ai_Admin {
 	/**
 	 * Enqueues admin scripts
 	 */
-	public function enqueue_admin_scripts($hook) {
+	public function enqueue_admin_scripts( $hook ) {
 		// check if the current script is loaded in the admin area or in the md4ai admin page
-		if (!in_array($hook, ['post.php', 'post-new.php'] ) && get_current_screen()->base !== 'tools_page_md4ai') {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ) ) && get_current_screen()->base !== 'tools_page_md4ai' ) {
 			return;
 		}
 
@@ -86,7 +86,7 @@ class Md4Ai_Admin {
 
 		wp_enqueue_script(
 			'md4ai-admin',
-			plugins_url('build/index.js', dirname(__FILE__)),
+			plugins_url( 'build/index.js', __DIR__ ),
 			$asset['dependencies'],
 			$asset['version'],
 			true
@@ -94,26 +94,30 @@ class Md4Ai_Admin {
 
 		wp_enqueue_style(
 			'md4ai-admin',
-			plugins_url('build/style-index.css', dirname(__FILE__)),
-			[],
+			plugins_url( 'build/style-index.css', __DIR__ ),
+			array(),
 			$asset['version']
 		);
 
 		// Get the REST API namespace from the RestAPI class instance
 		$rest_namespace = 'md4ai/v1'; // This should ideally be passed from the RestAPI class
 
-		wp_localize_script('md4ai-admin', 'md4aiData', [
-			'restUrl' => rest_url($rest_namespace ),
-			'nonce' => wp_create_nonce('wp_rest' ),
-			'postId' => get_the_ID(),
-			'aiServiceEnabled' => Md4Ai_Utils::is_ai_service_enabled(),
-			'woo_active' => Md4Ai_Utils::is_woocommerce_active(),
-			'blogUrl' => get_home_url(),
-			'prompts' => [
-				'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
-				'generate-llmstxt' => 'You are a highly skilled SEO and GEO expert. Check and Enhance the current llms.txt file below to improve the Generative Engine Optimization (GEO) of the site. Output only the llms.txt content.'
-			]
-		]);
+		wp_localize_script(
+			'md4ai-admin',
+			'md4aiData',
+			array(
+				'restUrl'          => rest_url( $rest_namespace ),
+				'nonce'            => wp_create_nonce( 'wp_rest' ),
+				'postId'           => get_the_ID(),
+				'aiServiceEnabled' => Md4Ai_Utils::is_ai_service_enabled(),
+				'woo_active'       => Md4Ai_Utils::is_woocommerce_active(),
+				'blogUrl'          => get_home_url(),
+				'prompts'          => array(
+					'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
+					'generate-llmstxt'  => 'You are a highly skilled SEO and GEO expert. Check and Enhance the current llms.txt file below to improve the Generative Engine Optimization (GEO) of the site. Output only the llms.txt content.',
+				),
+			)
+		);
 
 		// Cleanup old data
 		$this->cleanup_old_data();
@@ -123,35 +127,34 @@ class Md4Ai_Admin {
 	 * Cleans up visitor and request data older than 30 days
 	 */
 	private function cleanup_old_data() {
-		$options = get_option(MD4AI_OPTION);
+		$options = get_option( MD4AI_OPTION );
 		$changed = false;
 
 		// Calculate the cutoff date (30 days ago)
-		$cutoff_date = strtotime('-30 days');
+		$cutoff_date = strtotime( '-30 days' );
 
 		// Cleanup visitors
-		if (!empty($options['visitors'])) {
-			foreach ($options['visitors'] as $date => $data) {
-				if (strtotime($date) < $cutoff_date) {
-					unset($options['visitors'][$date]);
+		if ( ! empty( $options['visitors'] ) ) {
+			foreach ( $options['visitors'] as $date => $data ) {
+				if ( strtotime( $date ) < $cutoff_date ) {
+					unset( $options['visitors'][ $date ] );
 					$changed = true;
 				}
 			}
 		}
 
 		// Cleanup requests
-		if (!empty($options['requests'])) {
-			foreach ($options['requests'] as $date => $data) {
-				if (strtotime($date) < $cutoff_date) {
-					unset($options['requests'][$date]);
+		if ( ! empty( $options['requests'] ) ) {
+			foreach ( $options['requests'] as $date => $data ) {
+				if ( strtotime( $date ) < $cutoff_date ) {
+					unset( $options['requests'][ $date ] );
 					$changed = true;
 				}
 			}
 		}
 
-		if ($changed) {
-			update_option(MD4AI_OPTION, $options);
+		if ( $changed ) {
+			update_option( MD4AI_OPTION, $options );
 		}
 	}
-
 }

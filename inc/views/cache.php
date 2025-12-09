@@ -19,8 +19,8 @@
 		<form method="post">
 			<?php wp_nonce_field( 'md4ai_clear_cache' ); ?>
 			<input type="submit" name="clear_cache" class="button button-primary"
-				   value="<?php esc_attr_e( 'Clear All Cache', 'md4ai' ); ?>"
-				   onclick="return confirm('<?php esc_html_e( 'Are you sure you want to clear all cached files?', 'md4ai' ); ?>');">
+					value="<?php esc_attr_e( 'Clear All Cache', 'md4ai' ); ?>"
+					onclick="return confirm('<?php esc_html_e( 'Are you sure you want to clear all cached files?', 'md4ai' ); ?>');">
 		</form>
 	</div>
 </div>

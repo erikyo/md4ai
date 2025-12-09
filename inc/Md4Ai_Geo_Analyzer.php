@@ -9,9 +9,9 @@ namespace Md4Ai;
 class Md4Ai_Geo_Analyzer {
 
 	private $ai_raw_response;
-	private $ground_truth = [];
-	private $parsed_ai_data = [];
-	private $is_woo_active = false;
+	private $ground_truth   = array();
+	private $parsed_ai_data = array();
+	private $is_woo_active  = false;
 
 	public function __construct( $ai_response_text ) {
 		$this->ai_raw_response = $ai_response_text;
@@ -46,10 +46,10 @@ class Md4Ai_Geo_Analyzer {
 		$this->parsed_ai_data['main_entity'] = $extract( '/Main Entity Type:\s*(.*)$/m' );
 
 		// New GEO/AIO Metrics
-		$this->parsed_ai_data['brand_strength'] = $extract( '/Brand Entity Strength:\s*(.*)$/m' );
-		$this->parsed_ai_data['score_structure'] = (int) $extract( '/Content Structure Score:\s*(\d+)/m' );
+		$this->parsed_ai_data['brand_strength']   = $extract( '/Brand Entity Strength:\s*(.*)$/m' );
+		$this->parsed_ai_data['score_structure']  = (int) $extract( '/Content Structure Score:\s*(\d+)/m' );
 		$this->parsed_ai_data['score_multimedia'] = (int) $extract( '/Multimedia Usage Score:\s*(\d+)/m' );
-		$this->parsed_ai_data['score_tech_seo'] = (int) $extract( '/Technical SEO Perception:\s*(\d+)/m' );
+		$this->parsed_ai_data['score_tech_seo']   = (int) $extract( '/Technical SEO Perception:\s*(\d+)/m' );
 
 		// E-commerce specific parsing (if present in the text)
 		$this->parsed_ai_data['is_ecommerce'] = $extract( '/Is an E-commerce site:\s*(.*)$/m' );
@@ -70,28 +70,41 @@ class Md4Ai_Geo_Analyzer {
 		$this->ground_truth['website_name'] = get_bloginfo( 'name' );
 
 		// Main Author (gets the first admin or the first post's author)
-		$users                             = get_users( [ 'role__in' => [ 'administrator', 'editor' ], 'number' => 1 ] );
+		$users                             = get_users(
+			array(
+				'role__in' => array( 'administrator', 'editor' ),
+				'number'   => 1,
+			)
+		);
 		$this->ground_truth['author_name'] = ! empty( $users ) ? $users[0]->display_name : 'Admin';
 
 		// Categories (Core Topics)
-		$categories                   = get_terms( [ 'taxonomy' => 'category', 'hide_empty' => true, 'number' => 3 ] );
+		$categories                   = get_terms(
+			array(
+				'taxonomy'   => 'category',
+				'hide_empty' => true,
+				'number'     => 3,
+			)
+		);
 		$this->ground_truth['topics'] = wp_list_pluck( $categories, 'name' );
 
 		// Technical Ground Truth
-		$this->ground_truth['is_ssl'] = is_ssl();
+		$this->ground_truth['is_ssl']              = is_ssl();
 		$this->ground_truth['context_sufficiency'] = $this->check_context_sufficiency();
 
 		// E-commerce Data
 		if ( $this->is_woo_active ) {
 			$this->ground_truth['is_ecommerce'] = 'Yes';
 			// "Best Seller" products (simulated via total sales)
-			$products      = wc_get_products( [
-				'limit'   => 3,
-				'orderby' => 'total_sales',
-				'order'   => 'DESC',
-				'return'  => 'ids',
-			] );
-			$product_names = [];
+			$products      = wc_get_products(
+				array(
+					'limit'   => 3,
+					'orderby' => 'total_sales',
+					'order'   => 'DESC',
+					'return'  => 'ids',
+				)
+			);
+			$product_names = array();
 			foreach ( $products as $pid ) {
 				$product_names[] = get_the_title( $pid );
 			}
@@ -105,7 +118,7 @@ class Md4Ai_Geo_Analyzer {
 	 * Checks if the site provides enough context for AI (Description & Navigation)
 	 */
 	private function check_context_sufficiency() {
-		$issues = [];
+		$issues = array();
 
 		// 1. Check Site Description
 		$description = get_bloginfo( 'description' );
@@ -124,10 +137,16 @@ class Md4Ai_Geo_Analyzer {
 		}
 
 		if ( empty( $issues ) ) {
-			return [ 'status' => true, 'issues' => [] ];
+			return array(
+				'status' => true,
+				'issues' => array(),
+			);
 		}
 
-		return [ 'status' => false, 'issues' => $issues ];
+		return array(
+			'status' => false,
+			'issues' => $issues,
+		);
 	}
 
 	/**
@@ -136,20 +155,20 @@ class Md4Ai_Geo_Analyzer {
 	 */
 	public function get_analysis_results() {
 
-		$corrections = [];
-		$scores      = [];
+		$corrections = array();
+		$scores      = array();
 
 		// --- CHECK 1: Identity (Website Name) ---
 		$sim_name = 0;
 		similar_text( strtolower( $this->parsed_ai_data['website_name'] ), strtolower( $this->ground_truth['website_name'] ), $sim_name );
 
 		if ( $sim_name < 50 ) { // If similarity < 50%
-			$corrections[] = [
+			$corrections[] = array(
 				'field'      => 'Website Name',
 				'ai_value'   => $this->parsed_ai_data['website_name'],
 				'real_value' => $this->ground_truth['website_name'],
-				'tip'        => 'Check your Schema.org "WebSite" markup and Title Tag.'
-			];
+				'tip'        => 'Check your Schema.org "WebSite" markup and Title Tag.',
+			);
 		}
 
 		// --- CHECK 2: Author ---
@@ -162,12 +181,12 @@ class Md4Ai_Geo_Analyzer {
 		}
 
 		if ( $sim_auth < 40 ) {
-			$corrections[] = [
+			$corrections[] = array(
 				'field'      => 'Author/Owner',
 				'ai_value'   => $this->parsed_ai_data['author_name'],
 				'real_value' => $this->ground_truth['author_name'],
-				'tip'        => 'Add a clear "About Us" page and Person Schema markup.'
-			];
+				'tip'        => 'Add a clear "About Us" page and Person Schema markup.',
+			);
 		}
 
 		$scores['identity_match'] = round( ( $sim_name + $sim_auth ) / 2 );
@@ -181,72 +200,72 @@ class Md4Ai_Geo_Analyzer {
 		if ( $ai_is_ecom === $real_is_ecom ) {
 			$is_ecom_match = 100;
 		} else {
-			$corrections[] = [
+			$corrections[] = array(
 				'field'      => 'E-commerce Detection',
 				'ai_value'   => $ai_is_ecom ? 'Yes' : 'No',
 				'real_value' => $real_is_ecom ? 'Yes' : 'No',
-				'tip'        => $real_is_ecom ? 'Ensure /shop/ or product pages are crawlable.' : 'Check for confusing transactional keywords.'
-			];
+				'tip'        => $real_is_ecom ? 'Ensure /shop/ or product pages are crawlable.' : 'Check for confusing transactional keywords.',
+			);
 		}
 		$scores['tech_match'] = $is_ecom_match;
 
 		// --- CHECK 4: Technical SEO (SSL & Context) ---
 		if ( ! $this->ground_truth['is_ssl'] ) {
-			$corrections[] = [
+			$corrections[] = array(
 				'field'      => 'Security (SSL)',
 				'ai_value'   => 'N/A',
 				'real_value' => 'Missing',
-				'tip'        => 'Install an SSL certificate (HTTPS) for better ranking and trust.'
-			];
+				'tip'        => 'Install an SSL certificate (HTTPS) for better ranking and trust.',
+			);
 		}
 
 		if ( ! $this->ground_truth['context_sufficiency']['status'] ) {
 			$issues = $this->ground_truth['context_sufficiency']['issues'];
-			
+
 			if ( in_array( 'missing_description', $issues ) ) {
-				$corrections[] = [
+				$corrections[] = array(
 					'field'      => 'Context: Description',
 					'ai_value'   => 'N/A',
 					'real_value' => 'Missing Tagline',
-					'tip'        => 'Add a site tagline in Settings > General to help AI understand your site.'
-				];
+					'tip'        => 'Add a site tagline in Settings > General to help AI understand your site.',
+				);
 			}
 
 			if ( in_array( 'missing_navigation', $issues ) ) {
-				$corrections[] = [
+				$corrections[] = array(
 					'field'      => 'Context: Navigation',
 					'ai_value'   => 'N/A',
 					'real_value' => 'No Menus/Pages',
-					'tip'        => 'Ensure your site has navigation menus or crawlable internal links.'
-				];
+					'tip'        => 'Ensure your site has navigation menus or crawlable internal links.',
+				);
 			}
 		}
 
 		// --- CHECK 5: AI Perception Score (Average of the 0–10 ratings normalized to 100) ---
 		// We now have 7 metrics: 4 original + 3 new (structure, multimedia, tech_seo)
-		$total_ai_points = 
-			$this->parsed_ai_data['score_auth'] + 
-			$this->parsed_ai_data['score_relevance'] + 
-			$this->parsed_ai_data['score_data'] + 
+		$total_ai_points =
+			$this->parsed_ai_data['score_auth'] +
+			$this->parsed_ai_data['score_relevance'] +
+			$this->parsed_ai_data['score_data'] +
 			$this->parsed_ai_data['score_crawler'] +
 			$this->parsed_ai_data['score_structure'] +
 			$this->parsed_ai_data['score_multimedia'] +
 			$this->parsed_ai_data['score_tech_seo'];
 
 		// Max points = 70. Normalize to 100.
-		$scores['ai_perception'] = round( ($total_ai_points / 70) * 100 );
+		$scores['ai_perception'] = round( ( $total_ai_points / 70 ) * 100 );
 
 		// Add sub-scores for detailed view
-		$scores['geo_structure'] = $this->parsed_ai_data['score_structure'] * 10;
+		$scores['geo_structure']  = $this->parsed_ai_data['score_structure'] * 10;
 		$scores['geo_multimedia'] = $this->parsed_ai_data['score_multimedia'] * 10;
-		$scores['geo_tech'] = $this->parsed_ai_data['score_tech_seo'] * 10;
+		$scores['geo_tech']       = $this->parsed_ai_data['score_tech_seo'] * 10;
 
 		// --- FINAL OUTPUT ---
-		return [
+		return array(
 			'scores'       => $scores,       // For Chart.js
 			'corrections'  => $corrections, // "What to fix" table
 			'raw_ai_data'  => $this->parsed_ai_data,
-			'ground_truth' => $this->ground_truth
-		];
+			'ground_truth' => $this->ground_truth,
+		);
 	}
 }

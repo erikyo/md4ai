@@ -12,18 +12,18 @@ class Md4Ai_Activator {
 	 */
 	public static function activate() {
 		// Initialize dependencies
-		$cache = new Md4Ai_Cache();
-		$markdown = new Md4Ai_Markdown($cache);
+		$cache    = new Md4Ai_Cache();
+		$markdown = new Md4Ai_Markdown( $cache );
 
 		// generate the llms.txt content
 		$llms_content = $markdown->generate_default_llmstxt();
-		
+
 		$options = array(
-			'llms_content' => $llms_content
+			'llms_content' => $llms_content,
 		);
 
-		if ( ! get_option(MD4AI_OPTION) ) {
-			add_option(MD4AI_OPTION, $options);
+		if ( ! get_option( MD4AI_OPTION ) ) {
+			add_option( MD4AI_OPTION, $options );
 		}
 	}
 

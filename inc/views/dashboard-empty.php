@@ -85,7 +85,7 @@
 		</div>
 
 		<!-- AI Services Card (Conditional) -->
-		<?php if ( ! $is_ai_enabled ): ?>
+		<?php if ( ! $is_ai_enabled ) : ?>
 		<div class="md4ai-tip-card md4ai-tip-card--highlight">
 			<div class="md4ai-tip-card-icon" style="background: linear-gradient(135deg, #FF9800 0%, #E91E63 100%);">
 				<span class="dashicons dashicons-admin-plugins"></span>
@@ -110,7 +110,7 @@
 				</div>
 			</div>
 		</div>
-		<?php else: ?>
+		<?php else : ?>
 		<div class="md4ai-tip-card md4ai-tip-card--success">
 			<div class="md4ai-tip-card-icon" style="background: linear-gradient(135deg, #00c853 0%, #64dd17 100%);">
 				<span class="dashicons dashicons-yes-alt"></span>
@@ -140,14 +140,14 @@
 					<li><strong><?php esc_html_e( 'Relevance', 'md4ai' ); ?></strong> - <?php esc_html_e( 'How well content matches user intent', 'md4ai' ); ?></li>
 					<li><strong><?php esc_html_e( 'Knowledge', 'md4ai' ); ?></strong> - <?php esc_html_e( 'Depth and accuracy of information', 'md4ai' ); ?></li>
 				</ul>
-				<?php if ( $is_ai_enabled ): ?>
+				<?php if ( $is_ai_enabled ) : ?>
 				<div class="md4ai-tip-card-cta">
 					<a href="<?php echo esc_url( $geo_tab_url ); ?>" class="button button-secondary">
 						<span class="dashicons dashicons-chart-pie"></span>
 						<?php esc_html_e( 'Run Analysis', 'md4ai' ); ?>
 					</a>
 				</div>
-				<?php else: ?>
+				<?php else : ?>
 				<p class="md4ai-tip-note">
 					<span class="dashicons dashicons-lock"></span>
 					<?php esc_html_e( 'Requires AI Services plugin', 'md4ai' ); ?>

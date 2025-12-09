@@ -22,19 +22,19 @@ class Md4Ai_Core {
 	private $options;
 
 	public function __construct() {
-		$this->options = get_option(MD4AI_OPTION) ?: [];
+		$this->options = get_option( MD4AI_OPTION ) ?: array();
 
 		// Initialize sub-components
-		$this->cache = new Md4Ai_Cache();
-		$this->markdown = new Md4Ai_Markdown($this->cache);
+		$this->cache    = new Md4Ai_Cache();
+		$this->markdown = new Md4Ai_Markdown( $this->cache );
 
 		// Initialize Access Handler
-		new Md4Ai_Access_Handler($this->cache, $this->markdown);
+		new Md4Ai_Access_Handler( $this->cache, $this->markdown );
 
 		// Initialize REST API
-		new Md4Ai_RestAPI($this->options, $this->markdown);
+		new Md4Ai_RestAPI( $this->options, $this->markdown );
 
 		// Initialize admin stuff
-		new Md4Ai_Admin($this->cache, $this->markdown);
+		new Md4Ai_Admin( $this->cache, $this->markdown );
 	}
 }

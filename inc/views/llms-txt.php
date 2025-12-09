@@ -16,11 +16,11 @@ use Md4Ai\Md4Ai_Utils;
 	<div class="md4ai-llms-notice <?php echo $has_content ? 'success' : ''; ?>">
 		<span class="md4ai-llms-notice-icon dashicons <?php echo $has_content ? 'dashicons-yes-alt' : 'dashicons-info'; ?>"></span>
 		<div class="md4ai-llms-notice-content">
-			<?php if ( $has_content ): ?>
+			<?php if ( $has_content ) : ?>
 				<strong><?php esc_html_e( 'Custom llms.txt is active.', 'md4ai' ); ?></strong>
 				<?php esc_html_e( 'This content will be served at', 'md4ai' ); ?>
 				<a href="<?php echo esc_url( $llms_url ); ?>" target="_blank"><?php echo esc_html( $llms_url ); ?></a>
-			<?php else: ?>
+			<?php else : ?>
 				<?php esc_html_e( 'This content will be served at', 'md4ai' ); ?>
 				<a href="<?php echo esc_url( $llms_url ); ?>" target="_blank"><?php echo esc_html( $llms_url ); ?></a>.
 				<strong><?php esc_html_e( 'Leave empty to use default content.', 'md4ai' ); ?></strong>
@@ -48,15 +48,18 @@ use Md4Ai\Md4Ai_Utils;
 				<div class="md4ai-toolbar-section">
 					<div class="md4ai-toolbar-group">
 						<?php
-						echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( 'llmstxt_content', 'generate-llmstxt' ), [
-							'button' => [
-								'type'          => true,
-								'class'         => true,
-								'data-action'   => true,
-								'data-endpoint' => true,
-								'data-field'    => true,
-							],
-						] );
+						echo wp_kses(
+							Md4Ai_Utils::display_llmstxt_buttons( 'llmstxt_content', 'generate-llmstxt' ),
+							array(
+								'button' => array(
+									'type'          => true,
+									'class'         => true,
+									'data-action'   => true,
+									'data-endpoint' => true,
+									'data-field'    => true,
+								),
+							)
+						);
 						?>
 					</div>
 
@@ -68,10 +71,10 @@ use Md4Ai\Md4Ai_Utils;
 							<?php esc_html_e( 'Clear', 'md4ai' ); ?>
 						</button>
 						<input type="submit"
-							   name="update_llmstxt"
-							   class="button button-primary"
-							   data-field="llmstxt_content"
-							   value="<?php esc_attr_e( 'Save Changes', 'md4ai' ); ?>">
+								name="update_llmstxt"
+								class="button button-primary"
+								data-field="llmstxt_content"
+								value="<?php esc_attr_e( 'Save Changes', 'md4ai' ); ?>">
 					</div>
 
 					<span id="md4ai-status"></span>

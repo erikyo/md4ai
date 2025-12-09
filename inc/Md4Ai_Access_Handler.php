@@ -15,7 +15,7 @@ class Md4Ai_Access_Handler {
 	 * Perplexity https://docs.perplexity.ai/guides/bots
 	 * Google https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers
 	 */
-	private array $ai_useragents = [
+	private array $ai_useragents = array(
 		'oai-searchbot', // OAI-SearchBot/1.0; +https://openai.com/searchbot
 		'gptbot', // GPTBot/1.0 (+https://openai.com/gptbot)
 		'chatgpt-user', // ChatGPT-User/1.0; +https://openai.com/bot
@@ -35,15 +35,15 @@ class Md4Ai_Access_Handler {
 		'google-extended', // Google-Extended/1.0; +http://www.google.com/bot.html
 		'applebot-extended', // Applebot-Extended/1.0; +http://www.apple.com/bot.html
 		'cohere-training-data-crawler', // cohere-training-data-crawler/1.0; +http://www.cohere.ai/bot.html
-		'cohere-ai' // cohere-ai/1.0; +http://www.cohere.ai/bot.html
-	];
+		'cohere-ai', // cohere-ai/1.0; +http://www.cohere.ai/bot.html
+	);
 
 	/**
 	 * Default list of LLM domains
 	 *
 	 * @var array
 	 */
-	private array $default_llm_domains = [
+	private array $default_llm_domains = array(
 		'chatgpt.com',
 		'openai.com',
 		'claude.ai',
@@ -60,19 +60,19 @@ class Md4Ai_Access_Handler {
 		'deepseek.com',
 		'mistral.ai',
 		'cohere.ai',
-		'bard.google.com'
-	];
+		'bard.google.com',
+	);
 
-	private array $default_search_engines = [
-		'google.' => 'Search: Google',
-		'bing.com' => 'Search: Bing',
+	private array $default_search_engines = array(
+		'google.'        => 'Search: Google',
+		'bing.com'       => 'Search: Bing',
 		'duckduckgo.com' => 'Search: DuckDuckGo',
-		'yahoo.com' => 'Search: Yahoo',
-		'yandex.' => 'Search: Yandex',
-		'baidu.com' => 'Search: Baidu',
-		'ecosia.org' => 'Search: Ecosia',
-		'startpage.com' => 'Search: Startpage',
-	];
+		'yahoo.com'      => 'Search: Yahoo',
+		'yandex.'        => 'Search: Yandex',
+		'baidu.com'      => 'Search: Baidu',
+		'ecosia.org'     => 'Search: Ecosia',
+		'startpage.com'  => 'Search: Startpage',
+	);
 
 	private array $ai_bots;
 	/**
@@ -94,23 +94,23 @@ class Md4Ai_Access_Handler {
 	 */
 	private $search_engines;
 
-	public function __construct(Md4Ai_Cache $cache, Md4Ai_Markdown $markdown) {
-		$this->cache = $cache;
+	public function __construct( Md4Ai_Cache $cache, Md4Ai_Markdown $markdown ) {
+		$this->cache    = $cache;
 		$this->markdown = $markdown;
 
-		$this->ai_bots = $this->setup_ai_useragents();
-		$this->llm_domains = $this->setup_llm_domains();
+		$this->ai_bots        = $this->setup_ai_useragents();
+		$this->llm_domains    = $this->setup_llm_domains();
 		$this->search_engines = $this->setup_search_engines();
 
 		// Hook into template redirect
-		add_action('template_redirect', [$this, 'handle_requests'], 1);
+		add_action( 'template_redirect', array( $this, 'handle_requests' ), 1 );
 
 		// Log insights on wp_head to avoid duplicates on redirects
-		add_action('wp_head', [$this, 'log_insights']);
+		add_action( 'wp_head', array( $this, 'log_insights' ) );
 
 		// Add rewrite rule for llms.txt
-		add_action('init', [$this, 'add_llmstxt_rewrite']);
-		add_filter('query_vars', [$this, 'add_llmstxt_query_var']);
+		add_action( 'init', array( $this, 'add_llmstxt_rewrite' ) );
+		add_filter( 'query_vars', array( $this, 'add_llmstxt_query_var' ) );
 	}
 
 	/**
@@ -122,7 +122,7 @@ class Md4Ai_Access_Handler {
 		 *
 		 * @param array $ai_useragents The list of AI user agents
 		 */
-		return apply_filters('md4ai_ai_useragents', $this->ai_useragents);
+		return apply_filters( 'md4ai_ai_useragents', $this->ai_useragents );
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Md4Ai_Access_Handler {
 		 *
 		 * @param array $llm_domains The list of LLM domains
 		 */
-		return apply_filters('md4ai_llm_domains', $this->default_llm_domains);
+		return apply_filters( 'md4ai_llm_domains', $this->default_llm_domains );
 	}
 
 	/**
@@ -146,21 +146,21 @@ class Md4Ai_Access_Handler {
 		 *
 		 * @param array $search_engines The list of search engines
 		 */
-		return apply_filters('md4ai_search_engines', $this->default_search_engines);
+		return apply_filters( 'md4ai_search_engines', $this->default_search_engines );
 	}
 
 	/**
 	 * Checks if the user agent matches an AI bot
 	 */
 	public function is_ai_bot(): bool {
-		$user_agent = strtolower(Md4Ai_Utils::get_user_agent());
+		$user_agent = strtolower( Md4Ai_Utils::get_user_agent() );
 
-		if (empty($user_agent)) {
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		foreach ($this->ai_bots as $bot) {
-			if (strpos($user_agent, $bot) !== false) {
+		foreach ( $this->ai_bots as $bot ) {
+			if ( strpos( $user_agent, $bot ) !== false ) {
 				return true;
 			}
 		}
@@ -178,37 +178,37 @@ class Md4Ai_Access_Handler {
 
 		// Get the current URL the user is visiting (to check for UTMs)
 		$current_url = sanitize_text_field(
-			wp_unslash($_SERVER['REQUEST_URI'] ?? '')
+			wp_unslash( $_SERVER['REQUEST_URI'] ?? '' )
 		);
 
-		$source = 'Direct/Unknown';
+		$source       = 'Direct/Unknown';
 		$search_terms = '';
-		$medium = 'unknown';
+		$medium       = 'unknown';
 
 		// 1. CHECK FOR UTM TAGS (The most reliable way to get terms for Ads)
 		// We check the *Current URL*, not the referrer
-		$parsed_current = wp_parse_url($current_url);
-		if (!empty($parsed_current['query'])) {
-			parse_str($parsed_current['query'], $current_params);
+		$parsed_current = wp_parse_url( $current_url );
+		if ( ! empty( $parsed_current['query'] ) ) {
+			parse_str( $parsed_current['query'], $current_params );
 
 			// Check for utm_term or utm_content
-			if (!empty($current_params['utm_term'])) {
-				$search_terms = sanitize_text_field(urldecode($current_params['utm_term']));
-				$source = $current_params['utm_source'] ?? 'Paid Source';
-				$medium = 'cpc'; // Cost per click
+			if ( ! empty( $current_params['utm_term'] ) ) {
+				$search_terms = sanitize_text_field( urldecode( $current_params['utm_term'] ) );
+				$source       = $current_params['utm_source'] ?? 'Paid Source';
+				$medium       = 'cpc'; // Cost per click
 			}
 		}
 
 		// 2. ANALYZE REFERRER (If UTMs didn't provide the answer)
-		if (!empty($referrer_url) && empty($search_terms)) {
-			$parsed_ref = wp_parse_url($referrer_url);
+		if ( ! empty( $referrer_url ) && empty( $search_terms ) ) {
+			$parsed_ref    = wp_parse_url( $referrer_url );
 			$referrer_host = $parsed_ref['host'] ?? '';
 
-			if (!empty($referrer_host)) {
+			if ( ! empty( $referrer_host ) ) {
 
 				// A. Check LLM domains
-				foreach ($this->llm_domains as $domain) {
-					if (strpos($referrer_host, $domain) !== false) {
+				foreach ( $this->llm_domains as $domain ) {
+					if ( strpos( $referrer_host, $domain ) !== false ) {
 						$source = 'LLM: ' . $domain;
 						$medium = 'ai_referral';
 						break;
@@ -216,21 +216,21 @@ class Md4Ai_Access_Handler {
 				}
 
 				// B. Common search engines
-				if ($source === 'Direct/Unknown') {
-					foreach ($this->search_engines as $domain => $label) {
-						if (strpos($referrer_host, $domain) !== false) {
+				if ( $source === 'Direct/Unknown' ) {
+					foreach ( $this->search_engines as $domain => $label ) {
+						if ( strpos( $referrer_host, $domain ) !== false ) {
 							$source = $label;
 							$medium = 'organic'; // Organic search
 
 							// Try to parse query (Only works for non-secure engines or very old links)
 							// We keep this just in case, but expect it to be empty for Google.
 							$query = $parsed_ref['query'] ?? '';
-							if (!empty($query)) {
-								parse_str($query, $query_params);
-								$search_param_keys = ['q', 'p', 'query', 'search', 's'];
-								foreach ($search_param_keys as $key) {
-									if (!empty($query_params[$key])) {
-										$search_terms = sanitize_text_field(urldecode($query_params[$key]));
+							if ( ! empty( $query ) ) {
+								parse_str( $query, $query_params );
+								$search_param_keys = array( 'q', 'p', 'query', 'search', 's' );
+								foreach ( $search_param_keys as $key ) {
+									if ( ! empty( $query_params[ $key ] ) ) {
+										$search_terms = sanitize_text_field( urldecode( $query_params[ $key ] ) );
 										break;
 									}
 								}
@@ -244,35 +244,35 @@ class Md4Ai_Access_Handler {
 
 		// 3. FALLBACK: IF ORGANIC GOOGLE & NO TERMS
 		// We record the Landing Page URL. This is your "Search Intent" proxy.
-		if (empty($search_terms)) {
+		if ( empty( $search_terms ) ) {
 			$search_terms = '(Not Provided) - Landed on: ' . $parsed_current['path'];
 		}
 
 		// === DATA STORAGE ===
-		if ($source !== 'Direct/Unknown') {
-			Md4Ai_Utils::store_visitor_data($source, $search_terms);
+		if ( $source !== 'Direct/Unknown' ) {
+			Md4Ai_Utils::store_visitor_data( $source, $search_terms );
 		}
 
-		return [
-			'source' => $source,
-			'medium' => $medium,
+		return array(
+			'source'       => $source,
+			'medium'       => $medium,
 			'search_terms' => $search_terms,
-			'referrer' => $referrer_url
-		];
+			'referrer'     => $referrer_url,
+		);
 	}
 
 	/**
 	 * Add rewrite rule for llms.txt
 	 */
 	public function add_llmstxt_rewrite(): void {
-		add_rewrite_rule('^llms\.txt$', 'index.php?md4ai_llmstxt=1', 'top');
+		add_rewrite_rule( '^llms\.txt$', 'index.php?md4ai_llmstxt=1', 'top' );
 	}
 
 	/**
 	 * Add query var for llms.txt
 	 * Utilizes the add_query_var filter
 	 */
-	public function add_llmstxt_query_var($vars) {
+	public function add_llmstxt_query_var( $vars ) {
 		$vars[] = 'md4ai_llmstxt';
 		$vars[] = 'md4ai_md';
 		return $vars;
@@ -282,23 +282,23 @@ class Md4Ai_Access_Handler {
 	 * Handles all requests (llms.txt or markdown for AI bots)
 	 */
 	public function handle_requests() {
-		if (is_admin() || defined('REST_REQUEST') || wp_doing_ajax()) {
+		if ( is_admin() || defined( 'REST_REQUEST' ) || wp_doing_ajax() ) {
 			return;
 		}
 
 		global $post;
-		if ((!$post || !is_singular()) && !is_home()) {
+		if ( ( ! $post || ! is_singular() ) && ! is_home() ) {
 			return;
 		}
 
 		// Check if requesting llms.txt
-		if (get_query_var('md4ai_llmstxt')) {
+		if ( get_query_var( 'md4ai_llmstxt' ) ) {
 			$this->serve_llmstxt();
 			return;
 		}
 
-		// Check if it's an AI bot or a request for markdown
-		if (get_query_var('md4ai_md') || $this->is_ai_bot()) {
+		// Check if it's an AI bot or a request for Markdown
+		if ( get_query_var( 'md4ai_md' ) || $this->is_ai_bot() ) {
 			$this->serve_markdown_to_bots();
 		}
 	}
@@ -308,17 +308,16 @@ class Md4Ai_Access_Handler {
 	 * Hooked to wp_head to ensure we only log when the page is actually rendered (avoiding redirects)
 	 */
 	public function log_insights() {
-		if (is_admin() || defined('REST_REQUEST') || wp_doing_ajax()) {
+		if ( is_admin() || defined( 'REST_REQUEST' ) || wp_doing_ajax() ) {
 			return;
 		}
 
 		global $post;
-		if ((!$post || !is_singular()) && !is_home()) {
+		if ( ( ! $post || ! is_singular() ) && ! is_home() ) {
 			return;
 		}
 
-
-			$this->get_referrer_insights();
+		$this->get_referrer_insights();
 	}
 
 	/**
@@ -328,18 +327,18 @@ class Md4Ai_Access_Handler {
 		$llms_content = Md4Ai_Utils::get_llms_txt_content();
 
 		// If no content is set, provide a default message
-		if (empty($llms_content)) {
+		if ( empty( $llms_content ) ) {
 			$llms_content = $this->markdown->generate_default_llmstxt();
 		}
 
 		// Set appropriate headers
-		header('Content-Type: text/plain; charset=utf-8');
-		header('X-Robots-Tag: noindex, nofollow');
-		header('Cache-Control: public, max-age=3600'); // Cache for 1 hour
+		header( 'Content-Type: text/plain; charset=utf-8' );
+		header( 'X-Robots-Tag: noindex, nofollow' );
+		header( 'Cache-Control: public, max-age=3600' ); // Cache for 1 hour
 
-		echo esc_textarea($llms_content);
+		echo esc_textarea( $llms_content );
 
-		if (!is_user_logged_in()) {
+		if ( ! is_user_logged_in() ) {
 			Md4Ai_Utils::log_request( 0, $this->ai_bots );
 		}
 
@@ -353,31 +352,31 @@ class Md4Ai_Access_Handler {
 		// Get the current post
 		global $post;
 
-		$markdown = false;
+		$markdown   = false;
 		$from_cache = false;
 
 		// Try to get from cache first
-		if ($this->cache->is_cache_valid($post->ID, $post->post_modified)) {
-			$markdown = $this->cache->read_from_cache($post->ID);
+		if ( $this->cache->is_cache_valid( $post->ID, $post->post_modified ) ) {
+			$markdown   = $this->cache->read_from_cache( $post->ID );
 			$from_cache = true;
 		}
 
 		// If no valid cache, get Markdown and save to cache
-		if ($markdown === false) {
-			$markdown = $this->markdown->get_post_markdown($post);
-			$this->cache->write_to_cache($post->ID, $markdown);
+		if ( $markdown === false ) {
+			$markdown = $this->markdown->get_post_markdown( $post );
+			$this->cache->write_to_cache( $post->ID, $markdown );
 			$from_cache = false;
 		}
 
 		// Set headers and serve the content
-		header('Content-Type: text/markdown; charset=utf-8');
-		header('X-Robots-Tag: noindex, nofollow');
-		header('X-Cache: ' . ($from_cache ? 'HIT' : 'MISS'));
-		echo esc_textarea($markdown);
+		header( 'Content-Type: text/markdown; charset=utf-8' );
+		header( 'X-Robots-Tag: noindex, nofollow' );
+		header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
+		echo esc_textarea( $markdown );
 
 		// If is a bot log the request
-		if ($this->is_ai_bot()) {
-			Md4Ai_Utils::log_request( $post->ID,  $this->ai_bots );
+		if ( $this->is_ai_bot() ) {
+			Md4Ai_Utils::log_request( $post->ID, $this->ai_bots );
 		}
 		exit;
 	}

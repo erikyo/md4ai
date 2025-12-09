@@ -1,6 +1,7 @@
 <?php
 
 namespace Md4Ai;
+
 class Md4Ai_Metabox {
 
 	// The Markdown class
@@ -9,27 +10,26 @@ class Md4Ai_Metabox {
 	// The Cache class
 	private Md4Ai_Cache $cache;
 
-	public function __construct(Md4Ai_Markdown $markdown, Md4Ai_Cache $cache) {
+	public function __construct( Md4Ai_Markdown $markdown, Md4Ai_Cache $cache ) {
 		$this->markdown = $markdown;
-		$this->cache = $cache;
+		$this->cache    = $cache;
 
 		// Add metabox for Markdown editing
-		add_action('add_meta_boxes', [$this, 'add_markdown_metabox']);
-		add_action('save_post', [$this, 'save_markdown_metabox'], 20);
+		add_action( 'add_meta_boxes', array( $this, 'add_markdown_metabox' ) );
+		add_action( 'save_post', array( $this, 'save_markdown_metabox' ), 20 );
 	}
 
 	/**
 	 * Adds metabox for Markdown editing
 	 */
 	public function add_markdown_metabox() {
-		$post_types = get_post_types(['public' => true], 'names');
+		$post_types = get_post_types( array( 'public' => true ), 'names' );
 
-
-		foreach ($post_types as $post_type) {
+		foreach ( $post_types as $post_type ) {
 			add_meta_box(
 				'md4ai_metabox',
-				__('AI Bot Markdown Content', 'md4ai'),
-				[$this, 'render_markdown_metabox'],
+				__( 'AI Bot Markdown Content', 'md4ai' ),
+				array( $this, 'render_markdown_metabox' ),
 				$post_type,
 				'normal',
 				'low'
@@ -73,7 +73,7 @@ class Md4Ai_Metabox {
 					</div>
 				</div>
 
-				<?php if ( $has_custom ): ?>
+				<?php if ( $has_custom ) : ?>
 					<div class="md4ai-notice warning">
 						<span class="md4ai-notice-icon dashicons dashicons-warning"></span>
 						<div class="md4ai-notice-content">
@@ -91,22 +91,29 @@ class Md4Ai_Metabox {
 
 				<div class="md4ai-toolbar-section">
 					<?php
-					echo wp_kses( Md4Ai_Utils::display_llmstxt_buttons( $textarea_id,  'generate-markdown' ), array(
-						'button' => array(
-							'type'          => true,
-							'class'         => true,
-							'data-action'   => true,
-							'data-endpoint' => true,
-							'data-field'    => true,
+					echo wp_kses(
+						Md4Ai_Utils::display_llmstxt_buttons( $textarea_id, 'generate-markdown' ),
+						array(
+							'button' => array(
+								'type'          => true,
+								'class'         => true,
+								'data-action'   => true,
+								'data-endpoint' => true,
+								'data-field'    => true,
+							),
 						)
-					) );
+					);
 					echo '<span class="md4ai-toolbar-divider"></span>';
 
 					if ( $has_custom ) {
-						printf( '<button type="button" class="button md4ai-clear" data-field="%s">
+						printf(
+							'<button type="button" class="button md4ai-clear" data-field="%s">
                             <span class="dashicons dashicons-trash" style="margin-top: 3px;"></span>
                             %s
-                        </button>', esc_attr( $textarea_id ), esc_html__( 'Clear Custom', 'md4ai' ) );
+                        </button>',
+							esc_attr( $textarea_id ),
+							esc_html__( 'Clear Custom', 'md4ai' )
+						);
 					}
 					?>
 					<span id="md4ai-status"></span>
@@ -136,24 +143,24 @@ class Md4Ai_Metabox {
 	/**
 	 * Saves the markdown metabox data
 	 */
-	public function save_markdown_metabox($post_id) {
+	public function save_markdown_metabox( $post_id ) {
 		// Check nonce
-		if (!isset($_POST['md4ai_metabox_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['md4ai_metabox_nonce'])), 'md4ai_metabox')) {
+		if ( ! isset( $_POST['md4ai_metabox_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['md4ai_metabox_nonce'] ) ), 'md4ai_metabox' ) ) {
 			return;
 		}
 
 		// Check autosave
-		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
 
 		// Check permissions
-		if (!current_user_can('edit_post', $post_id)) {
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
 		// Save or delete custom Markdown
-		if (isset($_POST['md4ai_custom_markdown'])) {
+		if ( isset( $_POST['md4ai_custom_markdown'] ) ) {
 			$markdown = sanitize_textarea_field(
 			/* phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash */
 				$_POST['md4ai_custom_markdown']
@@ -161,15 +168,14 @@ class Md4Ai_Metabox {
 
 			$meta_key = $this->markdown->get_meta_key();
 
-			if (!empty($markdown)) {
-				update_post_meta($post_id, $meta_key, $markdown);
+			if ( ! empty( $markdown ) ) {
+				update_post_meta( $post_id, $meta_key, $markdown );
 			} else {
-				delete_post_meta($post_id, $meta_key);
+				delete_post_meta( $post_id, $meta_key );
 			}
 
 			// Clear cache when custom Markdown is updated
-			$this->cache->clear_post_cache($post_id);
+			$this->cache->clear_post_cache( $post_id );
 		}
 	}
-
 }

@@ -41,12 +41,12 @@
 	<!-- Site Preview & Analyze Section -->
 	<div class="geo-analyze-section">
 		<div class="geo-site-preview">
-			<?php if ( $theme_screenshot ): ?>
-				<img src="<?php echo esc_url( $theme_screenshot ); ?>" alt="<?php echo esc_attr( $theme->get('Name') ); ?>" class="geo-theme-screenshot">
-			<?php else: ?>
+			<?php if ( $theme_screenshot ) : ?>
+				<img src="<?php echo esc_url( $theme_screenshot ); ?>" alt="<?php echo esc_attr( $theme->get( 'Name' ) ); ?>" class="geo-theme-screenshot">
+			<?php else : ?>
 				<div class="geo-screenshot-fallback">
 					<span class="dashicons dashicons-admin-appearance"></span>
-					<span><?php echo esc_html( $theme->get('Name') ); ?></span>
+					<span><?php echo esc_html( $theme->get( 'Name' ) ); ?></span>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -57,10 +57,15 @@
 					<span class="dashicons dashicons-admin-site"></span>
 					<input type="text" id="geo-url-input" class="geo-url-input" value="<?php echo esc_url( $site_url ); ?>" placeholder="<?php echo esc_attr( $site_url ); ?>">
 				</div>
-				<p class="geo-url-hint"><?php printf(
+				<p class="geo-url-hint">
+				<?php
+				printf(
 					/* translators: %s is the site domain */
-						esc_html__( 'Analysis is restricted to %s', 'md4ai' ), '<strong>' . esc_html( $site_domain ) . '</strong>'
-					); ?></p>
+					esc_html__( 'Analysis is restricted to %s', 'md4ai' ),
+					'<strong>' . esc_html( $site_domain ) . '</strong>'
+				);
+				?>
+					</p>
 			</div>
 			<button id="btn-start-analysis" class="geo-analyze-button">
 				<span class="dashicons dashicons-superhero"></span>
