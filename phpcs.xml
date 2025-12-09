@@ -28,10 +28,11 @@
 	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
 	<config name="minimum_supported_wp_version" value="6.2"/>
 
+
+  <rule ref="WordPress" />
 	<!--
-	<rule ref="WordPress" />
-	<rule ref="WordPress-Docs"/>
-	<rule ref="WordPress-Extra"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
 	-->
 
 	<rule ref="WordPress.WP.I18n">
@@ -51,6 +52,11 @@
 		</properties>
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound"/>
 	</rule>
+
+  <rule ref="WordPress.Files.FileName">
+    <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+    <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+  </rule>
 
 	<!-- What to scan -->
 	<file>.</file>

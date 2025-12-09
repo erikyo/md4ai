@@ -30,22 +30,22 @@ if ( ! defined( 'MD4AI_PLUGIN_BASENAME' ) ) {
 const MD4AI_OPTION = 'md4ai_options';
 
 // Composer autoloader
-require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 // run the plugin
 function md4ai_init() {
 	new Md4Ai\Md4Ai_Core();
 }
-add_action('plugins_loaded', 'md4ai_init');
+add_action( 'plugins_loaded', 'md4ai_init' );
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in inc/Md4Ai_Activator.php
  */
-register_activation_hook( __FILE__, [ 'Md4Ai\Md4Ai_Activator', 'activate' ] );
+register_activation_hook( __FILE__, array( 'Md4Ai\Md4Ai_Activator', 'activate' ) );
 
 /**
  * The code that runs during plugin uninstallation.
  * This action is documented in inc/Md4Ai_Activator.php
  */
-register_uninstall_hook( __FILE__, [ 'Md4Ai\Md4Ai_Activator', 'uninstall' ] );
+register_uninstall_hook( __FILE__, array( 'Md4Ai\Md4Ai_Activator', 'uninstall' ) );
