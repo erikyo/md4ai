@@ -214,6 +214,7 @@ Optional details go here
 		// Prepare stats
 		$md4ai_stats = self::prepare_dashboard_stats($analytics);
 		$md4ai_traffic_stats = self::prepare_traffic_stats($visitors);
+		$md4ai_is_ai_service_enabled = Md4Ai_Utils::is_ai_service_enabled();
 		include __DIR__ . '/views/dashboard.php';
 
 	}
