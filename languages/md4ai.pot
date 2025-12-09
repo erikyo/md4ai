@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-12-06T19:45:25.102Z\n"
+"POT-Creation-Date: 2025-12-09T16:25:47.830Z\n"
 "PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -58,43 +58,43 @@ msgid ""
 "your site's visibility:"
 msgstr ""
 
-#: src/md4ai-insights.ts:220
+#: src/md4ai-insights.ts:221
 msgid "Performance Metrics"
 msgstr ""
 
-#: src/md4ai-insights.ts:230
+#: src/md4ai-insights.ts:231
 msgid "Identity Match"
 msgstr ""
 
-#: src/md4ai-insights.ts:248
+#: src/md4ai-insights.ts:249
 msgid "Technical Match"
 msgstr ""
 
-#: src/md4ai-insights.ts:266
+#: src/md4ai-insights.ts:267
 msgid "AI Perception"
 msgstr ""
 
-#: src/md4ai-insights.ts:280
+#: src/md4ai-insights.ts:281
 msgid "Detailed GEO Factors"
 msgstr ""
 
-#: src/md4ai-insights.ts:292
+#: src/md4ai-insights.ts:293
 msgid "Content Structure"
 msgstr ""
 
-#: src/md4ai-insights.ts:310
+#: src/md4ai-insights.ts:311
 msgid "Multimedia Usage"
 msgstr ""
 
-#: src/md4ai-insights.ts:328
+#: src/md4ai-insights.ts:329
 msgid "Tech SEO Perception"
 msgstr ""
 
-#: src/md4ai-insights.ts:357
+#: src/md4ai-insights.ts:358
 msgid "AI Knowledge Analysis"
 msgstr ""
 
-#: src/md4ai-insights.ts:361
+#: src/md4ai-insights.ts:362
 msgid "Website Name:"
 msgstr ""
 
@@ -110,43 +110,65 @@ msgstr ""
 msgid "E-Commerce:"
 msgstr ""
 
-#: src/md4ai-insights.ts:501
+#: src/md4ai-insights.ts:395
+msgid "Raw AI Analysis"
+msgstr ""
+
+#: src/md4ai-insights.ts:398
+msgid "View Raw AI Response"
+msgstr ""
+
+#: src/md4ai-insights.ts:495
+msgid "Select Service"
+msgstr ""
+
+#: src/md4ai-insights.ts:519
+#: inc/views/geo-insights.php:81
+msgid "Select service first"
+msgstr ""
+
+#: src/md4ai-insights.ts:528
+#: inc/views/geo-insights.php:79
+msgid "Select Model"
+msgstr ""
+
+#: src/md4ai-insights.ts:592
 msgid "AI Services Required"
 msgstr ""
 
-#: src/md4ai-insights.ts:513
+#: src/md4ai-insights.ts:604
 msgid "AI Services Plugin Required"
 msgstr ""
 
-#: src/md4ai-insights.ts:514
+#: src/md4ai-insights.ts:605
 msgid "Install the AI Services plugin to analyze your website with AI."
 msgstr ""
 
-#: src/md4ai-insights.ts:522
+#: src/md4ai-insights.ts:612
 msgid "Install Plugin"
 msgstr ""
 
-#: src/md4ai-insights.ts:551
+#: src/md4ai-insights.ts:641
 msgid "Generating AI analysis?"
 msgstr ""
 
-#: src/md4ai-insights.ts:556
+#: src/md4ai-insights.ts:653
 msgid "Processing results?"
 msgstr ""
 
-#: src/md4ai-insights.ts:579
+#: src/md4ai-insights.ts:676
 msgid "Re-Analyze"
 msgstr ""
 
-#: src/md4ai-insights.ts:589
+#: src/md4ai-insights.ts:686
 msgid "Analysis Failed"
 msgstr ""
 
-#: src/md4ai-insights.ts:590
+#: src/md4ai-insights.ts:687
 msgid "Unable to complete the analysis. Please try again."
 msgstr ""
 
-#: src/md4ai-insights.ts:623
+#: src/md4ai-insights.ts:720
 msgid "Connecting to AI service?"
 msgstr ""
 
@@ -330,165 +352,169 @@ msgid "Website URL"
 msgstr ""
 
 # %s is the site domain
-#: inc/views/geo-insights.php:61
+#: inc/views/geo-insights.php:62
 msgid "Analysis is restricted to %s"
 msgstr ""
 
-#: inc/views/geo-insights.php:65
+#: inc/views/geo-insights.php:67
 msgid "Analyze"
 msgstr ""
 
 #: inc/views/geo-insights.php:73
+msgid "Select AI Service"
+msgstr ""
+
+#: inc/views/geo-insights.php:75
+msgid "Loading services..."
+msgstr ""
+
+#: inc/views/geo-insights.php:90
 msgid "Analyzing your website..."
 msgstr ""
 
-#: inc/views/geo-insights.php:74
+#: inc/views/geo-insights.php:91
 msgid "Connecting to AI service"
 msgstr ""
 
-#: inc/views/geo-insights.php:88
+#: inc/views/geo-insights.php:105
 msgid "Core GEO Metrics"
 msgstr ""
 
-#: inc/views/geo-insights.php:99
+#: inc/views/geo-insights.php:116
 #: inc/views/dashboard-empty.php:139
 msgid "Authority"
 msgstr ""
 
-#: inc/views/geo-insights.php:100
+#: inc/views/geo-insights.php:117
 msgid "Trustworthiness"
 msgstr ""
 
-#: inc/views/geo-insights.php:111
+#: inc/views/geo-insights.php:128
 #: inc/views/dashboard-empty.php:140
 msgid "Relevance"
 msgstr ""
 
-#: inc/views/geo-insights.php:112
+#: inc/views/geo-insights.php:129
 msgid "Content match"
 msgstr ""
 
-#: inc/views/geo-insights.php:123
+#: inc/views/geo-insights.php:140
 #: inc/views/dashboard-empty.php:141
 msgid "Knowledge"
 msgstr ""
 
-#: inc/views/geo-insights.php:124
+#: inc/views/geo-insights.php:141
 msgid "Data depth"
 msgstr ""
 
-#: inc/views/geo-insights.php:135
+#: inc/views/geo-insights.php:152
 msgid "Crawlability"
 msgstr ""
 
-#: inc/views/geo-insights.php:136
+#: inc/views/geo-insights.php:153
 msgid "Bot accessibility"
 msgstr ""
 
-#: inc/views/dashboard.php:13
-msgid "AI services are enabled!"
-msgstr ""
-
-#: inc/views/dashboard.php:17
+#: inc/views/dashboard.php:15
 msgid ""
 "AI services plugin is not installed or not active. Please install and "
 "activate it to use the \"Generate with AI\" and \"Geo-Insights\" feature."
 msgstr ""
 
-#: inc/views/dashboard.php:29
+#: inc/views/dashboard.php:27
 msgid "Total Requests"
 msgstr ""
 
-#: inc/views/dashboard.php:30
+#: inc/views/dashboard.php:28
 msgid "Last 7 days"
 msgstr ""
 
-#: inc/views/dashboard.php:40
+#: inc/views/dashboard.php:38
 msgid "Unique Crawlers"
 msgstr ""
 
-#: inc/views/dashboard.php:41
+#: inc/views/dashboard.php:39
 msgid "Different bots"
 msgstr ""
 
-#: inc/views/dashboard.php:51
+#: inc/views/dashboard.php:49
 msgid "Posts Indexed"
 msgstr ""
 
-#: inc/views/dashboard.php:52
+#: inc/views/dashboard.php:50
 msgid "Total posts"
 msgstr ""
 
-#: inc/views/dashboard.php:62
+#: inc/views/dashboard.php:60
 msgid "Today\\'s Requests"
 msgstr ""
 
-#: inc/views/dashboard.php:70
+#: inc/views/dashboard.php:68
 msgid "Requests per Day"
 msgstr ""
 
-#: inc/views/dashboard.php:77
+#: inc/views/dashboard.php:75
 msgid "Requests by Crawler"
 msgstr ""
 
-#: inc/views/dashboard.php:85
+#: inc/views/dashboard.php:83
 msgid "Most Indexed Posts"
 msgstr ""
 
-#: inc/views/dashboard.php:89
+#: inc/views/dashboard.php:87
 msgid "Post Title"
 msgstr ""
 
-#: inc/views/dashboard.php:90
+#: inc/views/dashboard.php:88
 msgid "Total Hits"
 msgstr ""
 
-#: inc/views/dashboard.php:91
+#: inc/views/dashboard.php:89
 msgid "Last Crawled"
 msgstr ""
 
-#: inc/views/dashboard.php:119
+#: inc/views/dashboard.php:117
 msgid "No data available yet"
 msgstr ""
 
-#: inc/views/dashboard.php:128
+#: inc/views/dashboard.php:126
 msgid "Recent Crawler Activity"
 msgstr ""
 
-#: inc/views/dashboard.php:132
+#: inc/views/dashboard.php:130
 msgid "Crawler"
 msgstr ""
 
-#: inc/views/dashboard.php:133
+#: inc/views/dashboard.php:131
 msgid "Post"
 msgstr ""
 
-#: inc/views/dashboard.php:134
-#: inc/views/dashboard.php:197
+#: inc/views/dashboard.php:132
+#: inc/views/dashboard.php:195
 msgid "Date"
 msgstr ""
 
-#: inc/views/dashboard.php:164
+#: inc/views/dashboard.php:162
 msgid "No recent activity"
 msgstr ""
 
-#: inc/views/dashboard.php:176
+#: inc/views/dashboard.php:174
 msgid "Search/LLM Referrals per Day"
 msgstr ""
 
-#: inc/views/dashboard.php:182
+#: inc/views/dashboard.php:180
 msgid "Source Distribution"
 msgstr ""
 
-#: inc/views/dashboard.php:195
+#: inc/views/dashboard.php:193
 msgid "Source"
 msgstr ""
 
-#: inc/views/dashboard.php:196
+#: inc/views/dashboard.php:194
 msgid "Search Terms"
 msgstr ""
 
-#: inc/views/dashboard.php:219
+#: inc/views/dashboard.php:217
 msgid "No visitor data available yet"
 msgstr ""
 
