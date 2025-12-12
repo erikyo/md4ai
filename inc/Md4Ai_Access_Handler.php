@@ -346,11 +346,65 @@ class Md4Ai_Access_Handler {
 	}
 
 	/**
+	 * Wraps markdown content in HTML for better compatibility with AI bot browsers
+	 *
+	 * @param string $markdown The markdown content
+	 * @param string $title The page title
+	 * @return string HTML-wrapped markdown
+	 */
+	private function wrap_markdown_in_html( $markdown, $title = '' ) {
+		// If no title provided, try to extract from markdown first line
+		if ( empty( $title ) ) {
+			$lines = explode( "\n", $markdown );
+			foreach ( $lines as $line ) {
+				$line = trim( $line );
+				// Look for first markdown heading (# Title)
+				if ( preg_match( '/^#\s+(.+)$/', $line, $matches ) ) {
+					$title = $matches[1];
+					break;
+				}
+			}
+		}
+
+		// Fallback title
+		if ( empty( $title ) ) {
+			$title = 'Content for AI';
+		}
+
+		// Escape title for HTML but preserve special characters
+		$html_title = htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' );
+
+		// Build HTML with markdown in <pre> tag
+		$html  = '<!DOCTYPE html>' . "\n";
+		$html .= '<html lang="en">' . "\n";
+		$html .= '<head>' . "\n";
+		$html .= '    <meta charset="UTF-8">' . "\n";
+		$html .= '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n";
+		$html .= '    <title>' . $html_title . '</title>' . "\n";
+		$html .= '</head>' . "\n";
+		$html .= '<body>' . "\n";
+		$html .= '<pre id="markdown-content">' . "\n";
+		// Don't use htmlspecialchars here - we want to preserve the markdown as-is
+		$html .= $markdown;
+		$html .= "\n" . '</pre>' . "\n";
+		$html .= '</body>' . "\n";
+		$html .= '</html>';
+
+		return $html;
+	}
+
+	/**
 	 * Serves the content in Markdown to AI bots
 	 */
 	private function serve_markdown_to_bots() {
 		// Get the current post
 		global $post;
+
+		// Special handling for homepage
+		if ( is_home() || is_front_page() ) {
+			$this->serve_homepage_markdown();
+			return;
+		}
 
 		$markdown   = false;
 		$from_cache = false;
@@ -368,15 +422,155 @@ class Md4Ai_Access_Handler {
 			$from_cache = false;
 		}
 
-		// Set headers and serve the content
-		header( 'Content-Type: text/markdown; charset=utf-8' );
-		header( 'X-Robots-Tag: noindex, nofollow' );
-		header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
-		echo esc_textarea( $markdown );
+		// Get output format setting (default to 'html' for backward compatibility)
+		$options       = get_option( MD4AI_OPTION );
+		$output_format = $options['output_format'] ?? 'html';
+
+		// Serve based on output format setting
+		if ( $output_format === 'html' ) {
+			// HTML Wrapped format
+			$post_title   = html_entity_decode( $post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$html_content = $this->wrap_markdown_in_html( $markdown, $post_title );
+
+			header( 'Content-Type: text/html; charset=utf-8' );
+			header( 'X-Robots-Tag: noindex, nofollow' );
+			header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
+			echo $html_content;
+		} else {
+			// Pure Markdown format
+			header( 'Content-Type: text/markdown; charset=utf-8' );
+			header( 'X-Robots-Tag: noindex, nofollow' );
+			header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
+			echo $markdown;
+		}
 
 		// If is a bot log the request
 		if ( $this->is_ai_bot() ) {
 			Md4Ai_Utils::log_request( $post->ID, $this->ai_bots );
+		}
+		exit;
+	}
+
+	/**
+	 * Serves Markdown content for the homepage/front page
+	 */
+	private function serve_homepage_markdown() {
+		// Get output format setting
+		$options       = get_option( MD4AI_OPTION );
+		$output_format = $options['output_format'] ?? 'html';
+
+		// Check if homepage is a static page
+		$page_on_front = get_option( 'page_on_front' );
+
+		if ( $page_on_front && $page_on_front > 0 ) {
+			// Homepage is a static page - serve its content
+			$front_page = get_post( $page_on_front );
+
+			if ( $front_page && $front_page->post_status === 'publish' ) {
+				// Use the existing markdown generation for this page
+				$markdown = $this->markdown->get_post_markdown( $front_page );
+
+				// Serve based on output format setting
+				if ( $output_format === 'html' ) {
+					$page_title   = html_entity_decode( $front_page->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+					$html_content = $this->wrap_markdown_in_html( $markdown, $page_title );
+
+					header( 'Content-Type: text/html; charset=utf-8' );
+					header( 'X-Robots-Tag: noindex, nofollow' );
+					header( 'X-Cache: MISS' );
+					echo $html_content;
+				} else {
+					header( 'Content-Type: text/markdown; charset=utf-8' );
+					header( 'X-Robots-Tag: noindex, nofollow' );
+					header( 'X-Cache: MISS' );
+					echo $markdown;
+				}
+
+				// Log the request
+				if ( $this->is_ai_bot() ) {
+					Md4Ai_Utils::log_request( $page_on_front, $this->ai_bots );
+				}
+				exit;
+			}
+		}
+
+		// Homepage is blog or page not found - generate generic homepage content
+		$site_title       = get_bloginfo( 'name' );
+		$site_description = get_bloginfo( 'description' );
+		$site_url         = home_url();
+
+		// Build homepage Markdown
+		$markdown = "---\n";
+		// Decode entities for homepage title too
+		$clean_title = html_entity_decode( $site_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$markdown   .= '# ' . $clean_title . "\n\n";
+		$markdown   .= '**URL:** ' . esc_url( $site_url ) . "\n";
+		$markdown   .= "**Type:** Homepage (Blog)\n";
+
+		if ( ! empty( $site_description ) ) {
+			$clean_description = html_entity_decode( $site_description, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$markdown         .= '**Description:** ' . $clean_description . "\n";
+		}
+
+		$markdown .= "---\n\n";
+
+		if ( ! empty( $site_description ) ) {
+			$clean_description = html_entity_decode( $site_description, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$markdown         .= '> ' . $clean_description . "\n\n";
+		}
+
+		// Add main pages
+		$pages = get_pages(
+			array(
+				'post_status' => 'publish',
+				'number'      => 10,
+				'sort_column' => 'menu_order',
+			)
+		);
+
+		if ( ! empty( $pages ) ) {
+			$markdown .= "## Main Pages\n\n";
+			foreach ( $pages as $page ) {
+				$page_url     = get_permalink( $page->ID );
+				$page_title   = html_entity_decode( $page->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+				$page_excerpt = wp_trim_words( wp_strip_all_tags( $page->post_excerpt ?: $page->post_content ), 20 );
+				$page_excerpt = html_entity_decode( $page_excerpt, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+				$markdown .= "### [{$page_title}]({$page_url})\n\n";
+				if ( ! empty( $page_excerpt ) ) {
+					$markdown .= "{$page_excerpt}\n\n";
+				}
+			}
+		}
+
+		// Add navigation links
+		$markdown .= $this->markdown->generate_website_links(
+			array(
+				'include_categories' => false,
+				'include_navigation' => true,
+				'include_tags'       => false,
+				'include_footer'     => true,
+			)
+		);
+
+		// Serve based on output format setting
+		if ( $output_format === 'html' ) {
+			$html_content = $this->wrap_markdown_in_html( $markdown, $clean_title );
+
+			header( 'Content-Type: text/html; charset=utf-8' );
+			header( 'X-Robots-Tag: noindex, nofollow' );
+			header( 'X-Cache: MISS' );
+			echo $html_content;
+		} else {
+			header( 'Content-Type: text/markdown; charset=utf-8' );
+			header( 'X-Robots-Tag: noindex, nofollow' );
+			header( 'X-Cache: MISS' );
+			echo $markdown;
+		}
+
+		// Log the request
+		if ( $this->is_ai_bot() ) {
+			Md4Ai_Utils::log_request( 0, $this->ai_bots );
 		}
 		exit;
 	}
