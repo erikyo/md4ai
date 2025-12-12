@@ -17,8 +17,14 @@ class Md4Ai_Markdown {
 	 */
 	private $cache;
 
+	/**
+	 * DOM Extractor instance
+	 */
+	private $dom_extractor;
+
 	public function __construct( $cache ) {
-		$this->cache = $cache;
+		$this->cache         = $cache;
+		$this->dom_extractor = new Md4Ai_DOM_Extractor();
 	}
 
 	/**
@@ -32,6 +38,11 @@ class Md4Ai_Markdown {
 	 * Gets markdown for a post - checks custom meta first, then generates
 	 */
 	public function get_post_markdown( $post ) {
+		// Get extraction mode from settings
+		$options             = get_option( MD4AI_OPTION );
+		$extraction_mode     = $options['extraction_mode'] ?? 'advanced';
+		$use_full_extraction = ( $extraction_mode === 'advanced' );
+
 		/**
 		 * Filter to modify post arguments
 		 *
@@ -40,10 +51,11 @@ class Md4Ai_Markdown {
 		$args = apply_filters(
 			'md4ai_post_args',
 			array(
-				'include_navigation' => true,
-				'include_categories' => true,
-				'include_tags'       => true,
-				'include_footer'     => true,
+				'include_navigation'  => true,
+				'include_categories'  => true,
+				'include_tags'        => true,
+				'include_footer'      => true,
+				'use_full_extraction' => $use_full_extraction,
 			)
 		);
 
@@ -52,6 +64,44 @@ class Md4Ai_Markdown {
 
 		// Generate from post content
 		return $this->convert_post_to_markdown( $post, $args );
+	}
+
+	/**
+	 * Get complete post markdown with full DOM extraction
+	 * Extracts everything: schema markup, reviews, meta tags, FAQ, tables, etc.
+	 */
+	public function get_complete_post_markdown( $post ) {
+		if ( is_numeric( $post ) ) {
+			$post = get_post( $post );
+		}
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		// Check if custom markdown exists
+		$custom_markdown = get_post_meta( $post->ID, $this->meta_key, true );
+		if ( ! empty( $custom_markdown ) ) {
+			return $custom_markdown;
+		}
+
+		// Extract complete DOM content
+		$extracted = $this->dom_extractor->extract_complete_content( $post );
+
+		// Convert to markdown
+		$markdown = $this->dom_extractor->convert_to_markdown( $extracted );
+
+		// Add navigation and footer links
+		$args = array(
+			'include_navigation' => true,
+			'include_categories' => false,  // Already included in DOM extraction
+			'include_tags'       => false,        // Already included in DOM extraction
+			'include_footer'     => true,
+		);
+
+		$markdown .= $this->generate_website_links( $args, $post );
+
+		return $markdown;
 	}
 
 	/**
@@ -176,14 +226,28 @@ class Md4Ai_Markdown {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'content'            => false,
-				'include_navigation' => false,
-				'include_categories' => false,
-				'include_tags'       => false,
-				'include_footer'     => false,
+				'content'             => false,
+				'include_navigation'  => false,
+				'include_categories'  => false,
+				'include_tags'        => false,
+				'include_footer'      => false,
+				'use_full_extraction' => true,  // Enable full extraction by default
 			)
 		);
 
+		/**
+		 * Filter to enable/disable full DOM extraction
+		 *
+		 * Set to false to use the basic extraction method
+		 */
+		$use_full_extraction = apply_filters( 'md4ai_use_full_extraction', $args['use_full_extraction'] );
+
+		// If full extraction is enabled and no custom content, use the complete extractor
+		if ( $use_full_extraction && empty( $args['content'] ) ) {
+			return $this->get_complete_post_markdown( $post );
+		}
+
+		// Otherwise, use the basic extraction method (backward compatibility)
 		/**
 		 * Filter to modify post before conversion to Markdown
 		 *
@@ -200,8 +264,9 @@ class Md4Ai_Markdown {
 			// Get post type
 			$post_type = get_post_type( $post );
 
-			// Title
-			$output .= '# ' . esc_html( $post->post_title ) . "\n\n";
+			// Title - Decode HTML entities to get clean apostrophes
+			$clean_title = html_entity_decode( $post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$output     .= '# ' . $clean_title . "\n\n";
 
 			// The Page Meta information
 			$output .= '**URL:** ' . esc_url( get_permalink( $post ) ) . "\n";
@@ -221,11 +286,17 @@ class Md4Ai_Markdown {
 			 */
 			$content = apply_filters( 'md4ai_the_content', $post->post_content );
 
-			// Convert HTML to Markdown
+			// Execute shortcodes to generate HTML content (important for product displays)
+			$content = do_shortcode( $content );
+
+			// Convert HTML to Markdown (already handles entity decoding)
 			$output .= $this->html_to_markdown( $content ) . "\n\n";
 		}
 
 		$output .= $this->generate_website_links( $args, $post );
+
+		// Final cleanup: decode any remaining HTML entities (especially for translated content)
+		$output = html_entity_decode( $output, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 
 		return $output;
 	}
@@ -267,11 +338,87 @@ class Md4Ai_Markdown {
 		foreach ( $matches as $match ) {
 			$url  = $match[1];
 			$text = wp_strip_all_tags( $match[2] );
+			// Decode HTML entities (especially for translated content)
+			$text = html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 			$text = trim( preg_replace( '/\s+/', ' ', $text ) );
 
 			// Skip empty links, anchors, and javascript
 			if ( empty( $text ) || str_starts_with( $url, '#' ) || str_starts_with( $url, 'javascript:' ) ||
 				strlen( $text ) > 100 ) { // Skip very long text (likely not navigation)
+				continue;
+			}
+
+			// 🔒 SECURITY: Filter out WordPress admin URLs and other sensitive links
+			$admin_patterns = array(
+				'/wp-admin/',
+				'/wp-login.php',
+				'?trp-edit-translation',
+				'admin.php',
+				'edit.php',
+				'post-new.php',
+				'user-new.php',
+				'options-general.php',
+				'update-core.php',
+				'edit-comments.php',
+				'media-new.php',
+			);
+
+			// 🔒 Filter out external WordPress/plugin documentation & development links
+			$external_patterns = array(
+				'wordpress.org',
+				'learn.wordpress.org',
+				'fr.wordpress.org',
+				'wpfr.net',
+				'forums.wordpress.com',
+				'yoa.st',
+				'wpcode.com/docs',
+				'twilio.com',
+				'compile_sass=',
+				'autorecompile=',
+				'utm_source=',
+				'utm_medium=',
+				'utm_campaign=',
+				'dpb-mode=',
+				'dpb-origin=',
+				'dp-ra=',
+				'dpb-create-new=',
+				'dp-id=',
+				'dp-step=',
+				'dp-pch=',
+				'dpb-oeid=',
+				'trp-edit-translation=',
+				'_villatheme_nonce=',
+				'perfmatters',
+				'action=suspend_transients',
+				'_wpnonce=',
+				'search.google.com',
+				'developers.google.com',
+				'developers.facebook.com',
+				'//developers.',
+			);
+
+			$is_filtered_url = false;
+
+			// Check admin patterns
+			foreach ( $admin_patterns as $pattern ) {
+				if ( strpos( $url, $pattern ) !== false ) {
+					$is_filtered_url = true;
+					break;
+				}
+			}
+
+			// Check external/development patterns
+			if ( ! $is_filtered_url ) {
+				foreach ( $external_patterns as $pattern ) {
+					if ( strpos( $url, $pattern ) !== false ) {
+						$is_filtered_url = true;
+						break;
+					}
+				}
+			}
+
+			// Skip filtered URLs
+			if ( $is_filtered_url ) {
 				continue;
 			}
 
@@ -412,9 +559,17 @@ class Md4Ai_Markdown {
 		$output .= 'Author: ' . esc_html( get_the_author_meta( 'display_name', $post->post_author ) ) . "\n";
 		$output .= 'Post Type: ' . esc_html( $post_type ) . "\n";
 
-		// Excerpt / summary
+		// Excerpt / summary - Clean HTML and decode entities
 		$excerpt = get_the_excerpt( $post );
-		$output .= 'Summary: ' . esc_html( $excerpt ) . "\n";
+		if ( ! empty( $excerpt ) ) {
+			// Strip all HTML tags first
+			$excerpt = wp_strip_all_tags( $excerpt );
+			// Decode HTML entities (converts &nbsp; to space, &rsquo; to ', etc.)
+			$excerpt = html_entity_decode( $excerpt, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			// Trim extra whitespace
+			$excerpt = trim( preg_replace( '/\s+/', ' ', $excerpt ) );
+			$output .= 'Summary: ' . $excerpt . "\n";
+		}
 
 		// Categories — return names (safe)
 		$cat_names = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'names' ) );

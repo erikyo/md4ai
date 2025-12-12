@@ -49,7 +49,46 @@ class Md4Ai_Cache {
 	 * Gets the cache file path for a post
 	 */
 	private function get_cache_file_path( $post_id ) {
-		return $this->cache_dir . '/post-' . $post_id . '.md';
+		$cache_key = 'post-' . $post_id;
+
+		// Add language suffix for multilingual sites
+		$current_lang = $this->get_current_language();
+		if ( $current_lang ) {
+			$cache_key .= '-' . $current_lang;
+		}
+
+		return $this->cache_dir . '/' . $cache_key . '.md';
+	}
+
+	/**
+	 * Gets the current language code
+	 * Supports WPML, Polylang, TranslatePress
+	 */
+	private function get_current_language() {
+		// WPML
+		if ( function_exists( 'icl_get_current_language' ) ) {
+			return icl_get_current_language();
+		}
+
+		// Polylang
+		if ( function_exists( 'pll_current_language' ) ) {
+			return pll_current_language();
+		}
+
+		// TranslatePress
+		if ( class_exists( 'TRP_Translate_Press' ) ) {
+			global $TRP_LANGUAGE;
+			if ( ! empty( $TRP_LANGUAGE ) ) {
+				return $TRP_LANGUAGE;
+			}
+		}
+
+		// WeGlot
+		if ( function_exists( 'weglot_get_current_language' ) ) {
+			return weglot_get_current_language();
+		}
+
+		return false;
 	}
 
 	/**
@@ -123,9 +162,14 @@ class Md4Ai_Cache {
 	 * Clear header/footer cache
 	 */
 	public function clear_navigation_cache() {
-		$cache_file = $this->cache_dir . '/header-footer.json';
-		if ( file_exists( $cache_file ) ) {
-			wp_delete_file( $cache_file );
+		// Clear all language variations of header-footer cache
+		$files = glob( $this->cache_dir . '/header-footer*.json' );
+		if ( $files ) {
+			foreach ( $files as $file ) {
+				if ( is_file( $file ) ) {
+					wp_delete_file( $file );
+				}
+			}
 		}
 		return true;
 	}
@@ -134,7 +178,13 @@ class Md4Ai_Cache {
 	 * Gets cached header/footer data or generates it
 	 */
 	public function get_header_footer_data( $callback ) {
-		$cache_file     = $this->cache_dir . '/header-footer.json';
+		// Make cache file language-specific
+		$current_lang    = $this->get_current_language();
+		$cache_file_name = 'header-footer';
+		if ( $current_lang ) {
+			$cache_file_name .= '-' . $current_lang;
+		}
+		$cache_file     = $this->cache_dir . '/' . $cache_file_name . '.json';
 		$cache_duration = 86400; // 24 hours
 
 		// Check if cache exists and is valid

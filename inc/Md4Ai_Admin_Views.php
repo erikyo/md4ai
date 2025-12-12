@@ -57,6 +57,7 @@ Optional details go here
 			'llms-txt'     => 'llms.txt',
 			'cache'        => 'Cache',
 			'geo-insights' => 'Geo Insights',
+			'settings'     => 'Settings',
 		);
 
 		// Check if 'tab' is present in the GET request.
@@ -96,6 +97,8 @@ Optional details go here
 					$this->render_tab_cache();
 				} elseif ( $active_tab == 'geo-insights' ) {
 					$this->render_geo_insights_page();
+				} elseif ( $active_tab == 'settings' ) {
+					$this->render_tab_settings();
 				}
 				?>
 			</div>
@@ -118,11 +121,39 @@ Optional details go here
 		// Handle action llms.txt update
 		if ( isset( $_POST['update_llmstxt'] ) && check_admin_referer( 'md4ai_update_llmstxt' ) ) {
 			if ( isset( $_POST['llmstxt_content'] ) ) {
-				$options                 = get_option( MD4AI_OPTION );
-				$options['llms_content'] = sanitize_textarea_field( wp_unslash( $_POST['llmstxt_content'] ) );
+				$options                     = get_option( MD4AI_OPTION );
+				$options['llms_txt_content'] = sanitize_textarea_field( wp_unslash( $_POST['llmstxt_content'] ) );
 				update_option( MD4AI_OPTION, $options );
 				printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html__( 'llms.txt updated successfully!', 'md4ai' ) );
 			}
+		}
+
+		// Handle action settings update
+		if ( isset( $_POST['update_settings'] ) && check_admin_referer( 'md4ai_update_settings' ) ) {
+			$options = get_option( MD4AI_OPTION );
+
+			// Update output format setting
+			if ( isset( $_POST['output_format'] ) ) {
+				$output_format = sanitize_text_field( wp_unslash( $_POST['output_format'] ) );
+				if ( in_array( $output_format, array( 'markdown', 'html' ), true ) ) {
+					$options['output_format'] = $output_format;
+				}
+			}
+
+			// Update extraction mode setting
+			if ( isset( $_POST['extraction_mode'] ) ) {
+				$extraction_mode = sanitize_text_field( wp_unslash( $_POST['extraction_mode'] ) );
+				if ( in_array( $extraction_mode, array( 'standard', 'advanced' ), true ) ) {
+					$options['extraction_mode'] = $extraction_mode;
+				}
+			}
+
+			update_option( MD4AI_OPTION, $options );
+
+			// Clear cache when settings change
+			$this->cache->clear_all_cache();
+
+			printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html__( 'Settings updated successfully! Cache has been cleared.', 'md4ai' ) );
 		}
 		?>
 		<div class="wrap md4ai-admin">
@@ -409,7 +440,7 @@ Optional details go here
 		if ( empty( $options ) ) {
 			$llms_content = '';
 		} else {
-			$llms_content = $options['llms_content'];
+			$llms_content = $options['llms_txt_content'] ?? '';
 		}
 		$llms_url             = home_url( '/llms.txt' );
 		$has_content          = ! empty( $llms_content );
@@ -449,5 +480,17 @@ Optional details go here
 		// 2. Configuration: Set dynamic labels and colors for the 3rd chart
 		// We pass this state to JS via a data attribute
 		include __DIR__ . '/views/geo-insights.php';
+	}
+
+	/**
+	 * Renders the settings page
+	 *
+	 * @return void
+	 */
+	public function render_tab_settings() {
+		$options         = get_option( MD4AI_OPTION );
+		$output_format   = $options['output_format'] ?? 'html'; // Default to HTML
+		$extraction_mode = $options['extraction_mode'] ?? 'advanced'; // Default to Advanced (DOM Extractor)
+		include __DIR__ . '/views/settings.php';
 	}
 }
