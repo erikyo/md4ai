@@ -346,6 +346,55 @@ class Md4Ai_Access_Handler {
 	}
 
 	/**
+	 * Determines if the client accepts Markdown based on the HTTP Accept header.
+	 * Handles specific mime types, wildcards (*\/*), and quality scores.
+	 *
+	 * @return bool True if Markdown is accepted, False otherwise.
+	 */
+	private function client_accepts_markdown($raw_header) {
+		// 1. Get the header safely
+		$accept_header = esc_html( wp_unslash( $raw_header ?? '' ) );
+
+		if ( empty( $accept_header ) ) {
+			return false;
+		}
+
+		// 2. Define what counts as "Markdown"
+		// Note: text/x-markdown is an older non-standard type sometimes used.
+		$markdown_types = [
+			'text/markdown',
+			'text/x-markdown',
+		];
+
+		// 3. explode the header by comma to get individual parts
+		$parts = explode( ',', $accept_header );
+
+		foreach ( $parts as $part ) {
+			// 4. Remove quality parameters (e.g., ";q=0.9")
+			// We only care about the mime type part before the semicolon
+			$mime_type = strtolower( trim( explode( ';', $part )[0] ) );
+
+			// 5. Check for specific Markdown types
+			if ( in_array( $mime_type, $markdown_types, true ) ) {
+				return true;
+			}
+
+			// 6. Check for wildcards
+			// */* means the client accepts absolutely anything
+			if ( $mime_type === '*/*' ) {
+				return true;
+			}
+
+			// text/* means the client accepts any text format
+			if ( $mime_type === 'text/*' ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Serves the content in Markdown to AI bots
 	 */
 	private function serve_markdown_to_bots() {
@@ -368,11 +417,56 @@ class Md4Ai_Access_Handler {
 			$from_cache = false;
 		}
 
-		// Set headers and serve the content
-		header( 'Content-Type: text/markdown; charset=utf-8' );
-		header( 'X-Robots-Tag: noindex, nofollow' );
-		header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
-		echo esc_textarea( $markdown );
+		// Check Accept header
+		$wants_markdown = $this->client_accepts_markdown($_SERVER['HTTP_ACCEPT']);
+
+		if ( $wants_markdown ) {
+			// Set headers and serve the content
+			header( 'Content-Type: text/markdown; charset=utf-8' );
+			header( 'X-Robots-Tag: noindex, nofollow' );
+			header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
+			echo esc_textarea( $markdown );
+		} else {
+			// Serve HTML wrapper
+			header( 'Content-Type: text/html; charset=utf-8' );
+			header( 'X-Robots-Tag: noindex, nofollow' );
+			header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
+			?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Markdown Content - <?php echo get_the_title( $post ); ?></title>
+	<style>
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			line-height: 1.5;
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 2rem;
+			background: #fdfdfd;
+			color: #333;
+		}
+		pre {
+			background: #f5f5f5;
+			padding: 1rem;
+			border-radius: 4px;
+			overflow-x: auto;
+			border: 1px solid #eee;
+		}
+		code {
+			font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+			font-size: 0.9em;
+		}
+	</style>
+</head>
+<body>
+	<pre><code class="language-markdown"><?php echo esc_html( $markdown ); ?></code></pre>
+</body>
+</html>
+			<?php
+		}
 
 		// If is a bot log the request
 		if ( $this->is_ai_bot() ) {
