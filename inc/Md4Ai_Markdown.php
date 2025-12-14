@@ -55,6 +55,16 @@ class Md4Ai_Markdown {
 	}
 
 	/**
+	 * Sanitizes text for Markdown output
+	 *
+	 * @param string $text The text to sanitize
+	 * @return string
+	 */
+	private function sanitize_text( $text ) {
+		return html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	}
+
+	/**
 	 * Basic HTML to Markdown conversion
 	 */
 	private function html_to_markdown( $html ) {
@@ -98,11 +108,9 @@ class Md4Ai_Markdown {
 		$html = preg_replace( '/<code[^>]*>(.*?)<\/code>/i', '`$1`', $html );
 		$html = preg_replace( '/<pre[^>]*>(.*?)<\/pre>/is', "```\n$1\n```\n", $html );
 
-		// Remove all other HTML tags
-		$html = wp_strip_all_tags( $html );
-
-		// Decode HTML entities
-		$html = html_entity_decode( $html, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		// Remove all other HTML tags and decode entities
+		// Remove all other HTML tags and decode entities
+		$html = $this->sanitize_text( $html );
 
 		// Clean up multiple spaces
 		$html = preg_replace( '/\n\s*\n\s*\n/', "\n\n", $html );
@@ -129,7 +137,7 @@ class Md4Ai_Markdown {
 				$output .= "---\n\n";
 				$output .= "## Categories\n\n";
 				foreach ( $categories as $cat ) {
-					$output .= '- ' . esc_html( $cat->name ) . "\n";
+					$output .= '- ' . $this->sanitize_text( $cat->name ) . "\n";
 				}
 				$output .= "\n";
 			}
@@ -151,7 +159,7 @@ class Md4Ai_Markdown {
 			if ( ! empty( $tags ) ) {
 				$output .= "## Tags\n\n";
 				foreach ( $tags as $tag ) {
-					$output .= '- ' . esc_html( $tag->name ) . "\n";
+					$output .= '- ' . $this->sanitize_text( $tag->name ) . "\n";
 				}
 				$output .= "\n";
 			}
@@ -201,7 +209,7 @@ class Md4Ai_Markdown {
 			$post_type = get_post_type( $post );
 
 			// Title
-			$output .= '# ' . esc_html( $post->post_title ) . "\n\n";
+			$output .= '# ' . $this->sanitize_text( $post->post_title ) . "\n\n";
 
 			// The Page Meta information
 			$output .= '**URL:** ' . esc_url( get_permalink( $post ) ) . "\n";
@@ -357,7 +365,7 @@ class Md4Ai_Markdown {
 			$content .= "## Recent Content\n";
 			foreach ( $recent_posts as $post ) {
 				$post_url     = get_permalink( $post->ID );
-				$post_title   = esc_html( $post->post_title );
+				$post_title   = $this->sanitize_text( $post->post_title );
 				$post_excerpt = wp_trim_words( wp_strip_all_tags( $post->post_excerpt ?: $post->post_content ), 20 );
 
 				$content .= "- [{$post_title}]({$post_url})";
@@ -382,7 +390,7 @@ class Md4Ai_Markdown {
 			$content .= "## Main Pages\n";
 			foreach ( $pages as $page ) {
 				$page_url   = get_permalink( $page->ID );
-				$page_title = esc_html( $page->post_title );
+				$page_title = $this->sanitize_text( $page->post_title );
 				$content   .= "- [{$page_title}]({$page_url})\n";
 			}
 			$content .= "\n";
@@ -409,19 +417,19 @@ class Md4Ai_Markdown {
 		$post_id = is_object( $post ) ? $post->ID : (int) $post;
 
 		$output  = 'Date: ' . get_the_date( 'Y-m-d', $post_id ) . "\n";
-		$output .= 'Author: ' . esc_html( get_the_author_meta( 'display_name', $post->post_author ) ) . "\n";
-		$output .= 'Post Type: ' . esc_html( $post_type ) . "\n";
+		$output .= 'Author: ' . $this->sanitize_text( get_the_author_meta( 'display_name', $post->post_author ) ) . "\n";
+		$output .= 'Post Type: ' . $this->sanitize_text( $post_type ) . "\n";
 
 		// Excerpt / summary
 		$excerpt = get_the_excerpt( $post );
-		$output .= 'Summary: ' . esc_html( $excerpt ) . "\n";
+		$output .= 'Summary: ' . $this->sanitize_text( $excerpt ) . "\n";
 
 		// Categories — return names (safe)
 		$cat_names = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'names' ) );
 		if ( is_wp_error( $cat_names ) ) {
 			$cat_names = array();
 		}
-		$cat_names = array_map( 'esc_html', $cat_names );
+		$cat_names = array_map( array( $this, 'sanitize_text' ), $cat_names );
 		if ( ! empty( $cat_names ) ) {
 			$output .= 'Categories: ' . implode( ', ', $cat_names ) . "\n";
 		}
@@ -431,7 +439,7 @@ class Md4Ai_Markdown {
 		if ( is_wp_error( $tag_names ) ) {
 			$tag_names = array();
 		}
-		$tag_names = array_map( 'esc_html', $tag_names );
+		$tag_names = array_map( array( $this, 'sanitize_text' ), $tag_names );
 		if ( ! empty( $tag_names ) ) {
 			$output .= 'Tags: ' . implode( ', ', $tag_names ) . "\n";
 		}
@@ -495,23 +503,23 @@ class Md4Ai_Markdown {
 		// Build YAML-style metadata header
 		$output  = "---\n";
 		$output .= "Type: product\n";
-		$output .= 'Title: ' . esc_html( $title ) . "\n";
-		$output .= 'Summary: ' . esc_html( $summary ) . "\n";
-		$output .= 'Sku: ' . esc_html( $sku ) . "\n";
-		$output .= 'Price: ' . esc_html( $price ) . "\n";
-		$output .= 'In Stock: ' . esc_html( $stock ) . "\n";
-		$output .= 'Product_type: ' . esc_html( $type ) . "\n";
+		$output .= 'Title: ' . $this->sanitize_text( $title ) . "\n";
+		$output .= 'Summary: ' . $this->sanitize_text( $summary ) . "\n";
+		$output .= 'Sku: ' . $this->sanitize_text( $sku ) . "\n";
+		$output .= 'Price: ' . $this->sanitize_text( $price ) . "\n";
+		$output .= 'In Stock: ' . $this->sanitize_text( $stock ) . "\n";
+		$output .= 'Product_type: ' . $this->sanitize_text( $type ) . "\n";
 		if ( $categories ) {
-			$output .= 'Categories: ' . esc_html( $categories ) . "\n";
+			$output .= 'Categories: ' . $this->sanitize_text( $categories ) . "\n";
 		}
 		if ( $tags ) {
-			$output .= 'Tags: ' . esc_html( $tags ) . "\n";
+			$output .= 'Tags: ' . $this->sanitize_text( $tags ) . "\n";
 		}
 
 		if ( ! empty( $attributes_list ) ) {
 			$output .= "Attributes:\n";
 			foreach ( $attributes_list as $attr ) {
-				$output .= '  - ' . esc_html( $attr ) . "\n";
+				$output .= '  - ' . $this->sanitize_text( $attr ) . "\n";
 			}
 		}
 
