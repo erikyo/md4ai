@@ -42,4 +42,19 @@ class Md4Ai_MarkdownTest extends \WP_UnitTestCase {
 		$this->assertStringContainsString( 'Recent Post 1', $output );
 		$this->assertStringContainsString( 'Recent Post 2', $output );
 	}
+
+	public function test_encoding_chars() {
+		$post_id = self::factory()->post->create( [
+			'post_title'   => 'Test &quot;Quotes&quot; &amp; &lt;Tags&gt;',
+			'post_content' => '<p>Content with &mdash; em dash and &ndash; en dash.</p>',
+		] );
+		$post = get_post( $post_id );
+
+		$output = $this->markdown->convert_post_to_markdown( $post );
+
+		// Check title decoding
+		$this->assertStringContainsString( '# Test "Quotes" & <Tags>', $output );
+		// Check content decoding
+		$this->assertStringContainsString( 'Content with — em dash and – en dash.', $output );
+	}
 }
