@@ -8,9 +8,28 @@ use Md4Ai\Md4Ai_Markdown;
 
 class Md4Ai_Access_HandlerTest extends \WP_UnitTestCase {
 
+	/**
+	 * Access Handler instance for testing
+	 * @var Md4Ai_Access_Handler
+	 */
 	private $access_handler;
+
+	/**
+	 * Cache instance for testing
+	 * @var Md4Ai_Cache
+	 */
 	private $cache;
+
+	/**
+	 * Markdown instance for testing
+	 * @var Md4Ai_Markdown
+	 */
 	private $markdown;
+
+	/**
+	 * Original $_SERVER array to restore after tests
+	 * @var array
+	 */
 	private $original_server;
 
 	public function setUp(): void {
