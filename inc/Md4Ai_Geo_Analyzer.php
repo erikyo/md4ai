@@ -8,12 +8,37 @@ namespace Md4Ai;
  */
 class Md4Ai_Geo_Analyzer {
 
-	private $ai_raw_response;
-	private $ground_truth   = array();
-	private $parsed_ai_data = array();
-	private $is_woo_active  = false;
+	/**
+	 * The AI raw response
+	 *
+	 * @var string
+	 */
+	private string $ai_raw_response;
+	/**
+	 * The ground truth data
+	 *
+	 * @var array
+	 */
+	private array $ground_truth = array();
+	/**
+	 * The parsed AI data
+	 *
+	 * @var array
+	 */
+	private array $parsed_ai_data = array();
+	/**
+	 * Whether WooCommerce is active
+	 *
+	 * @var bool
+	 */
+	private bool $is_woo_active;
 
-	public function __construct( $ai_response_text ) {
+	/**
+	 * Md4Ai_Geo_Analyzer constructor.
+	 *
+	 * @param string $ai_response_text The AI response text
+	 */
+	public function __construct( string $ai_response_text ) {
 		$this->ai_raw_response = $ai_response_text;
 		$this->is_woo_active   = class_exists( 'WooCommerce' );
 
@@ -53,7 +78,8 @@ class Md4Ai_Geo_Analyzer {
 
 		// E-commerce specific parsing (if present in the text)
 		$this->parsed_ai_data['is_ecommerce'] = $extract( '/Is an E-commerce site:\s*(.*)$/m' );
-		$this->parsed_ai_data['woo_detected'] = $extract( '/Reasoning for Detection:\s*(.*)$/m' ); // Often used as a proxy
+		$this->parsed_ai_data['woo_detected'] = $extract( '/Reasoning for Detection:\s*(.*)$/m' );
+		// Often used as a proxy
 
 		// Final numeric evaluations
 		$this->parsed_ai_data['score_auth']      = (int) $extract( '/Authoritative Content:\s*(\d+)/m' );
@@ -162,7 +188,8 @@ class Md4Ai_Geo_Analyzer {
 		$sim_name = 0;
 		similar_text( strtolower( $this->parsed_ai_data['website_name'] ), strtolower( $this->ground_truth['website_name'] ), $sim_name );
 
-		if ( $sim_name < 50 ) { // If similarity < 50%
+		if ( $sim_name < 50 ) {
+			// If similarity < 50%
 			$corrections[] = array(
 				'field'      => 'Website Name',
 				'ai_value'   => $this->parsed_ai_data['website_name'],
@@ -195,7 +222,7 @@ class Md4Ai_Geo_Analyzer {
 		$is_ecom_match = 0;
 		// Normalize Yes/No
 		$ai_is_ecom   = stripos( $this->parsed_ai_data['is_ecommerce'], 'Yes' ) !== false;
-		$real_is_ecom = $this->ground_truth['is_ecommerce'] === 'Yes';
+		$real_is_ecom = 'Yes' === $this->ground_truth['is_ecommerce'];
 
 		if ( $ai_is_ecom === $real_is_ecom ) {
 			$is_ecom_match = 100;
@@ -222,7 +249,7 @@ class Md4Ai_Geo_Analyzer {
 		if ( ! $this->ground_truth['context_sufficiency']['status'] ) {
 			$issues = $this->ground_truth['context_sufficiency']['issues'];
 
-			if ( in_array( 'missing_description', $issues ) ) {
+			if ( in_array( 'missing_description', $issues, true ) ) {
 				$corrections[] = array(
 					'field'      => 'Context: Description',
 					'ai_value'   => 'N/A',
@@ -231,7 +258,7 @@ class Md4Ai_Geo_Analyzer {
 				);
 			}
 
-			if ( in_array( 'missing_navigation', $issues ) ) {
+			if ( in_array( 'missing_navigation', $issues, true ) ) {
 				$corrections[] = array(
 					'field'      => 'Context: Navigation',
 					'ai_value'   => 'N/A',
@@ -239,7 +266,7 @@ class Md4Ai_Geo_Analyzer {
 					'tip'        => 'Ensure your site has navigation menus or crawlable internal links.',
 				);
 			}
-		}
+		}//end if
 
 		// --- CHECK 5: AI Perception Score (Average of the 0–10 ratings normalized to 100) ---
 		// We now have 7 metrics: 4 original + 3 new (structure, multimedia, tech_seo)
@@ -262,10 +289,12 @@ class Md4Ai_Geo_Analyzer {
 
 		// --- FINAL OUTPUT ---
 		return array(
-			'scores'       => $scores,       // For Chart.js
-			'corrections'  => $corrections, // "What to fix" table
-			'raw_ai_data'  => $this->parsed_ai_data,
-			'ground_truth' => $this->ground_truth,
+			'scores'                      => $scores,
+			// For Chart.js
+							'corrections' => $corrections,
+			// "What to fix" table
+							'raw_ai_data' => $this->parsed_ai_data,
+			'ground_truth'                => $this->ground_truth,
 		);
 	}
 }

@@ -5,23 +5,23 @@ import DOMPurify from 'dompurify';
  * Initializes the Markdown preview functionality.
  * Listens for changes in the target textarea and updates the preview pane.
  */
-export function md4ai_markdown(): void {
+export function md4aiMarkdown(): void {
 	// Select required elements
-	const md4ai_generate_button = document.querySelector(
+	const md4aiGenerateButton = document.querySelector(
 		'.md4ai-generate'
 	) as HTMLButtonElement | null;
 
-	if ( ! md4ai_generate_button ) {
+	if ( ! md4aiGenerateButton ) {
 		return;
 	}
 
-	const md4ai_field_id = md4ai_generate_button.dataset.field;
-	const md4ai_textfield = document.querySelector(
-		`#${ md4ai_field_id }`
+	const md4aiFieldId = md4aiGenerateButton.dataset.field;
+	const md4aiTextfield = document.querySelector(
+		`#${ md4aiFieldId }`
 	) as HTMLTextAreaElement;
 
-	if ( md4ai_textfield ) {
-		const preview_content = document.querySelector(
+	if ( md4aiTextfield ) {
+		const previewContent = document.querySelector(
 			'#md4ai-preview-content'
 		) as HTMLDivElement;
 
@@ -30,7 +30,7 @@ export function md4ai_markdown(): void {
 		 * @param {string} newMarkdown - The raw markdown text.
 		 */
 		const updateContent = ( newMarkdown: string ): void => {
-			if ( ! preview_content ) {
+			if ( ! previewContent ) {
 				return;
 			}
 
@@ -39,11 +39,11 @@ export function md4ai_markdown(): void {
 			// Sanitize HTML to prevent XSS
 			const sanitizedHtml = DOMPurify.sanitize( html as string );
 
-			preview_content.innerHTML = sanitizedHtml;
+			previewContent.innerHTML = sanitizedHtml;
 		};
 
 		// Initial render on load
-		updateContent( md4ai_textfield.value );
+		updateContent( md4aiTextfield.value );
 
 		// Debounce timer reference
 		let debounceTimer: number | undefined;
@@ -53,7 +53,7 @@ export function md4ai_markdown(): void {
 		 * Uses 'input' instead of 'change' to capture real-time typing.
 		 * Also captures programmatic events dispatched via .dispatchEvent(new Event('input'))
 		 */
-		md4ai_textfield.addEventListener( 'input', () => {
+		md4aiTextfield.addEventListener( 'input', () => {
 			// Clear existing timer
 			if ( debounceTimer ) {
 				window.clearTimeout( debounceTimer );
@@ -61,7 +61,7 @@ export function md4ai_markdown(): void {
 
 			// Set new debounce timer (300ms)
 			debounceTimer = window.setTimeout( () => {
-				updateContent( md4ai_textfield.value );
+				updateContent( md4aiTextfield.value );
 			}, 300 );
 		} );
 	}

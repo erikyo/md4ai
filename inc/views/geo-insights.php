@@ -2,6 +2,8 @@
 /**
  * Geo Insights View
  *
+ * @package Md4Ai
+ *
  * @var bool $is_woo_active
  * @var string $site_domain
  * @var string $site_url

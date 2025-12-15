@@ -14,34 +14,56 @@ class Md4Ai_Access_Handler {
 	 * ChatGPT https://platform.openai.com/docs/bots/overview-of-openai-crawlers
 	 * Perplexity https://docs.perplexity.ai/guides/bots
 	 * Google https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers
+	 *
+	 * @var array $ai_useragents List of AI bots to detect
 	 */
 	private array $ai_useragents = array(
-		'oai-searchbot', // OAI-SearchBot/1.0; +https://openai.com/searchbot
-		'gptbot', // GPTBot/1.0 (+https://openai.com/gptbot)
-		'chatgpt-user', // ChatGPT-User/1.0; +https://openai.com/bot
-		'mistralai-user', // MistralAI-User/1.0; +https://docs.mistral.ai/robots
-		'gptbot', // GPTBot/1.1; +https://openai.com/gptbot
-		'deepseekbot', // DeepSeekBot/1.0; +http://www.deepseek.com/bot
-		'chatglm', // ChatGLM/1.0; +https://chatglm.com/bot
-		'claudebot', // ChatGLM-Spider # https://darkvisitors.com/agents/chatglm-spider
-		'claude-user', // Claude-User/1.0; +https://openai.com/bot
-		'anthropic-ai', // anthropic-ai/1.0 (+https://www.anthropic.com/bot)
-		'meta-externalagent', // meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)
-		'amazonbot', // Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot
-		'amzn-user', // Amzn-User/0.1; +https://developer.amazon.com/support/amazonbot
-		'ccbot', // CCCBot/2.0 (https://commoncrawl.org/faq/)
-		'perplexitybot', // PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)
-		'perplexity-user', // Perplexity‑User/1.0; +https://perplexity.ai/perplexityuser
-		'google-extended', // Google-Extended/1.0; +http://www.google.com/bot.html
-		'applebot-extended', // Applebot-Extended/1.0; +http://www.apple.com/bot.html
-		'cohere-training-data-crawler', // cohere-training-data-crawler/1.0; +http://www.cohere.ai/bot.html
-		'cohere-ai', // cohere-ai/1.0; +http://www.cohere.ai/bot.html
+		/* OAI-SearchBot/1.0; +https://openai.com/searchbot */
+		'oai-searchbot',
+		/* GPTBot/1.0 (+https://openai.com/gptbot) */
+		'gptbot',
+		/* ChatGPT-User/1.0; +https://openai.com/bot */
+		'chatgpt-user',
+		/* MistralAI-User/1.0; +https://docs.mistral.ai/robots */
+		'mistralai-user',
+		/* GPTBot/1.1; +https://openai.com/gptbot */
+		'gptbot',
+		/* DeepSeekBot/1.0; +http://www.deepseek.com/bot */
+		'deepseekbot',
+		/* ChatGLM/1.0; +https://chatglm.com/bot */
+		'chatglm',
+		/* ChatGLM-Spider # https://darkvisitors.com/agents/chatglm-spider */
+		'claudebot',
+		/* Claude-User/1.0; +https://openai.com/bot */
+		'claude-user',
+		/* anthropic-ai/1.0 (+https://www.anthropic.com/bot) */
+		'anthropic-ai',
+		/* meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) */
+		'meta-externalagent',
+		/* Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot */
+		'amazonbot',
+		/* Amzn-User/0.1; +https://developer.amazon.com/support/amazonbot */
+		'amzn-user',
+		/* CCCBot/2.0 (https://commoncrawl.org/faq/) */
+		'ccbot',
+		/* PerplexityBot/1.0; +https://perplexity.ai/perplexitybot) */
+		'perplexitybot',
+		/* Perplexity‑User/1.0; +https://perplexity.ai/perplexityuser */
+		'perplexity-user',
+		/* Google-Extended/1.0; +http://www.google.com/bot.html */
+		'google-extended',
+		/* Applebot-Extended/1.0; +http://www.apple.com/bot.html */
+		'applebot-extended',
+		/* cohere-training-data-crawler/1.0; +http://www.cohere.ai/bot.html */
+		'cohere-training-data-crawler',
+		/* cohere-ai/1.0; +http://www.cohere.ai/bot.html */
+		'cohere-ai',
 	);
 
 	/**
 	 * Default list of LLM domains
 	 *
-	 * @var array
+	 * @var array $default_llm_domains List of LLM domains
 	 */
 	private array $default_llm_domains = array(
 		'chatgpt.com',
@@ -50,7 +72,7 @@ class Md4Ai_Access_Handler {
 		'gemini.google.com',
 		'perplexity.ai',
 		'copilot.microsoft.com',
-		'm365.cloud.microsoft', // Microsoft 365 Copilot
+		/* Microsoft 365 Copilot */ 'm365.cloud.microsoft',
 		'grok.com',
 		'you.com',
 		'phind.com',
@@ -63,6 +85,11 @@ class Md4Ai_Access_Handler {
 		'bard.google.com',
 	);
 
+	/**
+	 * Default list of search engines
+	 *
+	 * @var array $default_search_engines List of search engines
+	 */
 	private array $default_search_engines = array(
 		'google.'        => 'Search: Google',
 		'bing.com'       => 'Search: Bing',
@@ -74,26 +101,43 @@ class Md4Ai_Access_Handler {
 		'startpage.com'  => 'Search: Startpage',
 	);
 
+	/**
+	 * List of AI bots
+	 *
+	 * @var array $ai_bots List of AI bots
+	 */
 	private array $ai_bots;
 	/**
+	 * Cache instance
+	 *
 	 * @var Md4Ai_Cache
 	 */
 	private Md4Ai_Cache $cache;
 	/**
+	 * Markdown instance
+	 *
 	 * @var Md4Ai_Markdown
 	 */
 	private Md4Ai_Markdown $markdown;
-
 	/**
+	 * List of LLM domains
+	 *
 	 * @var mixed|null
 	 */
 	private $llm_domains;
-
 	/**
+	 * List of search engines
+	 *
 	 * @var mixed|null
 	 */
 	private $search_engines;
 
+	/**
+	 * Constructor
+	 *
+	 * @param Md4Ai_Cache    $cache Cache instance
+	 * @param Md4Ai_Markdown $markdown Markdown instance
+	 */
 	public function __construct( Md4Ai_Cache $cache, Md4Ai_Markdown $markdown ) {
 		$this->cache    = $cache;
 		$this->markdown = $markdown;
@@ -195,7 +239,8 @@ class Md4Ai_Access_Handler {
 			if ( ! empty( $current_params['utm_term'] ) ) {
 				$search_terms = sanitize_text_field( urldecode( $current_params['utm_term'] ) );
 				$source       = $current_params['utm_source'] ?? 'Paid Source';
-				$medium       = 'cpc'; // Cost per click
+				$medium       = 'cpc';
+				// Cost per click
 			}
 		}
 
@@ -208,7 +253,7 @@ class Md4Ai_Access_Handler {
 
 				// A. Check LLM domains
 				foreach ( $this->llm_domains as $domain ) {
-					if ( strpos( $referrer_host, $domain ) !== false ) {
+					if ( false !== strpos( $referrer_host, $domain ) ) {
 						$source = 'LLM: ' . $domain;
 						$medium = 'ai_referral';
 						break;
@@ -216,11 +261,12 @@ class Md4Ai_Access_Handler {
 				}
 
 				// B. Common search engines
-				if ( $source === 'Direct/Unknown' ) {
+				if ( 'Direct/Unknown' === $source ) {
 					foreach ( $this->search_engines as $domain => $label ) {
-						if ( strpos( $referrer_host, $domain ) !== false ) {
+						if ( false !== strpos( $referrer_host, $domain ) ) {
 							$source = $label;
-							$medium = 'organic'; // Organic search
+							$medium = 'organic';
+							// Organic search
 
 							// Try to parse query (Only works for non-secure engines or very old links)
 							// We keep this just in case, but expect it to be empty for Google.
@@ -237,10 +283,10 @@ class Md4Ai_Access_Handler {
 							}
 							break;
 						}
-					}
-				}
-			}
-		}
+					}//end foreach
+				}//end if
+			}//end if
+		}//end if
 
 		// 3. FALLBACK: IF ORGANIC GOOGLE & NO TERMS
 		// We record the Landing Page URL. This is your "Search Intent" proxy.
@@ -249,7 +295,7 @@ class Md4Ai_Access_Handler {
 		}
 
 		// === DATA STORAGE ===
-		if ( $source !== 'Direct/Unknown' ) {
+		if ( 'Direct/Unknown' !== $source ) {
 			Md4Ai_Utils::store_visitor_data( $source, $search_terms );
 		}
 
@@ -271,8 +317,12 @@ class Md4Ai_Access_Handler {
 	/**
 	 * Add query var for llms.txt
 	 * Utilizes the add_query_var filter
+	 *
+	 * @param array $vars Array of query variables
+	 *
+	 * @return array Array of query variables
 	 */
-	public function add_llmstxt_query_var( $vars ) {
+	public function add_llmstxt_query_var( array $vars ): array {
 		$vars[] = 'md4ai_llmstxt';
 		$vars[] = 'md4ai_md';
 		return $vars;
@@ -334,7 +384,8 @@ class Md4Ai_Access_Handler {
 		// Set appropriate headers
 		header( 'Content-Type: text/plain; charset=utf-8' );
 		header( 'X-Robots-Tag: noindex, nofollow' );
-		header( 'Cache-Control: public, max-age=3600' ); // Cache for 1 hour
+		header( 'Cache-Control: public, max-age=3600' );
+		// Cache for 1 hour
 
 		echo esc_textarea( $llms_content );
 
@@ -349,22 +400,21 @@ class Md4Ai_Access_Handler {
 	 * Determines if the client accepts Markdown based on the HTTP Accept header.
 	 * Handles specific mime types, wildcards (*\/*), and quality scores.
 	 *
+	 * @param string | null $accept_header The raw HTTP Accept header
+	 *
 	 * @return bool True if Markdown is accepted, False otherwise.
 	 */
-	private function client_accepts_markdown($raw_header) {
-		// 1. Get the header safely
-		$accept_header = esc_html( wp_unslash( $raw_header ?? '' ) );
-
+	private function client_accepts_markdown( ?string $accept_header ): bool {
 		if ( empty( $accept_header ) ) {
 			return false;
 		}
 
 		// 2. Define what counts as "Markdown"
 		// Note: text/x-markdown is an older non-standard type sometimes used.
-		$markdown_types = [
+		$markdown_types = array(
 			'text/markdown',
 			'text/x-markdown',
-		];
+		);
 
 		// 3. explode the header by comma to get individual parts
 		$parts = explode( ',', $accept_header );
@@ -381,15 +431,15 @@ class Md4Ai_Access_Handler {
 
 			// 6. Check for wildcards
 			// */* means the client accepts absolutely anything
-			if ( $mime_type === '*/*' ) {
+			if ( '*/*' === $mime_type ) {
 				return true;
 			}
 
 			// text/* means the client accepts any text format
-			if ( $mime_type === 'text/*' ) {
+			if ( 'text/*' === $mime_type ) {
 				return true;
 			}
-		}
+		}//end foreach
 
 		return false;
 	}
@@ -411,14 +461,15 @@ class Md4Ai_Access_Handler {
 		}
 
 		// If no valid cache, get Markdown and save to cache
-		if ( $markdown === false ) {
+		if ( false === $markdown ) {
 			$markdown = $this->markdown->get_post_markdown( $post );
 			$this->cache->write_to_cache( $post->ID, $markdown );
 			$from_cache = false;
 		}
 
 		// Check Accept header
-		$wants_markdown = $this->client_accepts_markdown($_SERVER['HTTP_ACCEPT']);
+		$accept_header  = isset( $_SERVER['HTTP_ACCEPT'] ) && sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) );
+		$wants_markdown = $this->client_accepts_markdown( $accept_header );
 
 		if ( $wants_markdown ) {
 			// Set headers and serve the content
@@ -437,7 +488,7 @@ class Md4Ai_Access_Handler {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Markdown Content - <?php echo get_the_title( $post ); ?></title>
+	<title>Markdown Content - <?php echo esc_html( get_the_title( $post ) ); ?></title>
 	<style>
 		body {
 			font-family: system-ui, -apple-system, sans-serif;
@@ -466,7 +517,7 @@ class Md4Ai_Access_Handler {
 </body>
 </html>
 			<?php
-		}
+		}//end if
 
 		// If is a bot log the request
 		if ( $this->is_ai_bot() ) {

@@ -45,6 +45,7 @@ export async function md4aiCharts() {
 	) as HTMLCanvasElement;
 
 	if ( ! requestsCtx || ! crawlersCtx ) {
+		// eslint-disable-next-line no-console
 		console.error( 'Canvas elements not found!' );
 		return;
 	}
@@ -110,6 +111,8 @@ export async function md4aiCharts() {
 	const trafficData = visitorsResponse.access
 		? visitorsResponse.access
 		: null;
+
+	// eslint-disable-next-line no-console
 	console.log( trafficData );
 
 	// --- CHART 3: TRAFFIC SOURCES (Pie) ---

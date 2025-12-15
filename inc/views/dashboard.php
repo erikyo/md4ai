@@ -2,6 +2,8 @@
 /**
  * Dashboard View
  *
+ * @package Md4Ai
+ *
  * @var array $md4ai_stats
  * @var array $md4ai_traffic_stats
  * @var bool $md4ai_is_ai_service_enabled
@@ -105,7 +107,8 @@
 							<?php
 							// Format: 2024-01-01 14:30 (2 days ago)
 							$md4ai_date_format = wp_date( 'Y-m-d H:i', $md4ai_post_stat['last_crawled'] );
-							$md4ai_time_diff   = human_time_diff( $md4ai_post_stat['last_crawled'], current_time( 'timestamp' ) );
+							// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+							$md4ai_time_diff = human_time_diff( $md4ai_post_stat['last_crawled'], current_time( 'timestamp' ) );
 							echo esc_html( sprintf( '%s (%s ago)', $md4ai_date_format, $md4ai_time_diff ) );
 							?>
 						</td>
@@ -150,7 +153,8 @@
 							<?php
 							// Format: 2024-01-01 14:30 (2 mins ago)
 							$md4ai_date_format = wp_date( 'Y-m-d H:i', $md4ai_activity['timestamp'] );
-							$md4ai_time_diff   = human_time_diff( $md4ai_activity['timestamp'], current_time( 'timestamp' ) );
+							// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+							$md4ai_time_diff = human_time_diff( $md4ai_activity['timestamp'], current_time( 'timestamp' ) );
 							echo esc_html( sprintf( '%s (%s ago)', $md4ai_date_format, $md4ai_time_diff ) );
 							?>
 						</td>
@@ -205,7 +209,8 @@
 								<?php
 								// Format: 2024-01-01 14:30 (2 hours ago)
 								$md4ai_date_format = wp_date( 'Y-m-d H:i', $md4ai_view['date_recorded'] );
-								$md4ai_time_diff   = human_time_diff( $md4ai_view['date_recorded'], current_time( 'timestamp' ) );
+								// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+								$md4ai_time_diff = human_time_diff( $md4ai_view['date_recorded'], current_time( 'timestamp' ) );
 								echo esc_html( sprintf( '%s (%s ago)', $md4ai_date_format, $md4ai_time_diff ) );
 								?>
 							</td>

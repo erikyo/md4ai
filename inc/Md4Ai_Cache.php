@@ -2,6 +2,8 @@
 
 namespace Md4Ai;
 
+use WP_Filesystem_Base;
+
 /**
  * Cache management class
  */
@@ -9,9 +11,14 @@ class Md4Ai_Cache {
 
 	/**
 	 * Cache directory path
+	 *
+	 * @var string $cache_dir Cache directory path
 	 */
 	private $cache_dir;
 
+	/**
+	 * The Md4Ai Cache constructor
+	 */
 	public function __construct() {
 		$this->cache_dir = WP_CONTENT_DIR . '/cache/md4ai';
 		$this->ensure_cache_directory();
@@ -31,31 +38,50 @@ class Md4Ai_Cache {
 			wp_mkdir_p( $this->cache_dir );
 		}
 
+		// Initialize WP_Filesystem
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
+		/**
+		 * The WP_Filesystem instance
+		 *
+		 * @global WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+
 		// Add .htaccess to protect cache directory
 		$htaccess_file = $this->cache_dir . '/.htaccess';
 		if ( ! file_exists( $htaccess_file ) ) {
 			$htaccess_content = "Order deny,allow\nDeny from all";
-			file_put_contents( $htaccess_file, $htaccess_content );
+			$wp_filesystem->put_contents( $htaccess_file, $htaccess_content );
 		}
 
 		// Add index.php to prevent directory listing
 		$index_file = $this->cache_dir . '/index.php';
 		if ( ! file_exists( $index_file ) ) {
-			file_put_contents( $index_file, "<?php\n// Silence is golden." );
+			$wp_filesystem->put_contents( $index_file, "<?php\n// Silence is golden." );
 		}
 	}
 
 	/**
 	 * Gets the cache file path for a post
+	 *
+	 * @param int $post_id The post ID
+	 *
+	 * @return string The cache file path
 	 */
 	private function get_cache_file_path( $post_id ) {
 		return $this->cache_dir . '/post-' . $post_id . '.md';
 	}
 
 	/**
-	 * Checks if cached file exists and is valid
+	 * Checks if the cached file exists and is valid
+	 *
+	 * @param int    $post_id The post-ID
+	 * @param string $post_modified The post-modification date
+	 *
+	 * @return bool True if the cache is valid, false otherwise
 	 */
-	public function is_cache_valid( $post_id, $post_modified ) {
+	public function is_cache_valid( int $post_id, string $post_modified ): bool {
 		$cache_file = $this->get_cache_file_path( $post_id );
 
 		if ( ! file_exists( $cache_file ) ) {
@@ -70,30 +96,58 @@ class Md4Ai_Cache {
 	}
 
 	/**
-	 * Reads markdown from cache
+	 * Reads Markdown from a cache file
+	 *
+	 * @param int $post_id The post-ID
+	 *
+	 * @return string|false The Markdown content or false if the cache does not exist
 	 */
-	public function read_from_cache( $post_id ) {
+	public function read_from_cache( int $post_id ) {
 		$cache_file = $this->get_cache_file_path( $post_id );
 
 		if ( file_exists( $cache_file ) ) {
-			return file_get_contents( $cache_file );
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+			/**
+			 * The WP_Filesystem instance
+			 *
+			 * @global WP_Filesystem_Base $wp_filesystem
+			 */
+			global $wp_filesystem;
+			return $wp_filesystem->get_contents( $cache_file );
 		}
 
 		return false;
 	}
 
 	/**
-	 * Writes markdown to cache
+	 * Writes Markdown to a cache file
+	 *
+	 * @param int    $post_id The post-ID
+	 * @param string $markdown The Markdown content
+	 *
+	 * @return bool True if the cache was written successfully, false otherwise
 	 */
-	public function write_to_cache( $post_id, $markdown ) {
+	public function write_to_cache( int $post_id, string $markdown ): bool {
 		$cache_file = $this->get_cache_file_path( $post_id );
-		return file_put_contents( $cache_file, $markdown ) !== false;
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
+		/**
+		 * The WP_Filesystem instance
+		 *
+		 * @global WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+		return $wp_filesystem->put_contents( $cache_file, $markdown ) !== false;
 	}
 
 	/**
 	 * Clears cache for a specific post
+	 *
+	 * @param int $post_id The post-ID
 	 */
-	public function clear_post_cache( $post_id ) {
+	public function clear_post_cache( int $post_id ) {
 		$cache_file = $this->get_cache_file_path( $post_id );
 
 		if ( file_exists( $cache_file ) ) {
@@ -121,8 +175,10 @@ class Md4Ai_Cache {
 
 	/**
 	 * Clear header/footer cache
+	 *
+	 * @return bool True if the cache was cleared successfully, false otherwise
 	 */
-	public function clear_navigation_cache() {
+	public function clear_navigation_cache(): bool {
 		$cache_file = $this->cache_dir . '/header-footer.json';
 		if ( file_exists( $cache_file ) ) {
 			wp_delete_file( $cache_file );
@@ -132,14 +188,30 @@ class Md4Ai_Cache {
 
 	/**
 	 * Gets cached header/footer data or generates it
+	 *
+	 * @param callable $callback The callback function to generate the header/footer data
+	 *
+	 * @return array The header/footer data
 	 */
-	public function get_header_footer_data( $callback ) {
-		$cache_file     = $this->cache_dir . '/header-footer.json';
-		$cache_duration = 86400; // 24 hours
+	public function get_header_footer_data( callable $callback ): array {
+		$cache_file = $this->cache_dir . '/header-footer.json';
+		// 24 hours
+		$cache_duration = 86400;
 
-		// Check if cache exists and is valid
+		// Initialize WP_Filesystem
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
+		/**
+		 * The WP_Filesystem instance
+		 *
+		 * @global WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+
+		// Check if a cache file exists and is valid
 		if ( file_exists( $cache_file ) && ( time() - filemtime( $cache_file ) ) < $cache_duration ) {
-			$data = json_decode( file_get_contents( $cache_file ), true );
+			// Read the cache file
+			$data = json_decode( $wp_filesystem->get_contents( $cache_file ), true );
 			if ( $data ) {
 				return $data;
 			}
@@ -149,15 +221,17 @@ class Md4Ai_Cache {
 		$data = call_user_func( $callback );
 
 		// Cache the data
-		file_put_contents( $cache_file, json_encode( $data ) );
+		$wp_filesystem->put_contents( $cache_file, wp_json_encode( $data ) );
 
 		return $data;
 	}
 
 	/**
 	 * Get cache statistics
+	 *
+	 * @return array The cache statistics
 	 */
-	public function get_statistics() {
+	public function get_statistics(): array {
 		$files      = glob( $this->cache_dir . '/post-*.md' );
 		$file_count = $files ? count( $files ) : 0;
 		$total_size = 0;

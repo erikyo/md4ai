@@ -2,6 +2,8 @@
 /**
  * Cache View
  *
+ * @package Md4Ai
+ *
  * @var array $stats
  */
 ?>

@@ -6,6 +6,8 @@
  * Text Domain: md4ai
  * Version: 1.2.0
  * License: GPLv2 or later
+ *
+ * @package Md4Ai *
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,7 +34,7 @@ const MD4AI_OPTION = 'md4ai_options';
 // Composer autoloader
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-// run the plugin
+/** Run the plugin */
 function md4ai_init() {
 	new Md4Ai\Md4Ai_Core();
 }

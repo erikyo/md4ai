@@ -95,7 +95,7 @@ export function handleMd4aiButtons() {
 	 * Creates a prompt text area element for AI input.
 	 * @return {HTMLTextAreaElement} The created text area element.
 	 */
-	function create_prompt_text_area(): HTMLTextAreaElement {
+	function createPromptTextArea(): HTMLTextAreaElement {
 		const promptInput = document.createElement( 'textarea' );
 		promptInput.id = 'md4ai-prompt';
 		promptInput.className = 'md4ai-prompt';
@@ -108,7 +108,7 @@ export function handleMd4aiButtons() {
 	 * Creates a clear button element if it doesn't exist.
 	 * @return {HTMLButtonElement} The created button element.
 	 */
-	function create_clear_button(): HTMLButtonElement {
+	function createClearButton(): HTMLButtonElement {
 		const newClearBtn = document.createElement( 'button' );
 		newClearBtn.type = 'button';
 		newClearBtn.id = 'md4ai-clear';
@@ -146,7 +146,7 @@ export function handleMd4aiButtons() {
 
 		// Add clear button if it doesn't exist
 		if ( ! clearBtn ) {
-			clearBtn = create_clear_button();
+			clearBtn = createClearButton();
 		}
 
 		// Clear status after 3 seconds
@@ -165,6 +165,7 @@ export function handleMd4aiButtons() {
 		) as HTMLTextAreaElement;
 
 		if ( ! textarea ) {
+			// eslint-disable-next-line no-console
 			console.error( `Textarea ${ fieldId } not found` );
 			return;
 		}
@@ -225,6 +226,7 @@ export function handleMd4aiButtons() {
 		promptInput: HTMLTextAreaElement
 	): Promise< void > => {
 		if ( ! textarea ) {
+			// eslint-disable-next-line no-console
 			console.error(
 				`Textarea ${ generateAiBtn.dataset.field } not found`
 			);
@@ -277,6 +279,7 @@ export function handleMd4aiButtons() {
 			// Step 3: Update the textarea with AI-enhanced content
 			updateMarkdown( textarea, generated );
 		} catch ( error ) {
+			// eslint-disable-next-line no-console
 			console.error( 'AI Generation Error:', error );
 			updateStatus(
 				__( 'Error generating AI-enhanced markdown.', 'md4ai' ),
@@ -303,7 +306,7 @@ export function handleMd4aiButtons() {
 			}
 
 			// Append prompt input
-			const promptInput = create_prompt_text_area();
+			const promptInput = createPromptTextArea();
 			textarea.after( promptInput );
 
 			// Determine which prompt to use based on the endpoint
