@@ -9,15 +9,25 @@ class Md4Ai_Admin {
 
 	/**
 	 * Cache instance
+	 *
+	 * @var Md4Ai_Cache $cache Cache instance
 	 */
 	private Md4Ai_Cache $cache;
 
 	/**
 	 * Markdown instance
+	 *
+	 * @var Md4Ai_Markdown $markdown Markdown instance
 	 */
 	private Md4Ai_Markdown $markdown;
 
-	public function __construct( $cache, $markdown ) {
+	/**
+	 * Constructor
+	 *
+	 * @param Md4Ai_Cache    $cache Cache instance
+	 * @param Md4Ai_Markdown $markdown Markdown instance
+	 */
+	public function __construct( Md4Ai_Cache $cache, Md4Ai_Markdown $markdown ) {
 		$this->cache    = $cache;
 		$this->markdown = $markdown;
 
@@ -56,7 +66,7 @@ class Md4Ai_Admin {
 	 * @param array $links The plugin action links
 	 * @return array The modified plugin action links
 	 */
-	public function plugin_settings_link( array $links ) {
+	public function plugin_settings_link( array $links ): array {
 		$settings_page_link = sprintf(
 			'<a href="%s">%s</a>',
 			admin_url( 'tools.php?page=md4ai' ),
@@ -71,10 +81,12 @@ class Md4Ai_Admin {
 
 	/**
 	 * Enqueues admin scripts
+	 *
+	 * @param string $hook The current admin page hook
 	 */
-	public function enqueue_admin_scripts( $hook ) {
+	public function enqueue_admin_scripts( string $hook ) {
 		// check if the current script is loaded in the admin area or in the md4ai admin page
-		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ) ) && get_current_screen()->base !== 'tools_page_md4ai' ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) && get_current_screen()->base !== 'tools_page_md4ai' ) {
 			return;
 		}
 
@@ -100,7 +112,8 @@ class Md4Ai_Admin {
 		);
 
 		// Get the REST API namespace from the RestAPI class instance
-		$rest_namespace = 'md4ai/v1'; // This should ideally be passed from the RestAPI class
+		$rest_namespace = 'md4ai/v1';
+		// This should ideally be passed from the RestAPI class
 
 		wp_localize_script(
 			'md4ai-admin',

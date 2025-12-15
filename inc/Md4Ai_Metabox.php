@@ -2,14 +2,31 @@
 
 namespace Md4Ai;
 
+/**
+ * Md4Ai_Metabox class
+ */
 class Md4Ai_Metabox {
 
-	// The Markdown class
+	/**
+	 * The Markdown class
+	 *
+	 * @var Md4Ai_Markdown
+	 */
 	private Md4Ai_Markdown $markdown;
 
-	// The Cache class
+	/**
+	 * The Cache class
+	 *
+	 * @var Md4Ai_Cache
+	 */
 	private Md4Ai_Cache $cache;
 
+	/**
+	 * Md4Ai_Metabox constructor.
+	 *
+	 * @param Md4Ai_Markdown $markdown The Markdown instance
+	 * @param Md4Ai_Cache    $cache    The Cache instance
+	 */
 	public function __construct( Md4Ai_Markdown $markdown, Md4Ai_Cache $cache ) {
 		$this->markdown = $markdown;
 		$this->cache    = $cache;
@@ -20,7 +37,7 @@ class Md4Ai_Metabox {
 	}
 
 	/**
-	 * Adds metabox for Markdown editing
+	 * Adds meta-box for Markdown editing
 	 */
 	public function add_markdown_metabox() {
 		$post_types = get_post_types( array( 'public' => true ), 'names' );
@@ -38,11 +55,11 @@ class Md4Ai_Metabox {
 	}
 
 	/**
-	 * Renders the markdown metabox
+	 * Renders the Markdown meta-box
 	 *
-	 * @param $post
+	 * @param object $post The post-object
 	 */
-	public function render_markdown_metabox( $post ): void {
+	public function render_markdown_metabox( object $post ): void {
 		wp_nonce_field( 'md4ai_metabox', 'md4ai_metabox_nonce' );
 
 		$meta_key        = $this->markdown->get_meta_key();
@@ -141,9 +158,11 @@ class Md4Ai_Metabox {
 	}
 
 	/**
-	 * Saves the markdown metabox data
+	 * Saves the Markdown meta-box data
+	 *
+	 * @param int $post_id The post-ID
 	 */
-	public function save_markdown_metabox( $post_id ) {
+	public function save_markdown_metabox( int $post_id ) {
 		// Check nonce
 		if ( ! isset( $_POST['md4ai_metabox_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['md4ai_metabox_nonce'] ) ), 'md4ai_metabox' ) ) {
 			return;

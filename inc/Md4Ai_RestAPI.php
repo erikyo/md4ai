@@ -13,16 +13,22 @@ class Md4Ai_RestAPI {
 
 	/**
 	 * REST API namespace
+	 *
+	 * @var string
 	 */
 	private string $namespace = 'md4ai/v1';
 
 	/**
 	 * Markdown instance
+	 *
+	 * @var Md4Ai_Markdown
 	 */
 	private Md4Ai_Markdown $markdown;
 
 	/**
 	 * Plugin options
+	 *
+	 * @var array
 	 */
 	private array $options;
 
@@ -118,9 +124,11 @@ class Md4Ai_RestAPI {
 	/**
 	 * Permission check for REST API
 	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
 	 * @return bool Whether the user has permission to access the API
 	 */
-	public function rest_permission_check( $request ) {
+	public function rest_permission_check( WP_REST_Request $request ): bool {
 		$post_id = $request->get_param( 'id' );
 		return current_user_can( 'edit_post', $post_id );
 	}
@@ -130,16 +138,18 @@ class Md4Ai_RestAPI {
 	 *
 	 * @return bool Whether the user has permission to access the API
 	 */
-	public function admin_permission_check( $request ) {
+	public function admin_permission_check(): bool {
 		return current_user_can( 'edit_posts' );
 	}
 
 	/**
 	 * REST API handler for generating markdown
 	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
 	 * @return WP_REST_Response | WP_Error The response from the API or an error
 	 */
-	public function rest_generate_markdown( $request ) {
+	public function rest_generate_markdown( WP_REST_Request $request ) {
 		$post_id = $request->get_param( 'id' );
 
 		if ( ! $post_id ) {
@@ -167,7 +177,7 @@ class Md4Ai_RestAPI {
 	 *
 	 * @return WP_REST_Response The response from the API or an error
 	 */
-	public function rest_generate_llmstxt() {
+	public function rest_generate_llmstxt(): WP_REST_Response {
 		$llmstxt = $this->markdown->generate_default_llmstxt();
 		return new WP_REST_Response(
 			array(
@@ -182,7 +192,7 @@ class Md4Ai_RestAPI {
 	 *
 	 * @returns WP_REST_Response | WP_Error The response from the API or an error
 	 */
-	public function rest_get_stats() {
+	public function rest_get_stats(): WP_REST_Response {
 		$analytics = $this->options['requests'] ?? array();
 
 		if ( empty( $analytics ) ) {
@@ -208,7 +218,7 @@ class Md4Ai_RestAPI {
 	 *
 	 * @returns WP_REST_Response | WP_Error The response from the API or an error
 	 */
-	public function rest_get_visitors() {
+	public function rest_get_visitors(): WP_REST_Response {
 		$visitors = $this->options['visitors'] ?? array();
 
 		// Use the helper we created in the View class
@@ -230,7 +240,7 @@ class Md4Ai_RestAPI {
 	 *
 	 * @returns WP_REST_Response | WP_Error The response from the API or an error
 	 */
-	public function geo_insights( WP_REST_Request $request ) {
+	public function geo_insights( WP_REST_Request $request ): WP_REST_Response {
 		$content = sanitize_textarea_field( $request['content'] );
 
 		if ( empty( $content ) ) {

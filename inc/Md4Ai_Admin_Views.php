@@ -2,21 +2,31 @@
 
 namespace Md4Ai;
 
+/**
+ * Admin views class
+ */
 class Md4Ai_Admin_Views {
 
 	/**
 	 * Cache instance
+	 *
+	 * @var Md4Ai_Cache $cache Cache instance
 	 */
 	private Md4Ai_Cache $cache;
 
 	/**
 	 * The placeholder for the llms.txt content
 	 *
-	 * @var string
+	 * @var string $llms_txt_placeholder The placeholder for the llms.txt content
 	 */
 	private string $llms_txt_placeholder;
 
-	public function __construct( $cache ) {
+	/**
+	 * Constructor
+	 *
+	 * @param Md4Ai_Cache $cache Cache instance
+	 */
+	public function __construct( Md4Ai_Cache $cache ) {
 		$this->cache                = $cache;
 		$this->llms_txt_placeholder = '## Title
 
@@ -40,16 +50,12 @@ Optional details go here
 	 *
 	 * @return string The tab URL
 	 */
-	private function get_tab_url( $tab ) {
+	private function get_tab_url( string $tab ): string {
 		return add_query_arg( 'tab', $tab, menu_page_url( 'md4ai', false ) );
 	}
 
 	/**
 	 * Renders the tabs
-	 *
-	 * @param Md4AI_Admin $instance
-	 *
-	 * @return void
 	 */
 	private function render_tabs() {
 		$tabs = array(
@@ -88,13 +94,13 @@ Optional details go here
 			</ul>
 			<div class="md4ai-tab-content">
 				<?php
-				if ( $active_tab == 'dashboard' ) {
+				if ( 'dashboard' === $active_tab ) {
 					$this->render_tab_dashboard();
-				} elseif ( $active_tab == 'llms-txt' ) {
+				} elseif ( 'llms-txt' === $active_tab ) {
 					$this->render_tab_llms_txt();
-				} elseif ( $active_tab == 'cache' ) {
+				} elseif ( 'cache' === $active_tab ) {
 					$this->render_tab_cache();
-				} elseif ( $active_tab == 'geo-insights' ) {
+				} elseif ( 'geo-insights' === $active_tab ) {
 					$this->render_geo_insights_page();
 				}
 				?>
@@ -105,8 +111,6 @@ Optional details go here
 
 	/**
 	 * Renders the admin page
-	 *
-	 * @param Md4Ai_Admin $instance
 	 */
 	public function render_admin_page() {
 		// Handle action cache clear request
@@ -205,10 +209,6 @@ Optional details go here
 
 	/**
 	 * Renders the dashboard page
-	 *
-	 * @param Md4AI_Admin $instance
-	 *
-	 * @return void
 	 */
 	private function render_tab_dashboard() {
 		$options   = get_option( MD4AI_OPTION );
@@ -250,7 +250,7 @@ Optional details go here
 	 *
 	 * @return array The stats
 	 */
-	public static function prepare_dashboard_stats( $analytics ) {
+	public static function prepare_dashboard_stats( array $analytics ): array {
 		$stats = array(
 			'total_requests'  => 0,
 			'unique_crawlers' => 0,
@@ -301,13 +301,13 @@ Optional details go here
 				}
 
 				// Today requests
-				if ( $actual_date === gmdate( 'Y-m-d' ) ) {
+				if ( gmdate( 'Y-m-d' ) === $actual_date ) {
 					++$stats['today_requests'];
 				}
 
 				// Unique Crawler
 				$crawler = $request['user_agent'];
-				if ( ! in_array( $crawler, $unique_crawlers ) ) {
+				if ( ! in_array( $crawler, $unique_crawlers, true ) ) {
 					$unique_crawlers[] = $crawler;
 				}
 
@@ -319,7 +319,7 @@ Optional details go here
 
 				// Uniques posts
 				$post_id = $request['post_id'];
-				if ( ! in_array( $post_id, $all_posts ) ) {
+				if ( ! in_array( $post_id, $all_posts, true ) ) {
 					$all_posts[] = $post_id;
 				}
 
@@ -335,8 +335,8 @@ Optional details go here
 
 				// Recent activity
 				$recent[] = $request;
-			}
-		}
+			}//end foreach
+		}//end foreach
 
 		// Stats
 		$stats['unique_crawlers'] = count( $unique_crawlers );
@@ -347,7 +347,8 @@ Optional details go here
 		$stats['chart_data']['requests_per_day'] = array_values( $last_7_days );
 
 		// Top 10 crawlers
-		$final_crawler_counts = array(); // Use a different variable name to avoid confusion
+		$final_crawler_counts = array();
+		// Use a different variable name to avoid confusion
 		foreach ( $analytics as $week_date => $requests ) {
 			if ( ! is_array( $requests ) ) {
 				continue;
@@ -385,7 +386,7 @@ Optional details go here
 			);
 		}
 
-		// Last 10 activity
+		// Last 10 activities
 		usort(
 			$recent,
 			function ( $a, $b ) {
@@ -399,10 +400,6 @@ Optional details go here
 
 	/**
 	 * Renders the llms.txt page
-	 *
-	 * @param Md4AI_Admin $instance
-	 *
-	 * @return void
 	 */
 	public function render_tab_llms_txt() {
 		$options = get_option( MD4AI_OPTION );
@@ -419,10 +416,6 @@ Optional details go here
 
 	/**
 	 * Renders the cache page
-	 *
-	 * @param Md4AI_Admin $instance
-	 *
-	 * @return void
 	 */
 	public function render_tab_cache() {
 		$stats = $this->cache->get_statistics();
@@ -431,16 +424,12 @@ Optional details go here
 
 	/**
 	 * Renders the geo insights page
-	 *
-	 * @param Md4AI_Admin $instance
-	 *
-	 * @return void
 	 */
 	public function render_geo_insights_page() {
 		// 1. Logic: Check if WooCommerce is active
 		$is_woo_active = class_exists( 'WooCommerce' );
 
-		// 2. Get theme screenshot for preview
+		// 2. Get WordPress theme screenshot for preview
 		$theme            = wp_get_theme();
 		$theme_screenshot = $theme->get_screenshot();
 		$site_url         = home_url();

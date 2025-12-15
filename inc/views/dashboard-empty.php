@@ -2,6 +2,8 @@
 /**
  * Dashboard Empty State View
  *
+ * @package Md4Ai
+ *
  * @var string $llms_tab_url
  * @var string $geo_tab_url
  * @var string $ai_services_url

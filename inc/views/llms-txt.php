@@ -1,6 +1,8 @@
 <?php
 /**
- * llms.txt View
+ * The llms.txt Page View
+ *
+ * @package Md4Ai
  *
  * @var string $llms_content
  * @var string $llms_url

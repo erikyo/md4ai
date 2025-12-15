@@ -2,6 +2,9 @@
 
 namespace Md4Ai;
 
+/**
+ * Md4Ai_Utils class
+ */
 class Md4Ai_Utils {
 
 	/**
@@ -50,10 +53,10 @@ class Md4Ai_Utils {
 	/**
 	 * Logs a request to the md4ai_requests to the md4ai option in the database
 	 *
-	 * @param int   $ID The ID of the post
+	 * @param int   $id The ID of the post
 	 * @param array $ai_useragents A list of user agents to check against the user agent
 	 */
-	public static function log_request( int $ID, array $ai_useragents ) {
+	public static function log_request( int $id, array $ai_useragents ) {
 
 		$options = get_option( MD4AI_OPTION );
 
@@ -68,7 +71,7 @@ class Md4Ai_Utils {
 		$user_agent_string = self::get_user_agent_string( $ai_useragents );
 
 		$options['requests'][ wp_date( 'Y-m-d', $date ) ][] = array(
-			'post_id'    => $ID,
+			'post_id'    => $id,
 			'user_agent' => $user_agent_string,
 			'timestamp'  => time(),
 		);

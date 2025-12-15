@@ -9,20 +9,31 @@ class Md4Ai_Markdown {
 
 	/**
 	 * Post-meta key for custom Markdown
+	 *
+	 * @var string
 	 */
 	private string $meta_key = '_md4ai_custom_markdown';
 
 	/**
 	 * Cache instance
+	 *
+	 * @var Md4Ai_Cache
 	 */
-	private $cache;
+	private Md4Ai_Cache $cache;
 
-	public function __construct( $cache ) {
+	/**
+	 * Md4Ai_Markdown constructor.
+	 *
+	 * @param Md4Ai_Cache $cache The cache instance
+	 */
+	public function __construct( Md4Ai_Cache $cache ) {
 		$this->cache = $cache;
 	}
 
 	/**
-	 * Get the meta key
+	 * Get the meta-key
+	 *
+	 * @return string
 	 */
 	public function get_meta_key(): string {
 		return $this->meta_key;
@@ -30,6 +41,10 @@ class Md4Ai_Markdown {
 
 	/**
 	 * Gets markdown for a post - checks custom meta first, then generates
+	 *
+	 * @param object $post The post object
+	 *
+	 * @return string The markdown for the post
 	 */
 	public function get_post_markdown( $post ) {
 		/**
@@ -58,16 +73,21 @@ class Md4Ai_Markdown {
 	 * Sanitizes text for Markdown output
 	 *
 	 * @param string $text The text to sanitize
-	 * @return string
+	 *
+	 * @return string The sanitized text
 	 */
-	private function sanitize_text( $text ) {
+	private function sanitize_text( string $text ): string {
 		return html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 	}
 
 	/**
 	 * Basic HTML to Markdown conversion
+	 *
+	 * @param string $html The HTML to convert
+	 *
+	 * @return string The Markdown
 	 */
-	private function html_to_markdown( $html ) {
+	private function html_to_markdown( string $html ): string {
 		// Remove script, style and forms
 		$html = preg_replace( '/<script\b[^>]*>(.*?)<\/script>/is', '', $html );
 		$html = preg_replace( '/<style\b[^>]*>(.*?)<\/style>/is', '', $html );
@@ -123,11 +143,11 @@ class Md4Ai_Markdown {
 	 * Generates website links
 	 *
 	 * @param array  $args The arguments to pass to the function
-	 * @param object $post The post object
+	 * @param object $post The post-object
 	 *
 	 * @return string The generated website links
 	 */
-	public function generate_website_links( $args, $post = false ) {
+	public function generate_website_links( array $args, $post = false ): string {
 		$output = '';
 
 		// Categories and tags
@@ -144,7 +164,7 @@ class Md4Ai_Markdown {
 		}
 
 		// Get header/footer data (cached)
-		if ( $args['include_navigation'] === true ) {
+		if ( true === $args['include_navigation'] ) {
 			$nav_data = $this->cache->get_header_footer_data( array( $this, 'extract_header_footer_links' ) );
 
 			// Add header navigation
@@ -179,8 +199,13 @@ class Md4Ai_Markdown {
 
 	/**
 	 * Converts a WordPress post to Markdown
+	 *
+	 * @param object $post The post object
+	 * @param array  $args The arguments to pass to the function
+	 *
+	 * @return string The Markdown for the post
 	 */
-	public function convert_post_to_markdown( $post, $args = array() ) {
+	public function convert_post_to_markdown( object $post, array $args = array() ): string {
 		$args = wp_parse_args(
 			$args,
 			array(
@@ -215,7 +240,7 @@ class Md4Ai_Markdown {
 			$output .= '**URL:** ' . esc_url( get_permalink( $post ) ) . "\n";
 
 			// Generate meta information based on post type
-			if ( $post_type !== 'product' ) {
+			if ( 'product' !== $post_type ) {
 				$output .= $this->generate_post_meta( $post, $post_type );
 			} else {
 				$output .= $this->generate_product_meta( $post );
@@ -231,7 +256,7 @@ class Md4Ai_Markdown {
 
 			// Convert HTML to Markdown
 			$output .= $this->html_to_markdown( $content ) . "\n\n";
-		}
+		}//end if
 
 		$output .= $this->generate_website_links( $args, $post );
 
@@ -240,8 +265,10 @@ class Md4Ai_Markdown {
 
 	/**
 	 * Extracts links from header and footer
+	 *
+	 * @return array The header and footer links
 	 */
-	public function extract_header_footer_links() {
+	public function extract_header_footer_links(): array {
 		// Start output buffering to capture the header
 		ob_start();
 		get_header();
@@ -260,8 +287,12 @@ class Md4Ai_Markdown {
 
 	/**
 	 * Parses HTML to extract navigation links
+	 *
+	 * @param string $html The HTML to parse
+	 *
+	 * @return array The navigation links
 	 */
-	private function parse_navigation_html( $html, $type = 'header' ) {
+	private function parse_navigation_html( string $html ): array {
 		$links = array();
 
 		// Remove scripts, styles, and forms
@@ -279,7 +310,8 @@ class Md4Ai_Markdown {
 
 			// Skip empty links, anchors, and javascript
 			if ( empty( $text ) || str_starts_with( $url, '#' ) || str_starts_with( $url, 'javascript:' ) ||
-				strlen( $text ) > 100 ) { // Skip very long text (likely not navigation)
+				strlen( $text ) > 100 ) {
+				// Skip very long text (likely not navigation)
 				continue;
 			}
 
@@ -294,7 +326,7 @@ class Md4Ai_Markdown {
 		$seen_urls    = array();
 
 		foreach ( $links as $link ) {
-			if ( ! in_array( $link['url'], $seen_urls ) ) {
+			if ( ! in_array( $link['url'], $seen_urls, true ) ) {
 				$unique_links[] = $link;
 				$seen_urls[]    = $link['url'];
 			}
@@ -306,9 +338,12 @@ class Md4Ai_Markdown {
 	/**
 	 * Formats header/footer links as Markdown
 	 *
+	 * @param array  $links The links to format
+	 * @param string $title The title of the section
+	 *
 	 * @return string The formatted Markdown
 	 */
-	private function format_navigation_markdown( $links, $title ): string {
+	private function format_navigation_markdown( array $links, string $title ): string {
 		if ( empty( $links ) ) {
 			return '';
 		}
@@ -413,7 +448,15 @@ class Md4Ai_Markdown {
 		return $content;
 	}
 
-	private function generate_post_meta( $post, $post_type ) {
+	/**
+	 * Generates post-meta information
+	 *
+	 * @param object $post The post-object
+	 * @param string $post_type The post-type
+	 *
+	 * @return string The post-meta information
+	 */
+	private function generate_post_meta( object $post, string $post_type ): string {
 		$post_id = is_object( $post ) ? $post->ID : (int) $post;
 
 		$output  = 'Date: ' . get_the_date( 'Y-m-d', $post_id ) . "\n";
@@ -453,7 +496,14 @@ class Md4Ai_Markdown {
 		return $output;
 	}
 
-	private function generate_product_meta( $post ) {
+	/**
+	 * Generates product meta-information
+	 *
+	 * @param object $post The post-object
+	 *
+	 * @return string The product meta-information
+	 */
+	private function generate_product_meta( object $post ): string {
 
 		if ( ! function_exists( 'wc_get_product' ) ) {
 			return "WooCommerce not active.\n";
@@ -501,8 +551,7 @@ class Md4Ai_Markdown {
 		}
 
 		// Build YAML-style metadata header
-		$output  = "---\n";
-		$output .= "Type: product\n";
+		$output  = "Type: product\n";
 		$output .= 'Title: ' . $this->sanitize_text( $title ) . "\n";
 		$output .= 'Summary: ' . $this->sanitize_text( $summary ) . "\n";
 		$output .= 'Sku: ' . $this->sanitize_text( $sku ) . "\n";
@@ -530,8 +579,7 @@ class Md4Ai_Markdown {
 			}
 		}
 
-		$output .= "---\n\n"; // end header
-
+		// end header
 		return $output;
 	}
 }

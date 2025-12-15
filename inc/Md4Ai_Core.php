@@ -8,19 +8,28 @@ namespace Md4Ai;
 class Md4Ai_Core {
 
 	/**
+	 * The Md4Ai_Cache instance
+	 *
 	 * @var Md4Ai_Cache
 	 */
 	private Md4Ai_Cache $cache;
 	/**
+	 * The Md4Ai_Markdown instance
+	 *
 	 * @var Md4Ai_Markdown
 	 */
 	private Md4Ai_Markdown $markdown;
 
 	/**
+	 * The options
+	 *
 	 * @var array
 	 */
 	private $options;
 
+	/**
+	 * Md4Ai_Core constructor.
+	 */
 	public function __construct() {
 		$this->options = get_option( MD4AI_OPTION ) ?: array();
 
