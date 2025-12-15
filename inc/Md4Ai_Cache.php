@@ -38,6 +38,8 @@ class Md4Ai_Cache {
 			wp_mkdir_p( $this->cache_dir );
 		}
 
+		// Initialize WP_Filesystem
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		WP_Filesystem();
 		/**
 		 * The WP_Filesystem instance
@@ -104,6 +106,7 @@ class Md4Ai_Cache {
 		$cache_file = $this->get_cache_file_path( $post_id );
 
 		if ( file_exists( $cache_file ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
 			/**
 			 * The WP_Filesystem instance
@@ -127,6 +130,8 @@ class Md4Ai_Cache {
 	 */
 	public function write_to_cache( int $post_id, string $markdown ): bool {
 		$cache_file = $this->get_cache_file_path( $post_id );
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		WP_Filesystem();
 		/**
 		 * The WP_Filesystem instance
@@ -194,6 +199,7 @@ class Md4Ai_Cache {
 		$cache_duration = 86400;
 
 		// Initialize WP_Filesystem
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		WP_Filesystem();
 		/**
 		 * The WP_Filesystem instance
