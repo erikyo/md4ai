@@ -327,7 +327,7 @@ class Md4Ai_Markdown {
 				'text' => $text,
 				'url'  => $url,
 			);
-		}
+		}//end foreach
 
 		// Remove duplicate links (same URL)
 		$unique_links = array();
