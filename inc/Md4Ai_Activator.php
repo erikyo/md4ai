@@ -25,6 +25,8 @@ class Md4Ai_Activator {
 		if ( ! get_option( MD4AI_OPTION ) ) {
 			add_option( MD4AI_OPTION, $options );
 		}
+
+		flush_rewrite_rules();
 	}
 
 	/**
