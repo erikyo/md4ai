@@ -318,11 +318,16 @@ class Md4Ai_Markdown {
 				continue;
 			}
 
+			// Ignore WordPress admin and login links if found
+			if ( strpos( $url, 'wp-admin' ) !== false || strpos( $url, 'wp-login.php' ) !== false ) {
+				continue;
+			}
+
 			$links[] = array(
 				'text' => $text,
 				'url'  => $url,
 			);
-		}
+		}//end foreach
 
 		// Remove duplicate links (same URL)
 		$unique_links = array();
