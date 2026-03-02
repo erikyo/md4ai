@@ -269,6 +269,9 @@ class Md4Ai_Markdown {
 	 * @return array The header and footer links
 	 */
 	public function extract_header_footer_links(): array {
+		// Disable the admin bar temporarily to prevent admin links from leaking
+		add_filter( 'show_admin_bar', '__return_false' );
+
 		// Start output buffering to capture the header
 		ob_start();
 		get_header();
