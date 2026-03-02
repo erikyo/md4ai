@@ -155,6 +155,12 @@ class Md4Ai_Access_Handler {
 		// Add rewrite rule for llms.txt
 		add_action( 'init', array( $this, 'add_llmstxt_rewrite' ) );
 		add_filter( 'query_vars', array( $this, 'add_llmstxt_query_var' ) );
+
+		// Hook into init to bypass caching early
+		add_action( 'init', array( $this, 'bypass_page_caching' ), 1 );
+
+		// Automatically exclude AI bots from FlyingPress caching
+		add_filter( 'flying_press_exclude_user_agents', array( $this, 'exclude_bots_from_flyingpress' ) );
 	}
 
 	/**
@@ -312,6 +318,39 @@ class Md4Ai_Access_Handler {
 	 */
 	public function add_llmstxt_rewrite(): void {
 		add_rewrite_rule( '^llms\.txt$', 'index.php?md4ai_llmstxt=1', 'top' );
+	}
+
+	/**
+	 * Prevent caching plugins from serving HTML cache to AI bots
+	 */
+	public function bypass_page_caching() {
+		if ( $this->is_ai_bot() || get_query_var( 'md4ai_md' ) || get_query_var( 'md4ai_llmstxt' ) ) {
+			// Universal WordPress cache bypass constant (Used by WP Rocket, W3TC, etc.)
+			if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+				define( 'DONOTCACHEPAGE', true );
+			}
+
+			// LiteSpeed Cache specific bypass
+			if ( ! defined( 'LSCACHE_NO_CACHE' ) ) {
+				define( 'LSCACHE_NO_CACHE', true );
+			}
+
+			// Typical dynamic bypass filter for FlyingPress (may vary based on user's mu-plugin)
+			add_filter( 'flying_press_bypass_cache', '__return_true' );
+		}
+	}
+
+	/**
+	 * Tells FlyingPress to bypass the cache for AI bots
+	 * @param array $user_agents Existing array of excluded user agents
+	 * @return array Modified array with AI bots added
+	 */
+	public function exclude_bots_from_flyingpress( $user_agents ): array {
+		if ( ! is_array( $user_agents ) ) {
+			$user_agents = array();
+		}
+		// Merge the FlyingPress excluded agents with your AI bots array
+		return array_merge( $user_agents, $this->ai_bots );
 	}
 
 	/**
@@ -476,7 +515,7 @@ class Md4Ai_Access_Handler {
 			header( 'Content-Type: text/markdown; charset=utf-8' );
 			header( 'X-Robots-Tag: noindex, nofollow' );
 			header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
-			echo esc_textarea( $markdown );
+			echo $markdown;
 		} else {
 			// Serve HTML wrapper
 			header( 'Content-Type: text/html; charset=utf-8' );
