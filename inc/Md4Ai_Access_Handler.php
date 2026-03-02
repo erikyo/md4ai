@@ -325,6 +325,8 @@ class Md4Ai_Access_Handler {
 	 */
 	public function bypass_page_caching() {
 		if ( $this->is_ai_bot() || get_query_var( 'md4ai_md' ) || get_query_var( 'md4ai_llmstxt' ) ) {
+			// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
+
 			// Universal WordPress cache bypass constant (Used by WP Rocket, W3TC, etc.)
 			if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 				define( 'DONOTCACHEPAGE', true );
@@ -334,6 +336,7 @@ class Md4Ai_Access_Handler {
 			if ( ! defined( 'LSCACHE_NO_CACHE' ) ) {
 				define( 'LSCACHE_NO_CACHE', true );
 			}
+			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 
 			// Typical dynamic bypass filter for FlyingPress (may vary based on user's mu-plugin)
 			add_filter( 'flying_press_bypass_cache', '__return_true' );
@@ -342,6 +345,7 @@ class Md4Ai_Access_Handler {
 
 	/**
 	 * Tells FlyingPress to bypass the cache for AI bots
+	 *
 	 * @param array $user_agents Existing array of excluded user agents
 	 * @return array Modified array with AI bots added
 	 */
@@ -515,6 +519,7 @@ class Md4Ai_Access_Handler {
 			header( 'Content-Type: text/markdown; charset=utf-8' );
 			header( 'X-Robots-Tag: noindex, nofollow' );
 			header( 'X-Cache: ' . ( $from_cache ? 'HIT' : 'MISS' ) );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $markdown;
 		} else {
 			// Serve HTML wrapper
