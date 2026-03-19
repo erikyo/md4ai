@@ -43,6 +43,8 @@ export interface Md4aiData {
 	postId: number;
 	aiServiceEnabled: boolean;
 	woo_active: boolean;
+	defaultService?: string;
+	defaultModel?: string;
 	prompts: {
 		[ key: string ]: string;
 	};
