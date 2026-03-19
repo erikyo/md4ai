@@ -115,6 +115,8 @@ class Md4Ai_Admin {
 		$rest_namespace = 'md4ai/v1';
 		// This should ideally be passed from the RestAPI class
 
+		$options = get_option( MD4AI_OPTION );
+
 		wp_localize_script(
 			'md4ai-admin',
 			'md4aiData',
@@ -125,6 +127,8 @@ class Md4Ai_Admin {
 				'aiServiceEnabled' => Md4Ai_Utils::is_ai_service_enabled(),
 				'woo_active'       => Md4Ai_Utils::is_woocommerce_active(),
 				'blogUrl'          => get_home_url(),
+				'defaultService'   => $options['default_service'] ?? '',
+				'defaultModel'     => $options['default_model'] ?? '',
 				'prompts'          => array(
 					'generate-markdown' => 'You are a highly skilled SEO and GEO expert. Review the Markdown content below. Identify the key topics and generate a section of 3-5 relevant Question and Answer (Q&A) pairs to be appended to the end of the article. The Q&A should be in Markdown format, with bold questions. Output only the full, modified page content including the new Q&A section.',
 					'generate-llmstxt'  => 'You are a highly skilled SEO and GEO expert. Check and Enhance the current llms.txt file below to improve the Generative Engine Optimization (GEO) of the site. Output only the llms.txt content.',
