@@ -1,4 +1,4 @@
-# Copyright (C) 2025 md4AI
+# Copyright (C) 2026 md4AI
 # This file is distributed under the GPLv2 or later license.
 msgid ""
 msgstr ""
@@ -8,8 +8,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2025-12-15T11:05:47.978Z\n"
-"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2026-03-17T01:12:50.832Z\n"
+"PO-Revision-Date: 2026-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
 "X-Generator: @wp-blocks/make-pot 1.6.3\n"
