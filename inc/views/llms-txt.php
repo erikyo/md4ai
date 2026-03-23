@@ -13,7 +13,7 @@
 use Md4Ai\Md4Ai_Utils;
 
 ?>
-<div id="cf7a-tab-panel md4ai-llms-txt">
+<div id="cf7a-tab-panel" class="md4ai-llms-txt">
 
 	<div class="md4ai-llms-notice <?php echo $has_content ? 'success' : ''; ?>">
 		<span class="md4ai-llms-notice-icon dashicons <?php echo $has_content ? 'dashicons-yes-alt' : 'dashicons-info'; ?>"></span>

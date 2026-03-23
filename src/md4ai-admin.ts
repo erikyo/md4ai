@@ -274,7 +274,7 @@ export function handleMd4aiButtons() {
 			// Combine the prompt with the fetched markdown
 			const fullPrompt = `${ promptInput.value }\n\nContent to process:\n${ result.markdown }`;
 
-			const generated = await generateAiText( fullPrompt );
+			const generated = await generateAiText( fullPrompt, md4aiData.defaultService, md4aiData.defaultModel );
 
 			// Step 3: Update the textarea with AI-enhanced content
 			updateMarkdown( textarea, generated );

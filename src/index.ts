@@ -5,6 +5,7 @@ import { md4aiMarkdown } from './md4ai-markdown';
 import { md4aiCharts } from './md4ai-charts';
 import { handleMd4aiButtons } from './md4ai-admin';
 import { initGeoInsights } from './md4ai-insights';
+import { initSettings } from './md4ai-settings';
 import './style.scss';
 
 document.addEventListener( 'DOMContentLoaded', () => {
@@ -15,6 +16,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	) {
 		md4aiMarkdown();
 		handleMd4aiButtons();
+	}
+
+	// Settings
+	if ( document.querySelector( '#cf7a-tab-panel.md4ai-settings' ) ) {
+		initSettings();
 	}
 
 	// Charts
