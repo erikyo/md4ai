@@ -132,14 +132,14 @@ Optional details go here
 		// Handle action settings update
 		if ( isset( $_POST['update_settings'] ) && check_admin_referer( 'md4ai_update_settings' ) ) {
 			$options = get_option( MD4AI_OPTION );
-			
+
 			if ( isset( $_POST['md4ai_default_service'] ) ) {
 				$options['default_service'] = sanitize_text_field( wp_unslash( $_POST['md4ai_default_service'] ) );
 			}
 			if ( isset( $_POST['md4ai_default_model'] ) ) {
 				$options['default_model'] = sanitize_text_field( wp_unslash( $_POST['md4ai_default_model'] ) );
 			}
-			
+
 			update_option( MD4AI_OPTION, $options );
 			printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html__( 'Settings updated successfully!', 'md4ai' ) );
 		}
@@ -435,10 +435,10 @@ Optional details go here
 	public function render_tab_settings() {
 		$stats   = $this->cache->get_statistics();
 		$options = get_option( MD4AI_OPTION );
-		
+
 		$default_service = $options['default_service'] ?? '';
 		$default_model   = $options['default_model'] ?? '';
-		
+
 		include __DIR__ . '/views/settings.php';
 	}
 
