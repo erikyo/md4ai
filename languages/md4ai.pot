@@ -2,13 +2,13 @@
 # This file is distributed under the GPLv2 or later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: md4AI 1.2.0\n"
+"Project-Id-Version: md4AI 1.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugins/md4ai\n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"POT-Creation-Date: 2026-03-17T01:12:50.832Z\n"
+"POT-Creation-Date: 2026-03-24T09:29:11.709Z\n"
 "PO-Revision-Date: 2026-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codekraft <erik@codekraft.it>\n"
 "Language-Team: Codekraft <erik@codekraft.it>\n"
@@ -34,6 +34,24 @@ msgstr ""
 #: md4ai.php
 #. Author of the plugin
 msgid "Codekraft"
+msgstr ""
+
+#: src/md4ai-settings.ts:28
+#: src/md4ai-insights.ts:472
+#: inc/views/settings.php:34
+#: inc/views/geo-insights.php:88
+msgid "Select service first"
+msgstr ""
+
+#: src/md4ai-settings.ts:37
+#: src/md4ai-insights.ts:481
+#: inc/views/geo-insights.php:86
+msgid "Select Model"
+msgstr ""
+
+#: src/md4ai-settings.ts:64
+#: src/md4ai-insights.ts:446
+msgid "Select Service"
 msgstr ""
 
 #: src/md4ai-insights.ts:41
@@ -116,20 +134,6 @@ msgstr ""
 
 #: src/md4ai-insights.ts:349
 msgid "View Raw AI Response"
-msgstr ""
-
-#: src/md4ai-insights.ts:446
-msgid "Select Service"
-msgstr ""
-
-#: src/md4ai-insights.ts:472
-#: inc/views/geo-insights.php:88
-msgid "Select service first"
-msgstr ""
-
-#: src/md4ai-insights.ts:481
-#: inc/views/geo-insights.php:86
-msgid "Select Model"
 msgstr ""
 
 #: src/md4ai-insights.ts:546
@@ -290,12 +294,75 @@ msgstr ""
 msgid "llms.txt updated successfully!"
 msgstr ""
 
-#: inc/Md4Ai_Admin_Views.php:133
+#: inc/Md4Ai_Admin_Views.php:144
+msgid "Settings updated successfully!"
+msgstr ""
+
+#: inc/Md4Ai_Admin_Views.php:148
 msgid "Md4AI"
 msgstr ""
 
 #: inc/Md4Ai_Admin.php:73
 msgid "Settings"
+msgstr ""
+
+#: inc/views/settings.php:14
+msgid "AI Service Settings"
+msgstr ""
+
+#: inc/views/settings.php:15
+msgid "Select the default AI service and model to be used by the plugin."
+msgstr ""
+
+#: inc/views/settings.php:23
+msgid "Default Service"
+msgstr ""
+
+#: inc/views/settings.php:26
+#: inc/views/geo-insights.php:82
+msgid "Loading services..."
+msgstr ""
+
+#: inc/views/settings.php:31
+msgid "Default Model"
+msgstr ""
+
+#: inc/views/settings.php:41
+msgid "Save Settings"
+msgstr ""
+
+#: inc/views/settings.php:47
+msgid "Cache Statistics"
+msgstr ""
+
+#: inc/views/settings.php:48
+msgid "Cached Files:"
+msgstr ""
+
+#: inc/views/settings.php:49
+msgid "Total Size:"
+msgstr ""
+
+#: inc/views/settings.php:50
+msgid "Cache Directory:"
+msgstr ""
+
+#: inc/views/settings.php:54
+msgid "Clear Cache"
+msgstr ""
+
+#: inc/views/settings.php:55
+msgid ""
+"Clear all cached Markdown files. This will force regeneration on the next "
+"AI bot visit."
+msgstr ""
+
+#: inc/views/settings.php:59
+msgid "Clear All Cache"
+msgstr ""
+
+#: inc/views/settings.php:60
+msgid "Are you sure you want to clear all cached files?"
 msgstr ""
 
 #: inc/views/llms-txt.php:22
@@ -362,10 +429,6 @@ msgstr ""
 
 #: inc/views/geo-insights.php:80
 msgid "Select AI Service"
-msgstr ""
-
-#: inc/views/geo-insights.php:82
-msgid "Loading services..."
 msgstr ""
 
 #: inc/views/geo-insights.php:97
@@ -684,38 +747,4 @@ msgstr ""
 
 #: inc/views/dashboard-empty.php:155
 msgid "Requires AI Services plugin"
-msgstr ""
-
-#: inc/views/cache.php:12
-msgid "Cache Statistics"
-msgstr ""
-
-#: inc/views/cache.php:13
-msgid "Cached Files:"
-msgstr ""
-
-#: inc/views/cache.php:14
-msgid "Total Size:"
-msgstr ""
-
-#: inc/views/cache.php:15
-msgid "Cache Directory:"
-msgstr ""
-
-#: inc/views/cache.php:19
-msgid "Clear Cache"
-msgstr ""
-
-#: inc/views/cache.php:20
-msgid ""
-"Clear all cached Markdown files. This will force regeneration on the next "
-"AI bot visit."
-msgstr ""
-
-#: inc/views/cache.php:24
-msgid "Clear All Cache"
-msgstr ""
-
-#: inc/views/cache.php:25
-msgid "Are you sure you want to clear all cached files?"
 msgstr ""
